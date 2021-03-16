@@ -1,0 +1,45 @@
+[package]
+name = "clickhouse-postgres-client"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+description = "ClickHouse Postgres Client"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/clickhouse-rs"
+homepage = "https://github.com/bk-rs/clickhouse-rs"
+documentation = "https://docs.rs/clickhouse-postgres-client"
+keywords = []
+categories = []
+readme = "README.md"
+
+[package.metadata.docs.rs]
+features = [ "all-types", "runtime-tokio-native-tls" ]
+
+[features]
+default = []
+
+# types
+all-types = [ "chrono", "bigdecimal", "uuid" ]
+chrono = [ "sqlx-clickhouse-ext/chrono" ]
+bigdecimal = [ "sqlx-clickhouse-ext/bigdecimal" ]
+uuid = [ "sqlx-clickhouse-ext/uuid" ]
+
+# runtimes
+runtime-actix-native-tls = [ "sqlx-clickhouse-ext/runtime-actix-native-tls" ]
+runtime-async-std-native-tls = [ "sqlx-clickhouse-ext/runtime-async-std-native-tls" ]
+runtime-tokio-native-tls = [ "sqlx-clickhouse-ext/runtime-tokio-native-tls" ]
+
+runtime-actix-rustls = [ "sqlx-clickhouse-ext/runtime-actix-rustls" ]
+runtime-async-std-rustls = [ "sqlx-clickhouse-ext/runtime-async-std-rustls" ]
+runtime-tokio-rustls = [ "sqlx-clickhouse-ext/runtime-tokio-rustls" ]
+
+#
+_integration_tests = [ "all-types", "runtime-tokio-native-tls" ]
+
+[dependencies]
+sqlx-clickhouse-ext = { path = "../sqlx-clickhouse-ext", version = "0.1", default-features = false, features = [ "postgres" ] }
+url = { version = "2.1", default-features = false }
+
+[dev-dependencies]
+tokio = { version = "1.2", features = ["macros", "rt"]}
+chrono04 = { version = "0.4", package = "chrono" }

@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "clickhouse_postgres_client_demos/tokio",
+    "clickhouse-postgres-client",
+    "sqlx-clickhouse-ext",
+]

@@ -1,0 +1,18 @@
+[package]
+name = "clickhouse-postgres-client-demo-tokio"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "conn"
+path = "src/conn.rs"
+
+[[bin]]
+name = "pool"
+path = "src/pool.rs"
+
+[dependencies]
+clickhouse-postgres-client = { path = "../../clickhouse-postgres-client", version = "0.1", features = ["all-types", "runtime-tokio-native-tls"] }
+
+tokio = { version = "1.0", default-features = false, features = ["macros"] }
