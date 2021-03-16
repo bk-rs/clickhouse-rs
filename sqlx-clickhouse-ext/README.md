@@ -12,3 +12,7 @@ cargo fmt -p sqlx-clickhouse-ext -- --check
 
 cargo test -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls -- --nocapture
 ```
+
+```
+cargo publish --features runtime-tokio-native-tls --dry-run
+```

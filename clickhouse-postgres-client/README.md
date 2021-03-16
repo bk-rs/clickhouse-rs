@@ -12,3 +12,7 @@ cargo fmt -p clickhouse-postgres-client -- --check
 
 cargo test -p clickhouse-postgres-client --features all-types,runtime-tokio-native-tls -- --nocapture
 ```
+
+```
+cargo publish --features runtime-tokio-native-tls --dry-run
+```
