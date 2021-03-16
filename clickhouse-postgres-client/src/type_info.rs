@@ -1,4 +1,3 @@
-use core::f32;
 use std::convert::TryFrom;
 
 use sqlx_clickhouse_ext::sqlx_core::error::Error;
