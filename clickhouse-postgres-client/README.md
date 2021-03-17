@@ -10,7 +10,7 @@ cargo +nightly clippy -p clickhouse-postgres-client --features _integration_test
 
 cargo fmt -p clickhouse-postgres-client -- --check
 
-cargo test -p clickhouse-postgres-client --features all-types,runtime-tokio-native-tls -- --nocapture
+cargo test -p clickhouse-postgres-client --features all-types,runtime-tokio-native-tls,num-bigint -- --nocapture
 ```
 
 ```

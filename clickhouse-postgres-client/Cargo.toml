@@ -13,7 +13,7 @@ categories = []
 readme = "README.md"
 
 [package.metadata.docs.rs]
-features = [ "all-types", "runtime-tokio-native-tls" ]
+features = [ "all-types", "runtime-tokio-native-tls", "num-bigint" ]
 
 [features]
 default = []
@@ -34,11 +34,13 @@ runtime-async-std-rustls = [ "sqlx-clickhouse-ext/runtime-async-std-rustls" ]
 runtime-tokio-rustls = [ "sqlx-clickhouse-ext/runtime-tokio-rustls" ]
 
 #
-_integration_tests = [ "all-types", "runtime-tokio-native-tls" ]
+_integration_tests = [ "all-types", "runtime-tokio-native-tls", "num-bigint" ]
 
 [dependencies]
 sqlx-clickhouse-ext = { path = "../sqlx-clickhouse-ext", version = "0.1", default-features = false, features = [ "postgres" ] }
 url = { version = "2.1", default-features = false }
+
+num-bigint = { version = "0.4", default-features = false, optional = true, features = [ "std" ] }
 
 [dev-dependencies]
 tokio = { version = "1.2", features = ["macros", "rt"]}

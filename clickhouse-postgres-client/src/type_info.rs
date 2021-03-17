@@ -1,5 +1,7 @@
 use std::{convert::TryFrom, num::ParseIntError};
 
+#[cfg(feature = "num-bigint")]
+use num_bigint::{BigInt, BigUint, ParseBigIntError};
 use sqlx_clickhouse_ext::sqlx_core::error::Error;
 #[cfg(feature = "chrono")]
 use sqlx_clickhouse_ext::sqlx_core::types::chrono::NaiveDate;
@@ -232,6 +234,20 @@ impl ClickhousePgValue {
             _ => None,
         }
     }
+    #[cfg(feature = "num-bigint")]
+    pub fn as_big_int(&self) -> Option<Result<BigInt, ParseBigIntError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => None,
+        }
+    }
+    #[cfg(feature = "num-bigint")]
+    pub fn as_big_uint(&self) -> Option<Result<BigUint, ParseBigIntError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => None,
+        }
+    }
     pub fn as_f32(&self) -> Option<f32> {
         match *self {
             Self::F32(v) => Some(v),
@@ -241,6 +257,33 @@ impl ClickhousePgValue {
     pub fn as_f64(&self) -> Option<f64> {
         match *self {
             Self::F64(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_str(&self) -> Option<&str> {
+        match *self {
+            Self::String(ref v) => Some(v),
+            _ => None,
+        }
+    }
+    #[cfg(feature = "chrono")]
+    pub fn as_naive_date(&self) -> Option<&NaiveDate> {
+        match *self {
+            Self::NaiveDate(ref v) => Some(v),
+            _ => None,
+        }
+    }
+    #[cfg(feature = "bigdecimal")]
+    pub fn as_big_decimal(&self) -> Option<&BigDecimal> {
+        match *self {
+            Self::BigDecimal(ref v) => Some(v),
+            _ => None,
+        }
+    }
+    #[cfg(feature = "uuid")]
+    pub fn as_uuid(&self) -> Option<&Uuid> {
+        match *self {
+            Self::Uuid(ref v) => Some(v),
             _ => None,
         }
     }
@@ -330,6 +373,51 @@ mod tests {
             Some(Ok(u128::MAX))
         );
     }
+    #[cfg(feature = "num-bigint")]
+    #[test]
+    fn test_as_big_int() {
+        assert_eq!(
+            ClickhousePgValue::from(
+                "-57896044618658097711785492504343953926634992332820282019728792003956564819968"
+            )
+            .as_big_int(),
+            Some(Ok(BigInt::parse_bytes(
+                b"-57896044618658097711785492504343953926634992332820282019728792003956564819968",
+                10
+            )
+            .unwrap()))
+        );
+        assert_eq!(
+            ClickhousePgValue::from(
+                "57896044618658097711785492504343953926634992332820282019728792003956564819967"
+            )
+            .as_big_int(),
+            Some(Ok(BigInt::parse_bytes(
+                b"57896044618658097711785492504343953926634992332820282019728792003956564819967",
+                10
+            )
+            .unwrap()))
+        );
+    }
+    #[cfg(feature = "num-bigint")]
+    #[test]
+    fn test_as_big_uint() {
+        assert_eq!(
+            ClickhousePgValue::from("0").as_big_uint(),
+            Some(Ok(BigUint::parse_bytes(b"0", 10).unwrap()))
+        );
+        assert_eq!(
+            ClickhousePgValue::from(
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            )
+            .as_big_uint(),
+            Some(Ok(BigUint::parse_bytes(
+                b"115792089237316195423570985008687907853269984665640564039457584007913129639935",
+                10
+            )
+            .unwrap()))
+        );
+    }
     #[test]
     fn test_as_f32() {
         assert_eq!(ClickhousePgValue::from(f32::MIN).as_f32(), Some(f32::MIN));
@@ -339,5 +427,34 @@ mod tests {
     fn test_as_f64() {
         assert_eq!(ClickhousePgValue::from(f64::MIN).as_f64(), Some(f64::MIN));
         assert_eq!(ClickhousePgValue::from(f64::MAX).as_f64(), Some(f64::MAX));
+    }
+    #[test]
+    fn test_as_str() {
+        assert_eq!(ClickhousePgValue::from("foo").as_str(), Some("foo"));
+    }
+
+    #[cfg(feature = "chrono")]
+    #[test]
+    fn test_as_naive_date() {
+        let naive_date = NaiveDate::from_ymd(2021, 1, 1);
+        assert_eq!(
+            ClickhousePgValue::from(naive_date).as_naive_date(),
+            Some(&NaiveDate::from_ymd(2021, 1, 1))
+        );
+    }
+    #[cfg(feature = "bigdecimal")]
+    #[test]
+    fn test_as_big_decimal() {
+        let big_decimal = BigDecimal::parse_bytes(b"1.1", 10).unwrap();
+        assert_eq!(
+            ClickhousePgValue::from(big_decimal.clone()).as_big_decimal(),
+            Some(&big_decimal)
+        );
+    }
+    #[cfg(feature = "uuid")]
+    #[test]
+    fn test_as_uuid() {
+        let uuid = Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap();
+        assert_eq!(ClickhousePgValue::from(uuid).as_uuid(), Some(&uuid));
     }
 }
