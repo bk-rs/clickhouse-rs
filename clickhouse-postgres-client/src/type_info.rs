@@ -1,4 +1,8 @@
-use std::{convert::TryFrom, num::ParseIntError};
+use std::{
+    convert::TryFrom,
+    net::{AddrParseError, Ipv4Addr},
+    num::ParseIntError,
+};
 
 #[cfg(feature = "chrono")]
 use chrono04::{format::ParseError as ChronoParseError, NaiveDateTime};
@@ -303,6 +307,13 @@ impl ClickhousePgValue {
             _ => None,
         }
     }
+
+    pub fn as_ipv4_addr(&self) -> Option<Result<Ipv4Addr, AddrParseError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => self.as_u32().and_then(|v| Some(Ok(v.into()))),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -503,6 +514,19 @@ mod tests {
             Some(Ok(
                 NaiveDate::from_ymd(2021, 1, 1).and_hms_nano(0, 0, 0, 123456789)
             ))
+        );
+    }
+
+    #[test]
+    fn test_as_ipv4_addr() {
+        assert_eq!(
+            ClickhousePgValue::from("127.0.0.1").as_ipv4_addr(),
+            Some(Ok(Ipv4Addr::new(127, 0, 0, 1)))
+        );
+
+        assert_eq!(
+            ClickhousePgValue::from(u32::from(Ipv4Addr::new(127, 0, 0, 1))).as_ipv4_addr(),
+            Some(Ok(Ipv4Addr::new(127, 0, 0, 1)))
         );
     }
 }
