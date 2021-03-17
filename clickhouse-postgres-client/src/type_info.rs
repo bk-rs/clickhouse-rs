@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, num::ParseIntError};
 
 use sqlx_clickhouse_ext::sqlx_core::error::Error;
 #[cfg(feature = "chrono")]
@@ -157,5 +157,187 @@ impl From<BigDecimal> for ClickhousePgValue {
 impl From<Uuid> for ClickhousePgValue {
     fn from(val: Uuid) -> Self {
         Self::Uuid(val)
+    }
+}
+
+impl ClickhousePgValue {
+    pub fn as_bool(&self) -> Option<bool> {
+        match *self {
+            Self::Char(v) if v == '1' as i8 => Some(true),
+            Self::Char(v) if v == '0' as i8 => Some(false),
+            _ => self.as_u8().and_then(|v| match v {
+                1 => Some(true),
+                0 => Some(false),
+                _ => None,
+            }),
+        }
+    }
+    pub fn as_char(&self) -> Option<i8> {
+        match *self {
+            Self::Char(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_u8(&self) -> Option<u8> {
+        match *self {
+            Self::I16(v) if (u8::MIN as i16..=u8::MAX as i16).contains(&v) => Some(v as u8),
+            _ => None,
+        }
+    }
+    pub fn as_i16(&self) -> Option<i16> {
+        match *self {
+            Self::I16(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_u16(&self) -> Option<u16> {
+        match *self {
+            Self::I32(v) if (u16::MIN as i32..=u16::MAX as i32).contains(&v) => Some(v as u16),
+            _ => None,
+        }
+    }
+    pub fn as_i32(&self) -> Option<i32> {
+        match *self {
+            Self::I32(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_u32(&self) -> Option<u32> {
+        match *self {
+            Self::I64(v) if (u32::MIN as i64..=u32::MAX as i64).contains(&v) => Some(v as u32),
+            _ => None,
+        }
+    }
+    pub fn as_i64(&self) -> Option<i64> {
+        match *self {
+            Self::I64(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_u64(&self) -> Option<Result<u64, ParseIntError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => None,
+        }
+    }
+    pub fn as_i128(&self) -> Option<Result<i128, ParseIntError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => None,
+        }
+    }
+    pub fn as_u128(&self) -> Option<Result<u128, ParseIntError>> {
+        match *self {
+            Self::String(ref v) => Some(v.parse()),
+            _ => None,
+        }
+    }
+    pub fn as_f32(&self) -> Option<f32> {
+        match *self {
+            Self::F32(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub fn as_f64(&self) -> Option<f64> {
+        match *self {
+            Self::F64(v) => Some(v),
+            _ => None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_as_bool() {
+        assert_eq!(ClickhousePgValue::from('0' as i8).as_bool(), Some(false));
+        assert_eq!(ClickhousePgValue::from('1' as i8).as_bool(), Some(true));
+        assert_eq!(ClickhousePgValue::from('2' as i8).as_bool(), None);
+
+        assert_eq!(ClickhousePgValue::from(0_u8).as_bool(), Some(false));
+        assert_eq!(ClickhousePgValue::from(1_u8).as_bool(), Some(true));
+        assert_eq!(ClickhousePgValue::from(2_u8).as_bool(), None);
+    }
+    #[test]
+    fn test_as_char() {
+        assert_eq!(
+            ClickhousePgValue::from('3' as i8).as_char(),
+            Some('3' as i8)
+        );
+    }
+    #[test]
+    fn test_as_u8() {
+        assert_eq!(ClickhousePgValue::from(u8::MIN).as_u8(), Some(u8::MIN));
+        assert_eq!(ClickhousePgValue::from(u8::MAX).as_u8(), Some(u8::MAX));
+    }
+    #[test]
+    fn test_as_i16() {
+        assert_eq!(ClickhousePgValue::from(i16::MIN).as_i16(), Some(i16::MIN));
+        assert_eq!(ClickhousePgValue::from(i16::MAX).as_i16(), Some(i16::MAX));
+    }
+    #[test]
+    fn test_as_u16() {
+        assert_eq!(ClickhousePgValue::from(u16::MIN).as_u16(), Some(u16::MIN));
+        assert_eq!(ClickhousePgValue::from(u16::MAX).as_u16(), Some(u16::MAX));
+    }
+    #[test]
+    fn test_as_i32() {
+        assert_eq!(ClickhousePgValue::from(i32::MIN).as_i32(), Some(i32::MIN));
+        assert_eq!(ClickhousePgValue::from(i32::MAX).as_i32(), Some(i32::MAX));
+    }
+    #[test]
+    fn test_as_u32() {
+        assert_eq!(ClickhousePgValue::from(u32::MIN).as_u32(), Some(u32::MIN));
+        assert_eq!(ClickhousePgValue::from(u32::MAX).as_u32(), Some(u32::MAX));
+    }
+    #[test]
+    fn test_as_i64() {
+        assert_eq!(ClickhousePgValue::from(i64::MIN).as_i64(), Some(i64::MIN));
+        assert_eq!(ClickhousePgValue::from(i64::MAX).as_i64(), Some(i64::MAX));
+    }
+    #[test]
+    fn test_as_u64() {
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", u64::MIN)).as_u64(),
+            Some(Ok(u64::MIN))
+        );
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", u64::MAX)).as_u64(),
+            Some(Ok(u64::MAX))
+        );
+    }
+    #[test]
+    fn test_as_i128() {
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", i128::MIN)).as_i128(),
+            Some(Ok(i128::MIN))
+        );
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", i128::MAX)).as_i128(),
+            Some(Ok(i128::MAX))
+        );
+    }
+    #[test]
+    fn test_as_u128() {
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", u128::MIN)).as_u128(),
+            Some(Ok(u128::MIN))
+        );
+        assert_eq!(
+            ClickhousePgValue::from(format!("{}", u128::MAX)).as_u128(),
+            Some(Ok(u128::MAX))
+        );
+    }
+    #[test]
+    fn test_as_f32() {
+        assert_eq!(ClickhousePgValue::from(f32::MIN).as_f32(), Some(f32::MIN));
+        assert_eq!(ClickhousePgValue::from(f32::MAX).as_f32(), Some(f32::MAX));
+    }
+    #[test]
+    fn test_as_f64() {
+        assert_eq!(ClickhousePgValue::from(f64::MIN).as_f64(), Some(f64::MIN));
+        assert_eq!(ClickhousePgValue::from(f64::MAX).as_f64(), Some(f64::MAX));
     }
 }
