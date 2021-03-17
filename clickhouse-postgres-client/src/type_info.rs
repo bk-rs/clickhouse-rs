@@ -311,7 +311,7 @@ impl ClickhousePgValue {
     pub fn as_ipv4_addr(&self) -> Option<Result<Ipv4Addr, AddrParseError>> {
         match *self {
             Self::String(ref v) => Some(v.parse()),
-            _ => self.as_u32().and_then(|v| Some(Ok(v.into()))),
+            _ => self.as_u32().map(|v| Ok(v.into())),
         }
     }
 }
