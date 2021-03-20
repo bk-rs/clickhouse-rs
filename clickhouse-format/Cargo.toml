@@ -1,0 +1,15 @@
+[package]
+name = "clickhouse-format"
+version = "0.0.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2018"
+description = "ClickHouse Formats"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/clickhouse-rs"
+homepage = "https://github.com/bk-rs/clickhouse-rs"
+documentation = "https://docs.rs/clickhouse-format"
+keywords = []
+categories = []
+readme = "README.md"
+
+[dependencies]
