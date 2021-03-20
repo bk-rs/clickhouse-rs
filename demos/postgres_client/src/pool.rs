@@ -1,5 +1,5 @@
 /*
-cargo run -p clickhouse-postgres-client-demo-tokio --bin pool postgres://default:xxx@127.0.0.1:9005
+cargo run -p clickhouse-demo-postgres-client --bin pool postgres://default:xxx@127.0.0.1:9005
 */
 
 use std::{env, error};

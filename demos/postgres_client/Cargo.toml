@@ -1,5 +1,5 @@
 [package]
-name = "clickhouse-postgres-client-demo-tokio"
+name = "clickhouse-demo-postgres-client"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2018"

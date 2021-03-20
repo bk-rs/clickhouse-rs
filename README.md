@@ -1,4 +1,4 @@
 ## Examples
 
-* [ClickHouse Postgres Client - Connection](clickhouse_postgres_client_demos/tokio/src/conn.rs)
-* [ClickHouse Postgres Client - Pool](clickhouse_postgres_client_demos/tokio/src/pool.rs)
+* [ClickHouse Postgres Client - Connection](demos/postgres_client/src/conn.rs)
+* [ClickHouse Postgres Client - Pool](demos/postgres_client/src/pool.rs)
