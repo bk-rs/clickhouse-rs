@@ -1,0 +1,1 @@
+INSERT INTO t_null VALUES (1, NULL)

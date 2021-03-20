@@ -1,3 +1,3 @@
 SELECT
-    toDecimal32(2, 4) AS val,
+    toDecimal32(toString(-1.111), 5) AS val,
     toTypeName(val) AS ty

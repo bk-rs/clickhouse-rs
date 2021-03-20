@@ -1,4 +1,3 @@
 SELECT
-    p AS val, 
+    toNullable(10) AS val,
     toTypeName(val) AS ty
-FROM t_geo_point
