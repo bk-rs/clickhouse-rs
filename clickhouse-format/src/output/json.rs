@@ -73,29 +73,12 @@ pub struct JSONDataInfo {
 }
 
 #[cfg(test)]
-#[derive(Deserialize, Debug, Clone)]
-pub(super) struct TestRow {
-    pub(super) array1: Vec<usize>,
-    pub(super) array2: Vec<String>,
-    pub(super) tuple1: (usize, String),
-    pub(super) tuple2: (usize, Option<String>),
-    pub(super) map1: HashMap<String, String>,
-}
-#[cfg(test)]
-#[derive(Deserialize, Debug, Clone)]
-pub(super) struct TestStringsRow {
-    pub(super) array1: String,
-    pub(super) array2: String,
-    pub(super) tuple1: String,
-    pub(super) tuple2: String,
-    pub(super) map1: String,
-}
-
-#[cfg(test)]
 mod tests {
     use super::*;
 
     use std::{error, fs, path::PathBuf};
+
+    use crate::output::test_helpers::TestRow;
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {

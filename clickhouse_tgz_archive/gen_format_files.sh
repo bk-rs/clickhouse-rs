@@ -104,9 +104,10 @@ for format in ${formats[*]}; do
     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx > "${files_dir}${format}.tsv")
 done
 
-formats=("CSV" "CSVWithNames")
-for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx > "${files_dir}${format}.csv")
-done
+# SKIP, because don't support tuple
+# formats=("CSV" "CSVWithNames")
+# for format in ${formats[*]}; do
+#     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --password xxx > "${files_dir}${format}.csv")
+# done
 
 sleep 1

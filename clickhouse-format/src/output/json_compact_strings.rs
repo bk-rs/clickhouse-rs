@@ -64,7 +64,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use super::super::json::TestStringsRow;
+    use crate::output::test_helpers::TestStringsRow;
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
