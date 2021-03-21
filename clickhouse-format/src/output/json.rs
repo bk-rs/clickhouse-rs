@@ -1,7 +1,7 @@
-use std::marker::PhantomData;
+use std::{collections::HashMap, marker::PhantomData};
 
 use serde::{de::DeserializeOwned, Deserialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 
 use super::Output;
 
@@ -15,12 +15,13 @@ impl<T> JSONOutput<T> {
         }
     }
 }
+pub type GeneralJSONOutput = JSONOutput<HashMap<String, Value>>;
 
 impl<T> Output for JSONOutput<T>
 where
     T: DeserializeOwned,
 {
-    type Value = Data<T>;
+    type Value = BaseData<T>;
 
     type Error = serde_json::Error;
 
@@ -28,9 +29,6 @@ where
         serde_json::from_slice(slice)
     }
 }
-
-pub type Data<T> = BaseData<T>;
-pub type GeneralData = Data<Map<String, Value>>;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct BaseData<T>
@@ -58,7 +56,7 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSON.json"))?;
 
-        let data: GeneralData = JSONOutput::new().deserialize(&content.as_bytes()[..])?;
+        let data = GeneralJSONOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(data.data.first().unwrap().get("'hello'").unwrap(), "hello");
 
         #[derive(Deserialize, Debug, Clone)]
@@ -70,7 +68,7 @@ mod tests {
             #[serde(rename = "range(5)")]
             range: Vec<usize>,
         }
-        let data: Data<Foo> = JSONOutput::new().deserialize(&content.as_bytes()[..])?;
+        let data = JSONOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(data.data.first().unwrap().hello, "hello");
 
         Ok(())

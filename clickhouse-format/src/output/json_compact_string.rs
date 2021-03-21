@@ -15,17 +15,18 @@ impl<T> JSONCompactStringOutput<T> {
         }
     }
 }
+pub type GeneralJSONCompactStringOutput = JSONCompactStringOutput<HashMap<String, String>>;
 
 impl<T> Output for JSONCompactStringOutput<T>
 where
     T: DeserializeOwned,
 {
-    type Value = Data<T>;
+    type Value = BaseData<T>;
 
     type Error = serde_json::Error;
 
     fn deserialize(&self, slice: &[u8]) -> Result<Self::Value, Self::Error> {
-        let data_tmp: Data<Vec<String>> = serde_json::from_slice(slice)?;
+        let data_tmp: BaseData<Vec<String>> = serde_json::from_slice(slice)?;
 
         let keys: Vec<_> = data_tmp.meta.iter().map(|x| x.name.to_owned()).collect();
         let mut data: Vec<T> = vec![];
@@ -38,7 +39,7 @@ where
             data.push(serde_json::from_value(Value::Object(map))?);
         }
 
-        Ok(Data::<T> {
+        Ok(BaseData {
             meta: data_tmp.meta,
             data: data,
             rows: data_tmp.rows,
@@ -46,9 +47,6 @@ where
         })
     }
 }
-
-pub type Data<T> = BaseData<T>;
-pub type GeneralData = Data<HashMap<String, String>>;
 
 #[cfg(test)]
 mod tests {
@@ -63,8 +61,7 @@ mod tests {
         let content =
             fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactString.json"))?;
 
-        let data: GeneralData =
-            JSONCompactStringOutput::new().deserialize(&content.as_bytes()[..])?;
+        let data = GeneralJSONCompactStringOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(data.data.first().unwrap().get("'hello'").unwrap(), "hello");
 
         #[derive(Deserialize, Debug, Clone)]
@@ -76,8 +73,7 @@ mod tests {
             #[serde(rename = "range(5)")]
             range: String,
         }
-        let data: Data<Foo> =
-            JSONCompactStringOutput::new().deserialize(&content.as_bytes()[..])?;
+        let data = JSONCompactStringOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(data.data.first().unwrap().hello, "hello");
 
         Ok(())
