@@ -30,11 +30,15 @@ where
     type Error = serde_json::Error;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
-        let data_tmp: JSONData<Vec<Value>> = serde_json::from_slice(slice)?;
+        let json_data_tmp: JSONData<Vec<Value>> = serde_json::from_slice(slice)?;
 
-        let keys: Vec<_> = data_tmp.meta.iter().map(|x| x.name.to_owned()).collect();
+        let keys: Vec<_> = json_data_tmp
+            .meta
+            .iter()
+            .map(|x| x.name.to_owned())
+            .collect();
         let mut data: Vec<T> = vec![];
-        for values in data_tmp.data.into_iter() {
+        for values in json_data_tmp.data.into_iter() {
             let map: Map<_, _> = keys
                 .iter()
                 .zip(values)
@@ -46,9 +50,9 @@ where
         Ok((
             data,
             JSONDataInfo {
-                meta: data_tmp.meta,
-                rows: data_tmp.rows,
-                rows_before_limit_at_least: data_tmp.rows_before_limit_at_least,
+                meta: json_data_tmp.meta,
+                rows: json_data_tmp.rows,
+                rows_before_limit_at_least: json_data_tmp.rows_before_limit_at_least,
             },
         ))
     }
