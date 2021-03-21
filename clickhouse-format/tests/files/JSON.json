@@ -48,7 +48,7 @@
     ],
     "rows": 1,
     "statistics": {
-        "elapsed": 0.000355332,
+        "elapsed": 0.000274808,
         "rows_read": 1,
         "bytes_read": 1
     }

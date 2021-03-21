@@ -94,8 +94,10 @@ END
 
 files_dir="${script_path_root}../clickhouse-format/tests/files/"
 
-json_formats=("JSON" "JSONCompact")
-for json_format in ${json_formats[*]}; do
-    $(echo ${query} FORMAT ${json_format} | ${bin_client} --allow_experimental_map_type 1 --password xxx | python3 -m json.tool > "${files_dir}${json_format}.json")
+formats=("JSON" "JSONStrings" "JSONCompact" "JSONCompactStrings")
+for format in ${formats[*]}; do
+    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx | python3 -m json.tool > "${files_dir}${format}.json")
 done
+
+
 sleep 1

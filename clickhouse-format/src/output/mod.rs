@@ -4,6 +4,10 @@ pub mod csv;
 pub mod json;
 #[cfg(feature = "with-json")]
 pub mod json_compact;
+#[cfg(feature = "with-json")]
+pub mod json_compact_strings;
+#[cfg(feature = "with-json")]
+pub mod json_strings;
 #[cfg(feature = "with-tsv")]
 pub mod tsv;
 

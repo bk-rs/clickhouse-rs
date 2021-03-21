@@ -81,6 +81,15 @@ pub(super) struct TestRow {
     pub(super) tuple2: (usize, Option<String>),
     pub(super) map1: HashMap<String, String>,
 }
+#[cfg(test)]
+#[derive(Deserialize, Debug, Clone)]
+pub(super) struct TestStringsRow {
+    pub(super) array1: String,
+    pub(super) array2: String,
+    pub(super) tuple1: String,
+    pub(super) tuple2: String,
+    pub(super) map1: String,
+}
 
 #[cfg(test)]
 mod tests {

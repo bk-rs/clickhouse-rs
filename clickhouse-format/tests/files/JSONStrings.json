@@ -22,33 +22,17 @@
         }
     ],
     "data": [
-        [
-            [
-                1,
-                2
-            ],
-            [
-                "a",
-                "b"
-            ],
-            [
-                1,
-                "a"
-            ],
-            [
-                1,
-                null
-            ],
-            {
-                "1": "Ready",
-                "2": "Steady",
-                "3": "Go"
-            }
-        ]
+        {
+            "array1": "[1,2]",
+            "array2": "['a','b']",
+            "tuple1": "(1,'a')",
+            "tuple2": "(1,NULL)",
+            "map1": "{'1':'Ready','2':'Steady','3':'Go'}"
+        }
     ],
     "rows": 1,
     "statistics": {
-        "elapsed": 0.000278015,
+        "elapsed": 0.000229096,
         "rows_read": 1,
         "bytes_read": 1
     }
