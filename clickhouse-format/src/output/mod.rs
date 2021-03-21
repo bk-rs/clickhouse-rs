@@ -17,8 +17,9 @@ pub mod tab_separated {
 }
 
 pub trait Output {
-    type Value;
+    type Row;
+    type Info;
     type Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<Self::Value, Self::Error>;
+    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error>;
 }

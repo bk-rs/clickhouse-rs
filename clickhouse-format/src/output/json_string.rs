@@ -2,7 +2,10 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use serde::de::DeserializeOwned;
 
-use super::{json::BaseData, Output};
+use super::{
+    json::{JSONData, JSONDataInfo},
+    Output,
+};
 
 pub struct JSONStringOutput<T> {
     phantom: PhantomData<T>,
@@ -20,12 +23,27 @@ impl<T> Output for JSONStringOutput<T>
 where
     T: DeserializeOwned,
 {
-    type Value = BaseData<T>;
+    type Row = T;
+    type Info = JSONDataInfo;
 
     type Error = serde_json::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<Self::Value, Self::Error> {
-        serde_json::from_slice(slice)
+    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+        let json_data: JSONData<Self::Row> = serde_json::from_slice(slice)?;
+        let JSONData {
+            meta,
+            data,
+            rows,
+            rows_before_limit_at_least,
+        } = json_data;
+        Ok((
+            data,
+            JSONDataInfo {
+                meta,
+                rows,
+                rows_before_limit_at_least,
+            },
+        ))
     }
 }
 
@@ -41,8 +59,12 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONString.json"))?;
 
-        let data = GeneralJSONStringOutput::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(data.data.first().unwrap().get("'hello'").unwrap(), "hello");
+        let (rows, info) = GeneralJSONStringOutput::new().deserialize(&content.as_bytes()[..])?;
+        assert_eq!(
+            rows.first().unwrap().get("range(5)").unwrap(),
+            "[0,1,2,3,4]"
+        );
+        assert_eq!(info.rows, 3);
 
         #[derive(Deserialize, Debug, Clone)]
         struct Foo {
@@ -53,8 +75,9 @@ mod tests {
             #[serde(rename = "range(5)")]
             range: String,
         }
-        let data = JSONStringOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(data.data.first().unwrap().hello, "hello");
+        let (rows, info) = JSONStringOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
+        assert_eq!(rows.first().unwrap().range, "[0,1,2,3,4]");
+        assert_eq!(info.rows, 3);
 
         Ok(())
     }

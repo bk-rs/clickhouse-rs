@@ -3,7 +3,10 @@ use std::{collections::HashMap, marker::PhantomData};
 use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 
-use super::{json::BaseData, Output};
+use super::{
+    json::{JSONData, JSONDataInfo},
+    Output,
+};
 
 pub struct JSONCompactOutput<T> {
     phantom: PhantomData<T>,
@@ -21,12 +24,13 @@ impl<T> Output for JSONCompactOutput<T>
 where
     T: DeserializeOwned,
 {
-    type Value = BaseData<T>;
+    type Row = T;
+    type Info = JSONDataInfo;
 
     type Error = serde_json::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<Self::Value, Self::Error> {
-        let data_tmp: BaseData<Vec<Value>> = serde_json::from_slice(slice)?;
+    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+        let data_tmp: JSONData<Vec<Value>> = serde_json::from_slice(slice)?;
 
         let keys: Vec<_> = data_tmp.meta.iter().map(|x| x.name.to_owned()).collect();
         let mut data: Vec<T> = vec![];
@@ -39,12 +43,14 @@ where
             data.push(serde_json::from_value(Value::Object(map))?);
         }
 
-        Ok(BaseData {
-            meta: data_tmp.meta,
-            data: data,
-            rows: data_tmp.rows,
-            rows_before_limit_at_least: data_tmp.rows_before_limit_at_least,
-        })
+        Ok((
+            data,
+            JSONDataInfo {
+                meta: data_tmp.meta,
+                rows: data_tmp.rows,
+                rows_before_limit_at_least: data_tmp.rows_before_limit_at_least,
+            },
+        ))
     }
 }
 
@@ -60,8 +66,12 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONCompact.json"))?;
 
-        let data = GeneralJSONCompactOutput::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(data.data.first().unwrap().get("'hello'").unwrap(), "hello");
+        let (rows, info) = GeneralJSONCompactOutput::new().deserialize(&content.as_bytes()[..])?;
+        assert_eq!(
+            rows.first().unwrap().get("range(5)").unwrap(),
+            &Value::Array(vec![0.into(), 1.into(), 2.into(), 3.into(), 4.into()])
+        );
+        assert_eq!(info.rows, 3);
 
         #[derive(Deserialize, Debug, Clone)]
         struct Foo {
@@ -72,8 +82,9 @@ mod tests {
             #[serde(rename = "range(5)")]
             range: Vec<usize>,
         }
-        let data = JSONCompactOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(data.data.first().unwrap().hello, "hello");
+        let (rows, info) = JSONCompactOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
+        assert_eq!(rows.first().unwrap().range, vec![0, 1, 2, 3, 4]);
+        assert_eq!(info.rows, 3);
 
         Ok(())
     }
