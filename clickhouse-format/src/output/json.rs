@@ -32,14 +32,14 @@ where
             meta,
             data,
             rows,
-            rows_before_limit_at_least,
+            statistics,
         } = json_data;
         Ok((
             data,
             JSONDataInfo {
                 meta,
                 rows,
-                rows_before_limit_at_least,
+                statistics,
             },
         ))
     }
@@ -53,17 +53,33 @@ where
     pub meta: Vec<JSONDataMetaItem>,
     pub data: Vec<T>,
     pub rows: usize,
-    pub rows_before_limit_at_least: usize,
+    pub statistics: JSONDataStatistics,
 }
 #[derive(Deserialize, Debug, Clone)]
 pub struct JSONDataMetaItem {
     pub name: String,
     pub r#type: String,
 }
+#[derive(Deserialize, Debug, Clone)]
+pub struct JSONDataStatistics {
+    pub elapsed: f64,
+    pub rows_read: usize,
+    pub bytes_read: usize,
+}
 pub struct JSONDataInfo {
     pub meta: Vec<JSONDataMetaItem>,
     pub rows: usize,
-    pub rows_before_limit_at_least: usize,
+    pub statistics: JSONDataStatistics,
+}
+
+#[cfg(test)]
+#[derive(Deserialize, Debug, Clone)]
+pub(super) struct TestRow {
+    pub(super) array1: Vec<usize>,
+    pub(super) array2: Vec<String>,
+    pub(super) tuple1: (usize, String),
+    pub(super) tuple2: (usize, Option<String>),
+    pub(super) map1: HashMap<String, String>,
 }
 
 #[cfg(test)]
@@ -78,23 +94,14 @@ mod tests {
 
         let (rows, info) = GeneralJSONOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(
-            rows.first().unwrap().get("range(5)").unwrap(),
-            &Value::Array(vec![0.into(), 1.into(), 2.into(), 3.into(), 4.into()])
+            rows.first().unwrap().get("tuple1").unwrap(),
+            &Value::Array(vec![1.into(), "a".into()])
         );
-        assert_eq!(info.rows, 3);
+        assert_eq!(info.rows, 1);
 
-        #[derive(Deserialize, Debug, Clone)]
-        struct Foo {
-            #[serde(rename = "'hello'")]
-            hello: String,
-            #[serde(rename = "multiply(42, number)")]
-            multiply: String,
-            #[serde(rename = "range(5)")]
-            range: Vec<usize>,
-        }
-        let (rows, info) = JSONOutput::<Foo>::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap().range, vec![0, 1, 2, 3, 4]);
-        assert_eq!(info.rows, 3);
+        let (rows, info) = JSONOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+        assert_eq!(rows.first().unwrap().tuple1, (1_usize, "a".to_string()));
+        assert_eq!(info.rows, 1);
 
         Ok(())
     }

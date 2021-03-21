@@ -1,53 +1,55 @@
 {
     "meta": [
         {
-            "name": "'hello'",
-            "type": "String"
-        },
-        {
-            "name": "multiply(42, number)",
-            "type": "UInt64"
-        },
-        {
-            "name": "range(5)",
+            "name": "array1",
             "type": "Array(UInt8)"
+        },
+        {
+            "name": "array2",
+            "type": "Array(String)"
+        },
+        {
+            "name": "tuple1",
+            "type": "Tuple(UInt8, String)"
+        },
+        {
+            "name": "tuple2",
+            "type": "Tuple(UInt8, Nullable(Nothing))"
+        },
+        {
+            "name": "map1",
+            "type": "Map(String,String)"
         }
     ],
     "data": [
         [
-            "hello",
-            "0",
             [
-                0,
                 1,
-                2,
-                3,
-                4
-            ]
-        ],
-        [
-            "hello",
-            "42",
+                2
+            ],
             [
-                0,
-                1,
-                2,
-                3,
-                4
-            ]
-        ],
-        [
-            "hello",
-            "84",
+                "a",
+                "b"
+            ],
             [
-                0,
                 1,
-                2,
-                3,
-                4
-            ]
+                "a"
+            ],
+            [
+                1,
+                null
+            ],
+            {
+                "1": "Ready",
+                "2": "Steady",
+                "3": "Go"
+            }
         ]
     ],
-    "rows": 3,
-    "rows_before_limit_at_least": 3
+    "rows": 1,
+    "statistics": {
+        "elapsed": 0.000394003,
+        "rows_read": 1,
+        "bytes_read": 1
+    }
 }
