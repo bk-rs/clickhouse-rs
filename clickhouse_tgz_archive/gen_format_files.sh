@@ -99,5 +99,14 @@ for format in ${formats[*]}; do
     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx | python3 -m json.tool > "${files_dir}${format}.json")
 done
 
+formats=("TSV" "TSVRaw" "TSVWithNames" "TSVWithNamesAndTypes")
+for format in ${formats[*]}; do
+    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx > "${files_dir}${format}.tsv")
+done
+
+formats=("CSV" "CSVWithNames")
+for format in ${formats[*]}; do
+    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx > "${files_dir}${format}.csv")
+done
 
 sleep 1

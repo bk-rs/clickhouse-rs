@@ -1,0 +1,2 @@
+array1	array2	tuple1	tuple2	map1
+[1,2]	['a','b']	(1,'a')	(1,NULL)	{'1':'Ready','2':'Steady','3':'Go'}
