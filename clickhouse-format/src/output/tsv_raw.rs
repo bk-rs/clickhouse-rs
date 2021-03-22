@@ -1,16 +1,16 @@
 use std::{collections::HashMap, marker::PhantomData};
 
-use csv::{ReaderBuilder, StringRecordsIntoIter};
+use csv::{ReaderBuilder, StringRecord, StringRecordsIntoIter};
 use serde::de::DeserializeOwned;
 
-use super::{tsv_raw::TSVRawOutput, Output};
+use super::Output;
 
-pub struct TSVOutput<T> {
+pub struct TSVRawOutput<T> {
     names: Option<Vec<String>>,
     types: Option<Vec<String>>,
     phantom: PhantomData<T>,
 }
-impl<T> TSVOutput<T> {
+impl<T> TSVRawOutput<T> {
     pub fn new() -> Self {
         Self {
             names: None,
@@ -41,7 +41,7 @@ impl<T> TSVOutput<T> {
     }
 }
 
-impl<T> Output for TSVOutput<T>
+impl<T> Output for TSVRawOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -59,7 +59,7 @@ where
         self.deserialize_with_records(rdr.into_records())
     }
 }
-impl<T> TSVOutput<T>
+impl<T> TSVRawOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -67,9 +67,23 @@ where
         &self,
         records: StringRecordsIntoIter<&[u8]>,
     ) -> Result<(Vec<<Self as Output>::Row>, <Self as Output>::Info), <Self as Output>::Error> {
-        // TODO, unescape
-        TSVRawOutput::from_raw_parts(self.names.to_owned(), self.types.to_owned())
-            .deserialize_with_records(records)
+        let header = &self.names.to_owned().map(StringRecord::from);
+        let mut data: Vec<T> = vec![];
+        for record in records {
+            let record = record?;
+            let row: T = record.deserialize(header.as_ref())?;
+            data.push(row);
+        }
+
+        let info = if let Some(types) = &self.types {
+            self.names
+                .to_owned()
+                .map(|x| x.into_iter().zip(types.to_owned()).collect())
+        } else {
+            None
+        };
+
+        Ok((data, info))
     }
 }
 
@@ -83,9 +97,9 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/TSV.tsv"))?;
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/TSVRaw.tsv"))?;
 
-        let (rows, info) = TSVOutput::<HashMap<String, String>>::with_names(vec![
+        let (rows, info) = TSVRawOutput::<HashMap<String, String>>::with_names(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
@@ -97,7 +111,7 @@ mod tests {
         assert_eq!(info, None);
 
         let (rows, info) =
-            TSVOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            TSVRawOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().tuple1, "(1,'a')");
         assert_eq!(info, None);
 

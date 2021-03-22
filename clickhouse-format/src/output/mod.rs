@@ -9,6 +9,8 @@ pub mod json_strings;
 #[cfg(feature = "with-tsv")]
 pub mod tsv;
 #[cfg(feature = "with-tsv")]
+pub mod tsv_raw;
+#[cfg(feature = "with-tsv")]
 pub mod tsv_with_names;
 #[cfg(feature = "with-tsv")]
 pub mod tsv_with_names_and_types;
@@ -20,11 +22,14 @@ pub use self::{
     json_compact_strings::{GeneralJSONCompactStringsOutput, JSONCompactStringsOutput},
     json_strings::{GeneralJSONStringsOutput, JSONStringsOutput},
     tsv::TSVOutput,
+    tsv_raw::TSVRawOutput,
     tsv_with_names::TSVWithNamesOutput,
     tsv_with_names_and_types::TSVWithNamesAndTypesOutput,
 };
 #[cfg(feature = "with-tsv")]
 pub type TabSeparatedOutput<T> = self::tsv::TSVOutput<T>;
+#[cfg(feature = "with-tsv")]
+pub type TabSeparatedRawOutput<T> = self::tsv_raw::TSVRawOutput<T>;
 #[cfg(feature = "with-tsv")]
 pub type TabSeparatedWithNamesOutput<T> = self::tsv_with_names::TSVWithNamesOutput<T>;
 #[cfg(feature = "with-tsv")]

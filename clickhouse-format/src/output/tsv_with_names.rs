@@ -41,12 +41,8 @@ where
 
         let records = rdr.into_records();
 
-        if let Some(types) = &self.types {
-            TSVOutput::with_names_and_types(names, types.to_owned())
-                .deserialize_with_records(records)
-        } else {
-            TSVOutput::with_names(names).deserialize_with_records(records)
-        }
+        TSVOutput::from_raw_parts(Some(names), self.types.to_owned())
+            .deserialize_with_records(records)
     }
 }
 
