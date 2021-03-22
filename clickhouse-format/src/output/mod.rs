@@ -8,11 +8,28 @@ pub mod json_compact_strings;
 pub mod json_strings;
 #[cfg(feature = "with-tsv")]
 pub mod tsv;
-
 #[cfg(feature = "with-tsv")]
-pub mod tab_separated {
-    pub type TabSeparated = super::tsv::TSVOutput;
-}
+pub mod tsv_with_names;
+#[cfg(feature = "with-tsv")]
+pub mod tsv_with_names_and_types;
+
+#[cfg(feature = "with-json")]
+pub use self::{
+    json::{GeneralJSONOutput, JSONOutput},
+    json_compact::{GeneralJSONCompactOutput, JSONCompactOutput},
+    json_compact_strings::{GeneralJSONCompactStringsOutput, JSONCompactStringsOutput},
+    json_strings::{GeneralJSONStringsOutput, JSONStringsOutput},
+    tsv::TSVOutput,
+    tsv_with_names::TSVWithNamesOutput,
+    tsv_with_names_and_types::TSVWithNamesAndTypesOutput,
+};
+#[cfg(feature = "with-tsv")]
+pub type TabSeparatedOutput<T> = self::tsv::TSVOutput<T>;
+#[cfg(feature = "with-tsv")]
+pub type TabSeparatedWithNamesOutput<T> = self::tsv_with_names::TSVWithNamesOutput<T>;
+#[cfg(feature = "with-tsv")]
+pub type TabSeparatedWithNamesAndTypesOutput<T> =
+    self::tsv_with_names_and_types::TSVWithNamesAndTypesOutput<T>;
 
 pub trait Output {
     type Row;
