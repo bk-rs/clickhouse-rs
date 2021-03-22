@@ -3,15 +3,15 @@
 set -ex
 
 # Prerequire
-# ./download.sh
+# ./../clickhouse_tgz_archive/download.sh
 
-# ./gen_format_files.sh
+# ./tests/gen_files.sh
 
 script_path=$(cd $(dirname $0) ; pwd -P)
 script_path_root="${script_path}/"
 
-bin_server="${script_path_root}clickhouse/usr/bin/clickhouse-server"
-bin_client="${script_path_root}clickhouse/usr/bin/clickhouse-client"
+bin_server="${script_path_root}../../clickhouse_tgz_archive/clickhouse/usr/bin/clickhouse-server"
+bin_client="${script_path_root}../../clickhouse_tgz_archive/clickhouse/usr/bin/clickhouse-client"
 
 workdir=$(mktemp -d)
 
@@ -92,22 +92,22 @@ SELECT
 END
 )
 
-files_dir="${script_path_root}../clickhouse-format/tests/files/"
+files_path="${script_path_root}files"
 
 formats=("JSON" "JSONStrings" "JSONCompact" "JSONCompactStrings")
 for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx | python3 -m json.tool > "${files_dir}${format}.json")
+    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx | python3 -m json.tool > "${files_path}/${format}.json")
 done
 
 formats=("TSV" "TSVRaw" "TSVWithNames" "TSVWithNamesAndTypes")
 for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --password xxx > "${files_dir}${format}.tsv")
+    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.tsv")
 done
 
 # SKIP, because don't support tuple
 # formats=("CSV" "CSVWithNames")
 # for format in ${formats[*]}; do
-#     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --password xxx > "${files_dir}${format}.csv")
+#     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --port ${tcp_port} --password xxx > "${files_path}/${format}.csv")
 # done
 
 sleep 1
