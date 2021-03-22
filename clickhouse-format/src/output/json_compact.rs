@@ -30,7 +30,22 @@ where
     type Error = serde_json::Error;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
-        let json_data_tmp: JSONData<Vec<Value>> = serde_json::from_slice(slice)?;
+        self.deserialize_with::<Value>(slice)
+    }
+}
+
+impl<T> JSONCompactOutput<T>
+where
+    T: DeserializeOwned,
+{
+    pub(crate) fn deserialize_with<V>(
+        &self,
+        slice: &[u8],
+    ) -> Result<(Vec<<Self as Output>::Row>, <Self as Output>::Info), <Self as Output>::Error>
+    where
+        V: DeserializeOwned + Into<Value>,
+    {
+        let json_data_tmp: JSONData<Vec<V>> = serde_json::from_slice(slice)?;
 
         let keys: Vec<_> = json_data_tmp
             .meta
@@ -42,7 +57,7 @@ where
             let map: Map<_, _> = keys
                 .iter()
                 .zip(values)
-                .map(|(k, v)| (k.to_owned(), v))
+                .map(|(k, v)| (k.to_owned(), v.into()))
                 .collect();
             data.push(serde_json::from_value(Value::Object(map))?);
         }

@@ -1,51 +1,9 @@
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
-use serde::de::DeserializeOwned;
+use super::json::JSONOutput;
 
-use super::{
-    json::{JSONData, JSONDataInfo},
-    Output,
-};
-
-pub struct JSONStringsOutput<T> {
-    phantom: PhantomData<T>,
-}
-impl<T> JSONStringsOutput<T> {
-    pub fn new() -> Self {
-        Self {
-            phantom: PhantomData,
-        }
-    }
-}
+pub type JSONStringsOutput<T> = JSONOutput<T>;
 pub type GeneralJSONStringsOutput = JSONStringsOutput<HashMap<String, String>>;
-
-impl<T> Output for JSONStringsOutput<T>
-where
-    T: DeserializeOwned,
-{
-    type Row = T;
-    type Info = JSONDataInfo;
-
-    type Error = serde_json::Error;
-
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
-        let json_data: JSONData<Self::Row> = serde_json::from_slice(slice)?;
-        let JSONData {
-            meta,
-            data,
-            rows,
-            statistics,
-        } = json_data;
-        Ok((
-            data,
-            JSONDataInfo {
-                meta,
-                rows,
-                statistics,
-            },
-        ))
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -53,7 +11,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::output::test_helpers::TestStringsRow;
+    use crate::output::{test_helpers::TestStringsRow, Output as _};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
