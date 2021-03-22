@@ -1,0 +1,1 @@
+{"array1":[1,2],"array2":["a","b"],"tuple1":[1,"a"],"tuple2":[1,null],"map1":{"1":"Ready","2":"Steady","3":"Go"}}
