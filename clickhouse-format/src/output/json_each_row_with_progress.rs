@@ -109,7 +109,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::test_helpers::TestRow;
+    use crate::test_helpers::{TestRow, TEST_ROW};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -126,7 +126,7 @@ mod tests {
 
         let (rows, info) =
             JSONEachRowWithProgressOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap().tuple1, (1_usize, "a".to_string()));
+        assert_eq!(rows.first().unwrap(), &*TEST_ROW);
         assert_eq!(info.read_rows, 1);
 
         Ok(())

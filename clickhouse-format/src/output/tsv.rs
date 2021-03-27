@@ -84,7 +84,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::test_helpers::TestStringsRow;
+    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -103,7 +103,7 @@ mod tests {
 
         let (rows, info) =
             TSVOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap().tuple1, "(1,'a')");
+        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW);
         assert_eq!(info, None);
 
         Ok(())

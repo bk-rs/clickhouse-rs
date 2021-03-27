@@ -14,7 +14,10 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::{output::Output as _, test_helpers::TestStringsRow};
+    use crate::{
+        output::Output as _,
+        test_helpers::{TestStringsRow, TEST_STRINGS_ROW},
+    };
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -30,7 +33,7 @@ mod tests {
         let (rows, info) =
             JSONCompactStringsEachRowWithNamesAndTypesOutput::<TestStringsRow>::new()
                 .deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap().tuple1, "(1,'a')");
+        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW);
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 
         Ok(())
