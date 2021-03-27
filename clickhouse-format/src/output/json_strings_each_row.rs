@@ -12,7 +12,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::output::{test_helpers::TestStringsRow, Output as _};
+    use crate::{output::Output as _, test_helpers::TestStringsRow};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {

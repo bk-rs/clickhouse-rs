@@ -90,6 +90,3 @@ pub trait Output {
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error>;
 }
-
-#[cfg(test)]
-pub(crate) mod test_helpers;
