@@ -1,11 +1,4 @@
-#[cfg(feature = "with-json")]
-pub mod json;
-#[cfg(feature = "with-json")]
-pub mod json_compact;
-#[cfg(feature = "with-json")]
-pub mod json_compact_strings;
-#[cfg(feature = "with-json")]
-pub mod json_strings;
+//
 #[cfg(feature = "with-tsv")]
 pub mod tsv;
 #[cfg(feature = "with-tsv")]
@@ -15,17 +8,12 @@ pub mod tsv_with_names;
 #[cfg(feature = "with-tsv")]
 pub mod tsv_with_names_and_types;
 
-#[cfg(feature = "with-json")]
+#[cfg(feature = "with-tsv")]
 pub use self::{
-    json::{GeneralJSONOutput, JSONOutput},
-    json_compact::{GeneralJSONCompactOutput, JSONCompactOutput},
-    json_compact_strings::{GeneralJSONCompactStringsOutput, JSONCompactStringsOutput},
-    json_strings::{GeneralJSONStringsOutput, JSONStringsOutput},
-    tsv::TSVOutput,
-    tsv_raw::TSVRawOutput,
-    tsv_with_names::TSVWithNamesOutput,
+    tsv::TSVOutput, tsv_raw::TSVRawOutput, tsv_with_names::TSVWithNamesOutput,
     tsv_with_names_and_types::TSVWithNamesAndTypesOutput,
 };
+
 #[cfg(feature = "with-tsv")]
 pub type TabSeparatedOutput<T> = self::tsv::TSVOutput<T>;
 #[cfg(feature = "with-tsv")]
@@ -36,6 +24,36 @@ pub type TabSeparatedWithNamesOutput<T> = self::tsv_with_names::TSVWithNamesOutp
 pub type TabSeparatedWithNamesAndTypesOutput<T> =
     self::tsv_with_names_and_types::TSVWithNamesAndTypesOutput<T>;
 
+//
+#[cfg(feature = "with-json")]
+pub mod json;
+#[cfg(feature = "with-json")]
+pub mod json_compact;
+#[cfg(feature = "with-json")]
+pub mod json_compact_strings;
+#[cfg(feature = "with-json")]
+pub mod json_strings;
+
+#[cfg(feature = "with-json")]
+pub use self::{
+    json::{GeneralJSONOutput, JSONOutput},
+    json_compact::{GeneralJSONCompactOutput, JSONCompactOutput},
+    json_compact_strings::{GeneralJSONCompactStringsOutput, JSONCompactStringsOutput},
+    json_strings::{GeneralJSONStringsOutput, JSONStringsOutput},
+};
+
+//
+#[cfg(feature = "with-json")]
+pub mod json_each_row;
+#[cfg(feature = "with-json")]
+pub mod json_strings_each_row;
+
+#[cfg(feature = "with-json")]
+pub use self::{
+    json_each_row::{GeneralJSONEachRowOutput, JSONEachRowOutput},
+    json_strings_each_row::{GeneralJSONStringsEachRowOutput, JSONStringsEachRowOutput},
+};
+
 pub trait Output {
     type Row;
     type Info;
@@ -45,27 +63,4 @@ pub trait Output {
 }
 
 #[cfg(test)]
-pub(crate) mod test_helpers {
-    use std::collections::HashMap;
-
-    use serde::Deserialize;
-
-    #[cfg(test)]
-    #[derive(Deserialize, Debug, Clone)]
-    pub(crate) struct TestRow {
-        pub(crate) array1: Vec<usize>,
-        pub(crate) array2: Vec<String>,
-        pub(crate) tuple1: (usize, String),
-        pub(crate) tuple2: (usize, Option<String>),
-        pub(crate) map1: HashMap<String, String>,
-    }
-    #[cfg(test)]
-    #[derive(Deserialize, Debug, Clone)]
-    pub(crate) struct TestStringsRow {
-        pub(crate) array1: String,
-        pub(crate) array2: String,
-        pub(crate) tuple1: String,
-        pub(crate) tuple2: String,
-        pub(crate) map1: String,
-    }
-}
+pub(crate) mod test_helpers;
