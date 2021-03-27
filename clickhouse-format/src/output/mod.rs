@@ -46,12 +46,22 @@ pub use self::{
 #[cfg(feature = "with-json")]
 pub mod json_each_row;
 #[cfg(feature = "with-json")]
+pub mod json_each_row_with_progress;
+#[cfg(feature = "with-json")]
 pub mod json_strings_each_row;
+#[cfg(feature = "with-json")]
+pub mod json_strings_each_row_with_progress;
 
 #[cfg(feature = "with-json")]
 pub use self::{
     json_each_row::{GeneralJSONEachRowOutput, JSONEachRowOutput},
+    json_each_row_with_progress::{
+        GeneralJSONEachRowWithProgressOutput, JSONEachRowWithProgressOutput,
+    },
     json_strings_each_row::{GeneralJSONStringsEachRowOutput, JSONStringsEachRowOutput},
+    json_strings_each_row_with_progress::{
+        GeneralJSONStringsEachRowWithProgressOutput, JSONStringsEachRowWithProgressOutput,
+    },
 };
 
 pub trait Output {

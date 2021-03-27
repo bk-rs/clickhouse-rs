@@ -1,0 +1,36 @@
+use std::collections::HashMap;
+
+use super::json_each_row_with_progress::JSONEachRowWithProgressOutput;
+
+pub type JSONStringsEachRowWithProgressOutput<T> = JSONEachRowWithProgressOutput<T>;
+
+pub type GeneralJSONStringsEachRowWithProgressOutput =
+    JSONStringsEachRowWithProgressOutput<HashMap<String, String>>;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::{error, fs, path::PathBuf};
+
+    use crate::output::{test_helpers::TestStringsRow, Output as _};
+
+    #[test]
+    fn simple() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(
+            PathBuf::new().join("tests/files/JSONStringsEachRowWithProgress.txt"),
+        )?;
+
+        let (rows, info) = GeneralJSONStringsEachRowWithProgressOutput::new()
+            .deserialize(&content.as_bytes()[..])?;
+        assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
+        assert_eq!(info.read_rows, 1);
+
+        let (rows, info) = JSONStringsEachRowWithProgressOutput::<TestStringsRow>::new()
+            .deserialize(&content.as_bytes()[..])?;
+        assert_eq!(rows.first().unwrap().tuple1, "(1,'a')");
+        assert_eq!(info.read_rows, 1);
+
+        Ok(())
+    }
+}

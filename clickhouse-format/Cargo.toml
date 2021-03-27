@@ -21,11 +21,11 @@ default = [ "with-all" ]
 with-all = [ "with-tsv", "with-json" ]
 
 with-tsv = [ "csv", "serde" ]
-with-json = [ "serde_json", "serde" ]
+with-json = [ "serde_json", "serde", "thiserror", "serde-aux" ]
 
 [dependencies]
-thiserror = { version = "1.0", default-features = false }
-
 csv = { version = "1.1", default-features = false, optional = true }
 serde_json = { version = "1.0", default-features = false, features = [ "std" ], optional = true }
 serde = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
+thiserror = { version = "1.0", default-features = false, optional = true }
+serde-aux = { version = "2.1", default-features = false, optional = true }
