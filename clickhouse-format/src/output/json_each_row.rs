@@ -12,6 +12,11 @@ use super::Output;
 pub struct JSONEachRowOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONEachRowOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONEachRowOutput<T> {
     pub fn new() -> Self {
         Self {

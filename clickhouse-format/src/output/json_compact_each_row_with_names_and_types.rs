@@ -12,6 +12,11 @@ use super::Output;
 pub struct JSONCompactEachRowWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONCompactEachRowWithNamesAndTypesOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONCompactEachRowWithNamesAndTypesOutput<T> {
     pub fn new() -> Self {
         Self {

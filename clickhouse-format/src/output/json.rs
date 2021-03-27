@@ -8,6 +8,11 @@ use super::Output;
 pub struct JSONOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONOutput<T> {
     pub fn new() -> Self {
         Self {

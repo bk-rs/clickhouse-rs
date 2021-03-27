@@ -8,6 +8,11 @@ use super::{tsv::TSVOutput, Output};
 pub struct TSVWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for TSVWithNamesAndTypesOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> TSVWithNamesAndTypesOutput<T> {
     pub fn new() -> Self {
         Self {
@@ -38,7 +43,7 @@ where
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, ""))??;
         let types: Vec<String> = record.iter().map(ToOwned::to_owned).collect();
 
-        TSVOutput::with_names_and_types(names, types.to_owned()).deserialize_with_records(records)
+        TSVOutput::with_names_and_types(names, types).deserialize_with_records(records)
     }
 }
 

@@ -9,6 +9,11 @@ pub struct TSVWithNamesOutput<T> {
     types: Option<Vec<String>>,
     phantom: PhantomData<T>,
 }
+impl<T> Default for TSVWithNamesOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> TSVWithNamesOutput<T> {
     pub fn new() -> Self {
         Self {

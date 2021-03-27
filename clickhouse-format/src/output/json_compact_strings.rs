@@ -7,6 +7,11 @@ use super::{json::JSONDataInfo, json_compact::JSONCompactOutput, Output};
 pub struct JSONCompactStringsOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONCompactStringsOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONCompactStringsOutput<T> {
     pub fn new() -> Self {
         Self {

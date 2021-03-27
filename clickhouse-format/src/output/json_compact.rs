@@ -11,6 +11,11 @@ use super::{
 pub struct JSONCompactOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONCompactOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONCompactOutput<T> {
     pub fn new() -> Self {
         Self {

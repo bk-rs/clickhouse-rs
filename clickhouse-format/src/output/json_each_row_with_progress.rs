@@ -13,6 +13,11 @@ use super::Output;
 pub struct JSONEachRowWithProgressOutput<T> {
     phantom: PhantomData<T>,
 }
+impl<T> Default for JSONEachRowWithProgressOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> JSONEachRowWithProgressOutput<T> {
     pub fn new() -> Self {
         Self {

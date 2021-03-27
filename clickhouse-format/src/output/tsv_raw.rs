@@ -10,6 +10,11 @@ pub struct TSVRawOutput<T> {
     types: Option<Vec<String>>,
     phantom: PhantomData<T>,
 }
+impl<T> Default for TSVRawOutput<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl<T> TSVRawOutput<T> {
     pub fn new() -> Self {
         Self {
