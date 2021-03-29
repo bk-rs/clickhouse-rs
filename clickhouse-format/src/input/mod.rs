@@ -1,5 +1,5 @@
-#[cfg(feature = "with-tsv")]
-pub mod tsv;
+#[cfg(feature = "with-json")]
+pub mod json_compact_each_row;
 
 pub trait Input {
     type Error;
