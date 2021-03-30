@@ -53,7 +53,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW};
+    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -64,7 +64,7 @@ mod tests {
             ("array1".into(), "Array(UInt8)".into()),
             ("array2".into(), "Array(String)".into()),
             ("tuple1".into(), "Tuple(UInt8, String)".into()),
-            ("tuple2".into(), "Tuple(UInt8, Nullable(Nothing))".into()),
+            ("tuple2".into(), "Tuple(UInt8, Nullable(String))".into()),
             ("map1".into(), "Map(String,String)".into()),
         ]
         .into_iter()
@@ -77,7 +77,7 @@ mod tests {
 
         let (rows, info) = TSVWithNamesAndTypesOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW);
+        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, Some(info_expected));
 
         Ok(())

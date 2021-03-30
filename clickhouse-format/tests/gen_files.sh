@@ -82,37 +82,52 @@ $(${cmd})
 
 sleep 2
 
-query=$(cat <<-END
-SELECT
-    array(1, 2) AS array1,
-    array('a', 'b') AS array2,
-    tuple(1, 'a') AS tuple1,
-    tuple(1, NULL) AS tuple2,
-    CAST((['1', '2', '3'], ['Ready', 'Steady', 'Go']), 'Map(String, String)') AS map1
+query_create_table=$(cat <<-END
+CREATE TABLE t_testing_format
+(
+    array1 Array(UInt8),
+    array2 Array(String),
+    tuple1 Tuple(UInt8, String),
+    tuple2 Tuple(UInt8, Nullable(String)),
+    map1 Map(String, String)
+) ENGINE=Memory
 END
 )
+$(echo ${query_create_table} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx)
 
+query_insert=$(cat <<-END
+INSERT INTO t_testing_format VALUES 
+    ([1, 2], ['a', 'b'], (1, 'a'), (1, null), {'1':'Ready', '2':'Steady', '3':'Go'}), 
+    ([3, 4], ['c', 'd'], (2, 'b'), (2, 'b'), {})
+END
+)
+$(echo ${query_insert} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx)
+
+query_select=$(cat <<-END
+SELECT array1, array2, tuple1, tuple2, map1 FROM t_testing_format
+END
+)
 files_path="${script_path_root}files"
 
 formats=("JSON" "JSONStrings" "JSONCompact" "JSONCompactStrings")
 for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx | python3 -m json.tool > "${files_path}/${format}.json")
+    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx | python3 -m json.tool > "${files_path}/${format}.json")
 done
 
 formats=("TSV" "TSVRaw" "TSVWithNames" "TSVWithNamesAndTypes")
 for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.tsv")
+    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.tsv")
 done
 
 # SKIP, because don't support tuple
 # formats=("CSV" "CSVWithNames")
 # for format in ${formats[*]}; do
-#     $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --port ${tcp_port} --password xxx > "${files_path}/${format}.csv")
+#     $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --port ${tcp_port} --password xxx > "${files_path}/${format}.csv")
 # done
 
 formats=("JSONEachRow" "JSONStringsEachRow" "JSONCompactEachRow" "JSONCompactStringsEachRow" "JSONEachRowWithProgress" "JSONStringsEachRowWithProgress" "JSONCompactEachRowWithNamesAndTypes" "JSONCompactStringsEachRowWithNamesAndTypes")
 for format in ${formats[*]}; do
-    $(echo ${query} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.txt")
+    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.txt")
 done
 
 sleep 1

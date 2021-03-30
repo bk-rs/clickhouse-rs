@@ -14,7 +14,7 @@ mod tests {
 
     use crate::{
         output::Output as _,
-        test_helpers::{TestStringsRow, TEST_STRINGS_ROW},
+        test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1},
     };
 
     #[test]
@@ -29,7 +29,7 @@ mod tests {
 
         let (rows, info) = JSONStringsEachRowOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW);
+        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, ());
 
         Ok(())

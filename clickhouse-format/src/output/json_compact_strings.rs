@@ -41,7 +41,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW};
+    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -51,12 +51,12 @@ mod tests {
         let (rows, info) =
             GeneralJSONCompactStringsOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
-        assert_eq!(info.rows, 1);
+        assert_eq!(info.rows, 2);
 
         let (rows, info) = JSONCompactStringsOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW);
-        assert_eq!(info.rows, 1);
+        assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
+        assert_eq!(info.rows, 2);
 
         Ok(())
     }

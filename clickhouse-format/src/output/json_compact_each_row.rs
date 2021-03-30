@@ -65,7 +65,7 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::test_helpers::{TestRow, TEST_ROW};
+    use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
@@ -94,7 +94,7 @@ mod tests {
             "map1".into(),
         ])
         .deserialize(&content.as_bytes()[..])?;
-        assert_eq!(rows.first().unwrap(), &*TEST_ROW);
+        assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info, ());
 
         Ok(())

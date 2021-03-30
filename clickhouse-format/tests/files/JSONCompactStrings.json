@@ -14,7 +14,7 @@
         },
         {
             "name": "tuple2",
-            "type": "Tuple(UInt8, Nullable(Nothing))"
+            "type": "Tuple(UInt8, Nullable(String))"
         },
         {
             "name": "map1",
@@ -28,12 +28,19 @@
             "(1,'a')",
             "(1,NULL)",
             "{'1':'Ready','2':'Steady','3':'Go'}"
+        ],
+        [
+            "[3,4]",
+            "['c','d']",
+            "(2,'b')",
+            "(2,'b')",
+            "{}"
         ]
     ],
-    "rows": 1,
+    "rows": 2,
     "statistics": {
-        "elapsed": 0.000291797,
-        "rows_read": 1,
-        "bytes_read": 1
+        "elapsed": 0.000331107,
+        "rows_read": 2,
+        "bytes_read": 207
     }
 }
