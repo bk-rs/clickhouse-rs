@@ -9,15 +9,15 @@ use serde_json::Value;
 
 use super::Output;
 
-pub struct JSONEachRowOutput<T> {
+pub struct JsonEachRowOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for JSONEachRowOutput<T> {
+impl<T> Default for JsonEachRowOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> JSONEachRowOutput<T> {
+impl<T> JsonEachRowOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
@@ -25,24 +25,24 @@ impl<T> JSONEachRowOutput<T> {
     }
 }
 
-pub type GeneralJSONEachRowOutput = JSONEachRowOutput<HashMap<String, Value>>;
+pub type GeneralJsonEachRowOutput = JsonEachRowOutput<HashMap<String, Value>>;
 
 #[derive(thiserror::Error, Debug)]
-pub enum JSONEachRowOutputError {
+pub enum JsonEachRowOutputError {
     #[error("IoError {0:?}")]
     IoError(#[from] io::Error),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
 
-impl<T> Output for JSONEachRowOutput<T>
+impl<T> Output for JsonEachRowOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
     type Info = ();
 
-    type Error = JSONEachRowOutputError;
+    type Error = JsonEachRowOutputError;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
         let mut data: Vec<T> = vec![];
@@ -68,7 +68,7 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONEachRow.txt"))?;
 
-        let (rows, info) = GeneralJSONEachRowOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = GeneralJsonEachRowOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -76,7 +76,7 @@ mod tests {
         assert_eq!(info, ());
 
         let (rows, info) =
-            JSONEachRowOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonEachRowOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info, ());
 

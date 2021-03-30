@@ -3,17 +3,17 @@ use std::{collections::HashMap, io, marker::PhantomData};
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
 
-use super::{tsv::TSVOutput, Output};
+use super::{tsv::TsvOutput, Output};
 
-pub struct TSVWithNamesAndTypesOutput<T> {
+pub struct TsvWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for TSVWithNamesAndTypesOutput<T> {
+impl<T> Default for TsvWithNamesAndTypesOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> TSVWithNamesAndTypesOutput<T> {
+impl<T> TsvWithNamesAndTypesOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
@@ -21,7 +21,7 @@ impl<T> TSVWithNamesAndTypesOutput<T> {
     }
 }
 
-impl<T> Output for TSVWithNamesAndTypesOutput<T>
+impl<T> Output for TsvWithNamesAndTypesOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -43,7 +43,7 @@ where
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, ""))??;
         let types: Vec<String> = record.iter().map(ToOwned::to_owned).collect();
 
-        TSVOutput::with_names_and_types(names, types).deserialize_with_records(records)
+        TsvOutput::with_names_and_types(names, types).deserialize_with_records(records)
     }
 }
 
@@ -70,12 +70,12 @@ mod tests {
         .into_iter()
         .collect();
 
-        let (rows, info) = TSVWithNamesAndTypesOutput::<HashMap<String, String>>::new()
+        let (rows, info) = TsvWithNamesAndTypesOutput::<HashMap<String, String>>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, Some(info_expected.clone()));
 
-        let (rows, info) = TSVWithNamesAndTypesOutput::<TestStringsRow>::new()
+        let (rows, info) = TsvWithNamesAndTypesOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, Some(info_expected));

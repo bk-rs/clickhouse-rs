@@ -4,33 +4,33 @@ use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 
 use super::{
-    json::{JSONData, JSONDataInfo},
+    json::{JsonData, JsonDataInfo},
     Output,
 };
 
-pub struct JSONCompactOutput<T> {
+pub struct JsonCompactOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for JSONCompactOutput<T> {
+impl<T> Default for JsonCompactOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> JSONCompactOutput<T> {
+impl<T> JsonCompactOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
         }
     }
 }
-pub type GeneralJSONCompactOutput = JSONCompactOutput<HashMap<String, Value>>;
+pub type GeneralJsonCompactOutput = JsonCompactOutput<HashMap<String, Value>>;
 
-impl<T> Output for JSONCompactOutput<T>
+impl<T> Output for JsonCompactOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = JSONDataInfo;
+    type Info = JsonDataInfo;
 
     type Error = serde_json::Error;
 
@@ -39,7 +39,7 @@ where
     }
 }
 
-impl<T> JSONCompactOutput<T>
+impl<T> JsonCompactOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -50,7 +50,7 @@ where
     where
         V: DeserializeOwned + Into<Value>,
     {
-        let json_data_tmp: JSONData<Vec<V>> = serde_json::from_slice(slice)?;
+        let json_data_tmp: JsonData<Vec<V>> = serde_json::from_slice(slice)?;
 
         let keys: Vec<_> = json_data_tmp
             .meta
@@ -69,7 +69,7 @@ where
 
         Ok((
             data,
-            JSONDataInfo {
+            JsonDataInfo {
                 meta: json_data_tmp.meta,
                 rows: json_data_tmp.rows,
                 statistics: json_data_tmp.statistics,
@@ -90,7 +90,7 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONCompact.json"))?;
 
-        let (rows, info) = GeneralJSONCompactOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = GeneralJsonCompactOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -98,7 +98,7 @@ mod tests {
         assert_eq!(info.rows, 2);
 
         let (rows, info) =
-            JSONCompactOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonCompactOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.rows, 2);
 

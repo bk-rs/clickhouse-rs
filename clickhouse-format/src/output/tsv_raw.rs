@@ -5,17 +5,17 @@ use serde::de::DeserializeOwned;
 
 use super::Output;
 
-pub struct TSVRawOutput<T> {
+pub struct TsvRawOutput<T> {
     names: Option<Vec<String>>,
     types: Option<Vec<String>>,
     phantom: PhantomData<T>,
 }
-impl<T> Default for TSVRawOutput<T> {
+impl<T> Default for TsvRawOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> TSVRawOutput<T> {
+impl<T> TsvRawOutput<T> {
     pub fn new() -> Self {
         Self {
             names: None,
@@ -46,7 +46,7 @@ impl<T> TSVRawOutput<T> {
     }
 }
 
-impl<T> Output for TSVRawOutput<T>
+impl<T> Output for TsvRawOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -64,7 +64,7 @@ where
         self.deserialize_with_records(rdr.into_records())
     }
 }
-impl<T> TSVRawOutput<T>
+impl<T> TsvRawOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -104,7 +104,7 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/TSVRaw.tsv"))?;
 
-        let (rows, info) = TSVRawOutput::<HashMap<String, String>>::with_names(vec![
+        let (rows, info) = TsvRawOutput::<HashMap<String, String>>::with_names(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
@@ -116,7 +116,7 @@ mod tests {
         assert_eq!(info, None);
 
         let (rows, info) =
-            TSVRawOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            TsvRawOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, None);
 

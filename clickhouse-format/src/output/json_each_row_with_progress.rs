@@ -10,15 +10,15 @@ use serde_json::Value;
 
 use super::Output;
 
-pub struct JSONEachRowWithProgressOutput<T> {
+pub struct JsonEachRowWithProgressOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for JSONEachRowWithProgressOutput<T> {
+impl<T> Default for JsonEachRowWithProgressOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> JSONEachRowWithProgressOutput<T> {
+impl<T> JsonEachRowWithProgressOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
@@ -26,11 +26,11 @@ impl<T> JSONEachRowWithProgressOutput<T> {
     }
 }
 
-pub type GeneralJSONEachRowWithProgressOutput =
-    JSONEachRowWithProgressOutput<HashMap<String, Value>>;
+pub type GeneralJsonEachRowWithProgressOutput =
+    JsonEachRowWithProgressOutput<HashMap<String, Value>>;
 
 #[derive(thiserror::Error, Debug)]
-pub enum JSONEachRowWithProgressOutputError {
+pub enum JsonEachRowWithProgressOutputError {
     #[error("IoError {0:?}")]
     IoError(#[from] io::Error),
     #[error("SerdeJsonError {0:?}")]
@@ -41,39 +41,39 @@ pub enum JSONEachRowWithProgressOutputError {
     ProgressMissing,
 }
 
-impl<T> Output for JSONEachRowWithProgressOutput<T>
+impl<T> Output for JsonEachRowWithProgressOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = JSONEachRowProgress;
+    type Info = JsonEachRowProgress;
 
-    type Error = JSONEachRowWithProgressOutputError;
+    type Error = JsonEachRowWithProgressOutputError;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
         let mut data: Vec<T> = vec![];
-        let mut info = Option::<JSONEachRowProgress>::None;
+        let mut info = Option::<JsonEachRowProgress>::None;
 
         for line in slice.lines() {
             let line = line?;
 
             if info.is_some() {
-                return Err(JSONEachRowWithProgressOutputError::ProgressInTheWrongPosition);
+                return Err(JsonEachRowWithProgressOutputError::ProgressInTheWrongPosition);
             }
 
-            match serde_json::from_str::<JSONEachRowLine<T>>(&line)? {
-                JSONEachRowLine::Row { row } => {
+            match serde_json::from_str::<JsonEachRowLine<T>>(&line)? {
+                JsonEachRowLine::Row { row } => {
                     data.push(row);
                     continue;
                 }
-                JSONEachRowLine::Progress { progress } => {
+                JsonEachRowLine::Progress { progress } => {
                     info = Some(progress);
                     break;
                 }
             }
         }
 
-        let info = info.ok_or(JSONEachRowWithProgressOutputError::ProgressMissing)?;
+        let info = info.ok_or(JsonEachRowWithProgressOutputError::ProgressMissing)?;
 
         Ok((data, info))
     }
@@ -81,16 +81,16 @@ where
 
 #[derive(Deserialize, Debug, Clone)]
 #[serde(untagged)]
-enum JSONEachRowLine<T>
+enum JsonEachRowLine<T>
 where
     T: Sized,
 {
     Row { row: T },
-    Progress { progress: JSONEachRowProgress },
+    Progress { progress: JsonEachRowProgress },
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct JSONEachRowProgress {
+pub struct JsonEachRowProgress {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub read_rows: usize,
     #[serde(deserialize_with = "deserialize_number_from_string")]
@@ -117,7 +117,7 @@ mod tests {
             fs::read_to_string(PathBuf::new().join("tests/files/JSONEachRowWithProgress.txt"))?;
 
         let (rows, info) =
-            GeneralJSONEachRowWithProgressOutput::new().deserialize(&content.as_bytes()[..])?;
+            GeneralJsonEachRowWithProgressOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -125,7 +125,7 @@ mod tests {
         assert_eq!(info.read_rows, 2);
 
         let (rows, info) =
-            JSONEachRowWithProgressOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.read_rows, 2);
 

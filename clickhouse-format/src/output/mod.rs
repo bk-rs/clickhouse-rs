@@ -10,19 +10,19 @@ pub mod tsv_with_names_and_types;
 
 #[cfg(feature = "with-tsv")]
 pub use self::{
-    tsv::TSVOutput, tsv_raw::TSVRawOutput, tsv_with_names::TSVWithNamesOutput,
-    tsv_with_names_and_types::TSVWithNamesAndTypesOutput,
+    tsv::TsvOutput, tsv_raw::TsvRawOutput, tsv_with_names::TsvWithNamesOutput,
+    tsv_with_names_and_types::TsvWithNamesAndTypesOutput,
 };
 
 #[cfg(feature = "with-tsv")]
-pub type TabSeparatedOutput<T> = self::tsv::TSVOutput<T>;
+pub type TabSeparatedOutput<T> = self::tsv::TsvOutput<T>;
 #[cfg(feature = "with-tsv")]
-pub type TabSeparatedRawOutput<T> = self::tsv_raw::TSVRawOutput<T>;
+pub type TabSeparatedRawOutput<T> = self::tsv_raw::TsvRawOutput<T>;
 #[cfg(feature = "with-tsv")]
-pub type TabSeparatedWithNamesOutput<T> = self::tsv_with_names::TSVWithNamesOutput<T>;
+pub type TabSeparatedWithNamesOutput<T> = self::tsv_with_names::TsvWithNamesOutput<T>;
 #[cfg(feature = "with-tsv")]
 pub type TabSeparatedWithNamesAndTypesOutput<T> =
-    self::tsv_with_names_and_types::TSVWithNamesAndTypesOutput<T>;
+    self::tsv_with_names_and_types::TsvWithNamesAndTypesOutput<T>;
 
 //
 #[cfg(feature = "with-json")]
@@ -36,10 +36,10 @@ pub mod json_strings;
 
 #[cfg(feature = "with-json")]
 pub use self::{
-    json::{GeneralJSONOutput, JSONOutput},
-    json_compact::{GeneralJSONCompactOutput, JSONCompactOutput},
-    json_compact_strings::{GeneralJSONCompactStringsOutput, JSONCompactStringsOutput},
-    json_strings::{GeneralJSONStringsOutput, JSONStringsOutput},
+    json::{GeneralJsonOutput, JsonOutput},
+    json_compact::{GeneralJsonCompactOutput, JsonCompactOutput},
+    json_compact_strings::{GeneralJsonCompactStringsOutput, JsonCompactStringsOutput},
+    json_strings::{GeneralJsonStringsOutput, JsonStringsOutput},
 };
 
 //
@@ -62,24 +62,24 @@ pub mod json_strings_each_row_with_progress;
 
 #[cfg(feature = "with-json")]
 pub use self::{
-    json_compact_each_row::{GeneralJSONCompactEachRowOutput, JSONCompactEachRowOutput},
+    json_compact_each_row::{GeneralJsonCompactEachRowOutput, JsonCompactEachRowOutput},
     json_compact_each_row_with_names_and_types::{
-        GeneralJSONCompactEachRowWithNamesAndTypesOutput, JSONCompactEachRowWithNamesAndTypesOutput,
+        GeneralJsonCompactEachRowWithNamesAndTypesOutput, JsonCompactEachRowWithNamesAndTypesOutput,
     },
     json_compact_strings_each_row::{
-        GeneralJSONCompactStringsEachRowOutput, JSONCompactStringsEachRowOutput,
+        GeneralJsonCompactStringsEachRowOutput, JsonCompactStringsEachRowOutput,
     },
     json_compact_strings_each_row_with_names_and_types::{
-        GeneralJSONCompactStringsEachRowWithNamesAndTypesOutput,
-        JSONCompactStringsEachRowWithNamesAndTypesOutput,
+        GeneralJsonCompactStringsEachRowWithNamesAndTypesOutput,
+        JsonCompactStringsEachRowWithNamesAndTypesOutput,
     },
-    json_each_row::{GeneralJSONEachRowOutput, JSONEachRowOutput},
+    json_each_row::{GeneralJsonEachRowOutput, JsonEachRowOutput},
     json_each_row_with_progress::{
-        GeneralJSONEachRowWithProgressOutput, JSONEachRowWithProgressOutput,
+        GeneralJsonEachRowWithProgressOutput, JsonEachRowWithProgressOutput,
     },
-    json_strings_each_row::{GeneralJSONStringsEachRowOutput, JSONStringsEachRowOutput},
+    json_strings_each_row::{GeneralJsonStringsEachRowOutput, JsonStringsEachRowOutput},
     json_strings_each_row_with_progress::{
-        GeneralJSONStringsEachRowWithProgressOutput, JSONStringsEachRowWithProgressOutput,
+        GeneralJsonStringsEachRowWithProgressOutput, JsonStringsEachRowWithProgressOutput,
     },
 };
 

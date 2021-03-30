@@ -9,15 +9,15 @@ use serde_json::Value;
 
 use super::Output;
 
-pub struct JSONCompactEachRowWithNamesAndTypesOutput<T> {
+pub struct JsonCompactEachRowWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for JSONCompactEachRowWithNamesAndTypesOutput<T> {
+impl<T> Default for JsonCompactEachRowWithNamesAndTypesOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> JSONCompactEachRowWithNamesAndTypesOutput<T> {
+impl<T> JsonCompactEachRowWithNamesAndTypesOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
@@ -25,25 +25,25 @@ impl<T> JSONCompactEachRowWithNamesAndTypesOutput<T> {
     }
 }
 
-pub type GeneralJSONCompactEachRowWithNamesAndTypesOutput =
-    JSONCompactEachRowWithNamesAndTypesOutput<HashMap<String, Value>>;
+pub type GeneralJsonCompactEachRowWithNamesAndTypesOutput =
+    JsonCompactEachRowWithNamesAndTypesOutput<HashMap<String, Value>>;
 
 #[derive(thiserror::Error, Debug)]
-pub enum JSONCompactEachRowWithNamesAndTypesOutputError {
+pub enum JsonCompactEachRowWithNamesAndTypesOutputError {
     #[error("IoError {0:?}")]
     IoError(#[from] io::Error),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
 
-impl<T> Output for JSONCompactEachRowWithNamesAndTypesOutput<T>
+impl<T> Output for JsonCompactEachRowWithNamesAndTypesOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
     type Info = HashMap<String, String>;
 
-    type Error = JSONCompactEachRowWithNamesAndTypesOutputError;
+    type Error = JsonCompactEachRowWithNamesAndTypesOutputError;
 
     fn deserialize(&self, mut slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
         let mut data: Vec<T> = vec![];
@@ -87,7 +87,7 @@ mod tests {
             PathBuf::new().join("tests/files/JSONCompactEachRowWithNamesAndTypes.txt"),
         )?;
 
-        let (rows, info) = GeneralJSONCompactEachRowWithNamesAndTypesOutput::new()
+        let (rows, info) = GeneralJsonCompactEachRowWithNamesAndTypesOutput::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
@@ -95,7 +95,7 @@ mod tests {
         );
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 
-        let (rows, info) = JSONCompactEachRowWithNamesAndTypesOutput::<TestRow>::new()
+        let (rows, info) = JsonCompactEachRowWithNamesAndTypesOutput::<TestRow>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));

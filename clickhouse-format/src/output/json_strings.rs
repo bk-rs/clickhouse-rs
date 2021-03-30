@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use super::json::JSONOutput;
+use super::json::JsonOutput;
 
-pub type JSONStringsOutput<T> = JSONOutput<T>;
-pub type GeneralJSONStringsOutput = JSONStringsOutput<HashMap<String, String>>;
+pub type JsonStringsOutput<T> = JsonOutput<T>;
+pub type GeneralJsonStringsOutput = JsonStringsOutput<HashMap<String, String>>;
 
 #[cfg(test)]
 mod tests {
@@ -20,12 +20,12 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONStrings.json"))?;
 
-        let (rows, info) = GeneralJSONStringsOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = GeneralJsonStringsOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info.rows, 2);
 
         let (rows, info) =
-            JSONStringsOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonStringsOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info.rows, 2);
 

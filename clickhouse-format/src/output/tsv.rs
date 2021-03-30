@@ -3,19 +3,19 @@ use std::{collections::HashMap, marker::PhantomData};
 use csv::{ReaderBuilder, StringRecordsIntoIter};
 use serde::de::DeserializeOwned;
 
-use super::{tsv_raw::TSVRawOutput, Output};
+use super::{tsv_raw::TsvRawOutput, Output};
 
-pub struct TSVOutput<T> {
+pub struct TsvOutput<T> {
     names: Option<Vec<String>>,
     types: Option<Vec<String>>,
     phantom: PhantomData<T>,
 }
-impl<T> Default for TSVOutput<T> {
+impl<T> Default for TsvOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> TSVOutput<T> {
+impl<T> TsvOutput<T> {
     pub fn new() -> Self {
         Self {
             names: None,
@@ -46,7 +46,7 @@ impl<T> TSVOutput<T> {
     }
 }
 
-impl<T> Output for TSVOutput<T>
+impl<T> Output for TsvOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -64,7 +64,7 @@ where
         self.deserialize_with_records(rdr.into_records())
     }
 }
-impl<T> TSVOutput<T>
+impl<T> TsvOutput<T>
 where
     T: DeserializeOwned,
 {
@@ -73,7 +73,7 @@ where
         records: StringRecordsIntoIter<&[u8]>,
     ) -> Result<(Vec<<Self as Output>::Row>, <Self as Output>::Info), <Self as Output>::Error> {
         // TODO, unescape
-        TSVRawOutput::from_raw_parts(self.names.to_owned(), self.types.to_owned())
+        TsvRawOutput::from_raw_parts(self.names.to_owned(), self.types.to_owned())
             .deserialize_with_records(records)
     }
 }
@@ -90,7 +90,7 @@ mod tests {
     fn simple() -> Result<(), Box<dyn error::Error>> {
         let content = fs::read_to_string(PathBuf::new().join("tests/files/TSV.tsv"))?;
 
-        let (rows, info) = TSVOutput::<HashMap<String, String>>::with_names(vec![
+        let (rows, info) = TsvOutput::<HashMap<String, String>>::with_names(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
@@ -102,7 +102,7 @@ mod tests {
         assert_eq!(info, None);
 
         let (rows, info) =
-            TSVOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            TsvOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, None);
 

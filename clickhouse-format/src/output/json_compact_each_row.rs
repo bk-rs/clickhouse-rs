@@ -9,11 +9,11 @@ use serde_json::Value;
 
 use super::Output;
 
-pub struct JSONCompactEachRowOutput<T> {
+pub struct JsonCompactEachRowOutput<T> {
     names: Vec<String>,
     phantom: PhantomData<T>,
 }
-impl<T> JSONCompactEachRowOutput<T> {
+impl<T> JsonCompactEachRowOutput<T> {
     pub fn new(names: Vec<String>) -> Self {
         Self {
             names,
@@ -22,24 +22,24 @@ impl<T> JSONCompactEachRowOutput<T> {
     }
 }
 
-pub type GeneralJSONCompactEachRowOutput = JSONCompactEachRowOutput<HashMap<String, Value>>;
+pub type GeneralJsonCompactEachRowOutput = JsonCompactEachRowOutput<HashMap<String, Value>>;
 
 #[derive(thiserror::Error, Debug)]
-pub enum JSONCompactEachRowOutputError {
+pub enum JsonCompactEachRowOutputError {
     #[error("IoError {0:?}")]
     IoError(#[from] io::Error),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
 
-impl<T> Output for JSONCompactEachRowOutput<T>
+impl<T> Output for JsonCompactEachRowOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
     type Info = ();
 
-    type Error = JSONCompactEachRowOutputError;
+    type Error = JsonCompactEachRowOutputError;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
         let mut data: Vec<T> = vec![];
@@ -72,7 +72,7 @@ mod tests {
         let content =
             fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactEachRow.txt"))?;
 
-        let (rows, info) = GeneralJSONCompactEachRowOutput::new(vec![
+        let (rows, info) = GeneralJsonCompactEachRowOutput::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
@@ -86,7 +86,7 @@ mod tests {
         );
         assert_eq!(info, ());
 
-        let (rows, info) = JSONCompactEachRowOutput::<TestRow>::new(vec![
+        let (rows, info) = JsonCompactEachRowOutput::<TestRow>::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),

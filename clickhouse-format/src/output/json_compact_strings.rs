@@ -2,36 +2,36 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use serde::de::DeserializeOwned;
 
-use super::{json::JSONDataInfo, json_compact::JSONCompactOutput, Output};
+use super::{json::JsonDataInfo, json_compact::JsonCompactOutput, Output};
 
-pub struct JSONCompactStringsOutput<T> {
+pub struct JsonCompactStringsOutput<T> {
     phantom: PhantomData<T>,
 }
-impl<T> Default for JSONCompactStringsOutput<T> {
+impl<T> Default for JsonCompactStringsOutput<T> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T> JSONCompactStringsOutput<T> {
+impl<T> JsonCompactStringsOutput<T> {
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
         }
     }
 }
-pub type GeneralJSONCompactStringsOutput = JSONCompactStringsOutput<HashMap<String, String>>;
+pub type GeneralJsonCompactStringsOutput = JsonCompactStringsOutput<HashMap<String, String>>;
 
-impl<T> Output for JSONCompactStringsOutput<T>
+impl<T> Output for JsonCompactStringsOutput<T>
 where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = JSONDataInfo;
+    type Info = JsonDataInfo;
 
     type Error = serde_json::Error;
 
     fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
-        JSONCompactOutput::new().deserialize_with::<String>(slice)
+        JsonCompactOutput::new().deserialize_with::<String>(slice)
     }
 }
 
@@ -49,11 +49,11 @@ mod tests {
             fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactStrings.json"))?;
 
         let (rows, info) =
-            GeneralJSONCompactStringsOutput::new().deserialize(&content.as_bytes()[..])?;
+            GeneralJsonCompactStringsOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info.rows, 2);
 
-        let (rows, info) = JSONCompactStringsOutput::<TestStringsRow>::new()
+        let (rows, info) = JsonCompactStringsOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info.rows, 2);

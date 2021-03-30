@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use super::json_compact_each_row::JSONCompactEachRowOutput;
+use super::json_compact_each_row::JsonCompactEachRowOutput;
 
-pub type JSONCompactStringsEachRowOutput<T> = JSONCompactEachRowOutput<T>;
+pub type JsonCompactStringsEachRowOutput<T> = JsonCompactEachRowOutput<T>;
 
-pub type GeneralJSONCompactStringsEachRowOutput =
-    JSONCompactStringsEachRowOutput<HashMap<String, String>>;
+pub type GeneralJsonCompactStringsEachRowOutput =
+    JsonCompactStringsEachRowOutput<HashMap<String, String>>;
 
 #[cfg(test)]
 mod tests {
@@ -23,7 +23,7 @@ mod tests {
         let content =
             fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactStringsEachRow.txt"))?;
 
-        let (rows, info) = GeneralJSONCompactStringsEachRowOutput::new(vec![
+        let (rows, info) = GeneralJsonCompactStringsEachRowOutput::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
@@ -34,7 +34,7 @@ mod tests {
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, ());
 
-        let (rows, info) = JSONCompactStringsEachRowOutput::<TestStringsRow>::new(vec![
+        let (rows, info) = JsonCompactStringsEachRowOutput::<TestStringsRow>::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),

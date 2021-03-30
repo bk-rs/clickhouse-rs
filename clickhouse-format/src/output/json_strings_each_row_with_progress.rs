@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use super::json_each_row_with_progress::JSONEachRowWithProgressOutput;
+use super::json_each_row_with_progress::JsonEachRowWithProgressOutput;
 
-pub type JSONStringsEachRowWithProgressOutput<T> = JSONEachRowWithProgressOutput<T>;
+pub type JsonStringsEachRowWithProgressOutput<T> = JsonEachRowWithProgressOutput<T>;
 
-pub type GeneralJSONStringsEachRowWithProgressOutput =
-    JSONStringsEachRowWithProgressOutput<HashMap<String, String>>;
+pub type GeneralJsonStringsEachRowWithProgressOutput =
+    JsonStringsEachRowWithProgressOutput<HashMap<String, String>>;
 
 #[cfg(test)]
 mod tests {
@@ -24,12 +24,12 @@ mod tests {
             PathBuf::new().join("tests/files/JSONStringsEachRowWithProgress.txt"),
         )?;
 
-        let (rows, info) = GeneralJSONStringsEachRowWithProgressOutput::new()
+        let (rows, info) = GeneralJsonStringsEachRowWithProgressOutput::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info.read_rows, 2);
 
-        let (rows, info) = JSONStringsEachRowWithProgressOutput::<TestStringsRow>::new()
+        let (rows, info) = JsonStringsEachRowWithProgressOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info.read_rows, 2);

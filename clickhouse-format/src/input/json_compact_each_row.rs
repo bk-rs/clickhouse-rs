@@ -3,16 +3,16 @@ use serde_json::{ser::CompactFormatter, Serializer};
 
 use crate::input::Input;
 
-pub struct JSONCompactEachRowInput<T> {
+pub struct JsonCompactEachRowInput<T> {
     rows: Vec<Vec<T>>,
 }
-impl<T> JSONCompactEachRowInput<T> {
+impl<T> JsonCompactEachRowInput<T> {
     pub fn new(rows: Vec<Vec<T>>) -> Self {
         Self { rows }
     }
 }
 
-impl<T> Input for JSONCompactEachRowInput<T>
+impl<T> Input for JsonCompactEachRowInput<T>
 where
     T: Serialize,
 {
@@ -23,7 +23,7 @@ where
         let mut ser_buf = Vec::with_capacity(128);
 
         for row in &self.rows {
-            buf.push('[' as u8);
+            buf.push(b'[');
             for (i, item) in row.iter().enumerate() {
                 ser_buf.clear();
                 let mut ser = Serializer::with_formatter(&mut ser_buf, CompactFormatter);
@@ -35,9 +35,9 @@ where
                     buf.extend_from_slice(b", ");
                 }
             }
-            buf.push(']' as u8);
+            buf.push(b']');
 
-            buf.push('\n' as u8);
+            buf.push(b'\n');
         }
 
         Ok(buf)
@@ -103,7 +103,7 @@ mod tests {
             )),
         ]);
 
-        let bytes = JSONCompactEachRowInput::new(rows).serialize()?;
+        let bytes = JsonCompactEachRowInput::new(rows).serialize()?;
         assert_eq!(bytes, content.as_bytes());
 
         Ok(())

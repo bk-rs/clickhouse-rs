@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use super::json_each_row::JSONEachRowOutput;
+use super::json_each_row::JsonEachRowOutput;
 
-pub type JSONStringsEachRowOutput<T> = JSONEachRowOutput<T>;
+pub type JsonStringsEachRowOutput<T> = JsonEachRowOutput<T>;
 
-pub type GeneralJSONStringsEachRowOutput = JSONStringsEachRowOutput<HashMap<String, String>>;
+pub type GeneralJsonStringsEachRowOutput = JsonStringsEachRowOutput<HashMap<String, String>>;
 
 #[cfg(test)]
 mod tests {
@@ -23,11 +23,11 @@ mod tests {
             fs::read_to_string(PathBuf::new().join("tests/files/JSONStringsEachRow.txt"))?;
 
         let (rows, info) =
-            GeneralJSONStringsEachRowOutput::new().deserialize(&content.as_bytes()[..])?;
+            GeneralJsonStringsEachRowOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, ());
 
-        let (rows, info) = JSONStringsEachRowOutput::<TestStringsRow>::new()
+        let (rows, info) = JsonStringsEachRowOutput::<TestStringsRow>::new()
             .deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, ());
