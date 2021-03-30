@@ -78,8 +78,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-cmd="${bin} --config-file="${config_file}" --log-file="${log_file}" --errorlog-file="${errorlog_file}" --pid-file="${pid_file}" --daemon -- --path="${path}" --postgresql_port=${postgresql_port}"
-$(${cmd})
+$(${bin} --config-file="${config_file}" --log-file="${log_file}" --errorlog-file="${errorlog_file}" --pid-file="${pid_file}" --daemon -- --path="${path}" --postgresql_port=${postgresql_port})
 
 sleep 2
 

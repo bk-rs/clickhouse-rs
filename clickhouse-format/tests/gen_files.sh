@@ -77,8 +77,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-cmd="${bin_server} --config-file="${config_file}" --log-file="${log_file}" --errorlog-file="${errorlog_file}" --pid-file="${pid_file}" --daemon -- --path="${path}" --tcp_port=${tcp_port}"
-$(${cmd})
+$(${bin_server} --config-file="${config_file}" --log-file="${log_file}" --errorlog-file="${errorlog_file}" --pid-file="${pid_file}" --daemon -- --path="${path}" --tcp_port=${tcp_port})
 
 sleep 2
 
@@ -103,10 +102,7 @@ END
 )
 $(echo ${query_insert} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx)
 
-query_select=$(cat <<-END
-SELECT array1, array2, tuple1, tuple2, map1 FROM t_testing_format
-END
-)
+query_select="SELECT array1, array2, tuple1, tuple2, map1 FROM t_testing_format"
 files_path="${script_path_root}files"
 
 formats=("JSON" "JSONStrings" "JSONCompact" "JSONCompactStrings")
@@ -129,5 +125,8 @@ formats=("JSONEachRow" "JSONStringsEachRow" "JSONCompactEachRow" "JSONCompactStr
 for format in ${formats[*]}; do
     $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.txt")
 done
+
+query_drop_table="DROP TABLE t_testing_format"
+$(echo ${query_drop_table} | ${bin_client} --port ${tcp_port} --password xxx)
 
 sleep 1

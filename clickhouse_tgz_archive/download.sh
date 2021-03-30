@@ -2,9 +2,9 @@
 
 set -ex
 
-# ./download.sh v21.4.1.6251-testing
+# ./download.sh v21.4.1.6378-testing
 
-tag="${1:-v21.2.6.1-stable}"
+tag="${1:-v21.2.7.11-stable}"
 version=`echo $tag | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'`
 
 script_path=$(cd $(dirname $0) ; pwd -P)
