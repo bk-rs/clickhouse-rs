@@ -8,7 +8,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
-use super::Output;
+use super::{Output, OutputResult};
 
 pub struct JsonEachRowWithProgressOutput<T> {
     phantom: PhantomData<T>,
@@ -50,7 +50,7 @@ where
 
     type Error = JsonEachRowWithProgressOutputError;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut data: Vec<T> = vec![];
         let mut info = Option::<JsonEachRowProgress>::None;
 

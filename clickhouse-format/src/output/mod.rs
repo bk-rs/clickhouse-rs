@@ -88,5 +88,6 @@ pub trait Output {
     type Info;
     type Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error>;
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error>;
 }
+pub type OutputResult<Row, Info, Error> = Result<(Vec<Row>, Info), Error>;

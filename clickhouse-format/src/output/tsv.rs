@@ -3,7 +3,7 @@ use std::{collections::HashMap, marker::PhantomData};
 use csv::{ReaderBuilder, StringRecordsIntoIter};
 use serde::de::DeserializeOwned;
 
-use super::{tsv_raw::TsvRawOutput, Output};
+use super::{tsv_raw::TsvRawOutput, Output, OutputResult};
 
 pub struct TsvOutput<T> {
     names: Option<Vec<String>>,
@@ -55,7 +55,7 @@ where
 
     type Error = csv::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let rdr = ReaderBuilder::new()
             .delimiter(b'\t')
             .has_headers(false)
@@ -71,7 +71,7 @@ where
     pub(crate) fn deserialize_with_records(
         &self,
         records: StringRecordsIntoIter<&[u8]>,
-    ) -> Result<(Vec<<Self as Output>::Row>, <Self as Output>::Info), <Self as Output>::Error> {
+    ) -> OutputResult<<Self as Output>::Row, <Self as Output>::Info, <Self as Output>::Error> {
         // TODO, unescape
         TsvRawOutput::from_raw_parts(self.names.to_owned(), self.types.to_owned())
             .deserialize_with_records(records)

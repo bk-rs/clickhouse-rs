@@ -7,7 +7,7 @@ use std::{
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use super::Output;
+use super::{Output, OutputResult};
 
 pub struct JsonCompactEachRowWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
@@ -45,7 +45,7 @@ where
 
     type Error = JsonCompactEachRowWithNamesAndTypesOutputError;
 
-    fn deserialize(&self, mut slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, mut slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut data: Vec<T> = vec![];
 
         let mut buf = String::new();

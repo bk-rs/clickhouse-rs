@@ -5,7 +5,7 @@ use serde_json::{Map, Value};
 
 use super::{
     json::{JsonData, JsonDataInfo},
-    Output,
+    Output, OutputResult,
 };
 
 pub struct JsonCompactOutput<T> {
@@ -34,7 +34,7 @@ where
 
     type Error = serde_json::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         self.deserialize_with::<Value>(slice)
     }
 }
@@ -46,7 +46,7 @@ where
     pub(crate) fn deserialize_with<V>(
         &self,
         slice: &[u8],
-    ) -> Result<(Vec<<Self as Output>::Row>, <Self as Output>::Info), <Self as Output>::Error>
+    ) -> OutputResult<<Self as Output>::Row, <Self as Output>::Info, <Self as Output>::Error>
     where
         V: DeserializeOwned + Into<Value>,
     {

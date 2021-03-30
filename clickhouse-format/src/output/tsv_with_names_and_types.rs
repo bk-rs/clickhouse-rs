@@ -3,7 +3,7 @@ use std::{collections::HashMap, io, marker::PhantomData};
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
 
-use super::{tsv::TsvOutput, Output};
+use super::{tsv::TsvOutput, Output, OutputResult};
 
 pub struct TsvWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
@@ -30,7 +30,7 @@ where
 
     type Error = csv::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut rdr = ReaderBuilder::new().delimiter(b'\t').from_reader(slice);
 
         let header = rdr.headers()?;

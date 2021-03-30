@@ -2,7 +2,7 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use serde::de::DeserializeOwned;
 
-use super::{json::JsonDataInfo, json_compact::JsonCompactOutput, Output};
+use super::{json::JsonDataInfo, json_compact::JsonCompactOutput, Output, OutputResult};
 
 pub struct JsonCompactStringsOutput<T> {
     phantom: PhantomData<T>,
@@ -30,7 +30,7 @@ where
 
     type Error = serde_json::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         JsonCompactOutput::new().deserialize_with::<String>(slice)
     }
 }

@@ -7,7 +7,7 @@ use std::{
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
-use super::Output;
+use super::{Output, OutputResult};
 
 pub struct JsonCompactEachRowOutput<T> {
     names: Vec<String>,
@@ -41,7 +41,7 @@ where
 
     type Error = JsonCompactEachRowOutputError;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut data: Vec<T> = vec![];
 
         for line in slice.lines() {

@@ -3,7 +3,7 @@ use std::{collections::HashMap, marker::PhantomData};
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 
-use super::Output;
+use super::{Output, OutputResult};
 
 pub struct JsonOutput<T> {
     phantom: PhantomData<T>,
@@ -31,7 +31,7 @@ where
 
     type Error = serde_json::Error;
 
-    fn deserialize(&self, slice: &[u8]) -> Result<(Vec<Self::Row>, Self::Info), Self::Error> {
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let json_data: JsonData<Self::Row> = serde_json::from_slice(slice)?;
         let JsonData {
             meta,
