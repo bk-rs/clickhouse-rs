@@ -14,7 +14,3 @@ cargo fmt -p clickhouse-format -- --check
 cargo build-all-features -p clickhouse-format
 cargo test-all-features -p clickhouse-format -- --nocapture
 ```
-
-```
-cargo publish --dry-run
-```
