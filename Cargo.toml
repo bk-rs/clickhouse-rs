@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "clickhouse-data-type",
     "clickhouse-data-value",
     "clickhouse-format",
     "clickhouse-postgres-client",
