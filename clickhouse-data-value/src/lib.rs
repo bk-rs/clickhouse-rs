@@ -10,4 +10,5 @@ pub mod datetime;
 pub mod datetime64;
 
 #[cfg(feature = "with-datetime")]
-pub(crate) const MAX_DATETIME_UNIX_TIMESTAMP: u64 = 4291718400;
+// 2105-12-31 23:59:59
+pub(crate) const MAX_DATETIME_UNIX_TIMESTAMP: u64 = 4291718399;
