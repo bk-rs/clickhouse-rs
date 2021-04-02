@@ -1,7 +1,16 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::{
+    fmt,
+    num::ParseIntError,
+    ops::{Deref, DerefMut},
+    str::FromStr,
+};
 
-use chrono::NaiveDateTime as InnerNaiveDateTime;
+use chrono::NaiveDateTime as ChronoNaiveDateTime;
 use pest::Parser;
+use serde::{
+    de::{self, Visitor},
+    Deserialize, Deserializer,
+};
 
 use crate::MAX_DATETIME_UNIX_TIMESTAMP;
 
@@ -10,10 +19,22 @@ use crate::MAX_DATETIME_UNIX_TIMESTAMP;
 struct DatetimeParser;
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct NaiveDateTime(pub InnerNaiveDateTime);
-impl From<InnerNaiveDateTime> for NaiveDateTime {
-    fn from(inner: InnerNaiveDateTime) -> Self {
+pub struct NaiveDateTime(pub ChronoNaiveDateTime);
+impl From<ChronoNaiveDateTime> for NaiveDateTime {
+    fn from(inner: ChronoNaiveDateTime) -> Self {
         Self(inner)
+    }
+}
+impl Deref for NaiveDateTime {
+    type Target = ChronoNaiveDateTime;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl DerefMut for NaiveDateTime {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -26,7 +47,6 @@ pub enum ParseError {
     #[error("Unknown")]
     Unknown,
 }
-
 impl FromStr for NaiveDateTime {
     type Err = ParseError;
 
@@ -41,12 +61,12 @@ impl FromStr for NaiveDateTime {
 
         match pair.as_rule() {
             Rule::datetime_simple => {
-                InnerNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%d %H:%M:%S")
+                ChronoNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%d %H:%M:%S")
                     .map(Into::into)
                     .map_err(|err| ParseError::ValueInvalid(err.to_string()))
             }
             Rule::datetime_iso => {
-                InnerNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%dT%H:%M:%SZ")
+                ChronoNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%dT%H:%M:%SZ")
                     .map(Into::into)
                     .map_err(|err| ParseError::ValueInvalid(err.to_string()))
             }
@@ -62,11 +82,43 @@ impl FromStr for NaiveDateTime {
                     ));
                 }
 
-                Ok(InnerNaiveDateTime::from_timestamp(v as i64, 0).into())
+                Ok(ChronoNaiveDateTime::from_timestamp(v as i64, 0).into())
             }
             _ => return Err(ParseError::Unknown),
         }
     }
+}
+
+struct NaiveDateTimeVisitor;
+impl<'de> Visitor<'de> for NaiveDateTimeVisitor {
+    type Value = NaiveDateTime;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("format simple or iso or unix_timestamp")
+    }
+
+    fn visit_str<E>(self, string: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        string
+            .parse()
+            .map_err(|err: ParseError| de::Error::custom(err.to_string()))
+    }
+}
+impl<'de> Deserialize<'de> for NaiveDateTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_str(NaiveDateTimeVisitor)
+    }
+}
+pub fn deserialize<'de, D>(d: D) -> Result<ChronoNaiveDateTime, D::Error>
+where
+    D: de::Deserializer<'de>,
+{
+    d.deserialize_str(NaiveDateTimeVisitor).map(|x| x.0)
 }
 
 #[cfg(test)]
@@ -78,7 +130,7 @@ mod tests {
     use chrono::NaiveDate;
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn test_parse() -> Result<(), Box<dyn error::Error>> {
         assert_eq!(
             "2021-03-01 01:02:03".parse::<NaiveDateTime>()?,
             NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into()
@@ -110,6 +162,30 @@ mod tests {
             Err(ParseError::ValueInvalid(err)) if err == "Override the max Unix Timestamp" => {}
             Err(err) => assert!(false, "{:?}", err),
         }
+
+        Ok(())
+    }
+
+    #[derive(Deserialize)]
+    struct Foo {
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        dt1: chrono::NaiveDateTime,
+        dt2: NaiveDateTime,
+    }
+
+    #[test]
+    fn test_de() -> Result<(), Box<dyn error::Error>> {
+        let deserializer = de::IntoDeserializer::<de::value::Error>::into_deserializer;
+        assert_eq!(
+            super::deserialize(deserializer("2021-03-01 01:02:03")).unwrap(),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+        );
+
+        let Foo { dt1, dt2 } = serde_json::from_str(
+            r#"{"dt1": "2021-03-01 01:02:03", "dt2": "2021-03-01 01:02:03"}"#,
+        )?;
+        assert_eq!(dt1, NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3));
+        assert_eq!(dt2, NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into());
 
         Ok(())
     }
