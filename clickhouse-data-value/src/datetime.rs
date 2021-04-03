@@ -84,7 +84,7 @@ impl FromStr for NaiveDateTime {
 
                 Ok(ChronoNaiveDateTime::from_timestamp(v as i64, 0).into())
             }
-            _ => return Err(ParseError::Unknown),
+            _ => Err(ParseError::Unknown),
         }
     }
 }

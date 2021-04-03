@@ -75,7 +75,7 @@ impl FromStr for NaiveDateTime {
             Rule::datetime64_unix_timestamp_nano => {
                 parse_unix_timestamp_str(pair.as_str(), Precision::Nano)
             }
-            _ => return Err(ParseError::Unknown),
+            _ => Err(ParseError::Unknown),
         }
     }
 }
@@ -116,8 +116,8 @@ fn parse_unix_timestamp_str(s: &str, precision: Precision) -> Result<NaiveDateTi
         .parse()
         .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
     let nsecs = match precision {
-        Precision::Milli => nsecs * 1000_000,
-        Precision::Micro => nsecs * 1000,
+        Precision::Milli => nsecs * 1_000_000,
+        Precision::Micro => nsecs * 1_000,
         Precision::Nano => nsecs,
     };
 
