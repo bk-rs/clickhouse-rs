@@ -83,51 +83,37 @@ sleep 2
 
 files_path="${script_path_root}files"
 
-query_create_table=$(cat <<-END
-CREATE TABLE t_testing_format
-(
-    array1 Array(UInt8),
-    array2 Array(String),
-    tuple1 Tuple(UInt8, String),
-    tuple2 Tuple(UInt8, Nullable(String)),
-    map1 Map(String, String)
-) ENGINE=Memory
+query_date=$(cat <<-END
+SELECT
+    toDate('2021-03-01') as date
 END
 )
-$(echo ${query_create_table} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx)
+$(echo ${query_date} FORMAT JSONEachRow | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/date.txt")
 
-query_insert=$(cat <<-END
-INSERT INTO t_testing_format VALUES 
-    ([1, 2], ['a', 'b'], (1, 'a'), (1, null), {'1':'Ready', '2':'Steady', '3':'Go'}), 
-    ([3, 4], ['c', 'd'], (2, 'b'), (2, 'b'), {})
+
+query_datetime=$(cat <<-END
+SELECT
+    toDateTime('2021-03-01 01:02:03', 'UTC') as datetime_utc,
+    toDateTime('2021-03-01 01:02:03', 'Asia/Shanghai') as datetime_shanghai
 END
 )
-$(echo ${query_insert} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx)
+$(echo ${query_datetime} FORMAT JSONEachRow | ${bin_client} --date_time_output_format simple --port ${tcp_port} --password xxx > "${files_path}/datetime_simple.txt")
+$(echo ${query_datetime} FORMAT JSONEachRow | ${bin_client} --date_time_output_format iso --port ${tcp_port} --password xxx > "${files_path}/datetime_iso.txt")
+$(echo ${query_datetime} FORMAT JSONEachRow | ${bin_client} --date_time_output_format unix_timestamp --port ${tcp_port} --password xxx > "${files_path}/datetime_unix_timestamp.txt")
 
-query_select="SELECT array1, array2, tuple1, tuple2, map1 FROM t_testing_format"
+query_datetime64=$(cat <<-END
+SELECT
+    toDateTime64('2021-03-01 01:02:03.123456789', 3, 'UTC') as datetime64_milli_utc,
+    toDateTime('2021-03-01 01:02:03.123456789', 3, 'Asia/Shanghai') as datetime64_milli_shanghai,
+    toDateTime64('2021-03-01 01:02:03.123456789', 6, 'UTC') as datetime64_micro_utc,
+    toDateTime('2021-03-01 01:02:03.123456789', 6, 'Asia/Shanghai') as datetime64_micro_shanghai,
+    toDateTime64('2021-03-01 01:02:03.123456789', 9, 'UTC') as datetime64_nano_utc,
+    toDateTime('2021-03-01 01:02:03.123456789', 9, 'Asia/Shanghai') as datetime64_nano_shanghai
+END
+)
+$(echo ${query_datetime64} FORMAT JSONEachRow | ${bin_client} --date_time_output_format simple --port ${tcp_port} --password xxx > "${files_path}/datetime64_simple.txt")
+$(echo ${query_datetime64} FORMAT JSONEachRow | ${bin_client} --date_time_output_format iso --port ${tcp_port} --password xxx > "${files_path}/datetime64_iso.txt")
+$(echo ${query_datetime64} FORMAT JSONEachRow | ${bin_client} --date_time_output_format unix_timestamp --port ${tcp_port} --password xxx > "${files_path}/datetime64_unix_timestamp.txt")
 
-formats=("JSON" "JSONStrings" "JSONCompact" "JSONCompactStrings")
-for format in ${formats[*]}; do
-    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx | python3 -m json.tool > "${files_path}/${format}.json")
-done
-
-formats=("TSV" "TSVRaw" "TSVWithNames" "TSVWithNamesAndTypes")
-for format in ${formats[*]}; do
-    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.tsv")
-done
-
-# SKIP, because don't support tuple
-# formats=("CSV" "CSVWithNames")
-# for format in ${formats[*]}; do
-#     $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --port ${tcp_port} --password xxx > "${files_path}/${format}.csv")
-# done
-
-formats=("JSONEachRow" "JSONStringsEachRow" "JSONCompactEachRow" "JSONCompactStringsEachRow" "JSONEachRowWithProgress" "JSONStringsEachRowWithProgress" "JSONCompactEachRowWithNamesAndTypes" "JSONCompactStringsEachRowWithNamesAndTypes")
-for format in ${formats[*]}; do
-    $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.txt")
-done
-
-query_drop_table="DROP TABLE t_testing_format"
-$(echo ${query_drop_table} | ${bin_client} --port ${tcp_port} --password xxx)
 
 sleep 1
