@@ -1,4 +1,4 @@
-#[cfg(feature = "with-datetime")]
+#[cfg(any(feature = "with-datetime", feature = "with-datetime64"))]
 #[macro_use]
 extern crate pest_derive;
 
@@ -9,6 +9,6 @@ pub mod datetime;
 #[cfg(feature = "with-datetime64")]
 pub mod datetime64;
 
-#[cfg(feature = "with-datetime")]
+#[cfg(any(feature = "with-datetime", feature = "with-datetime64"))]
 // 2105-12-31 23:59:59
 pub(crate) const MAX_DATETIME_UNIX_TIMESTAMP: u64 = 4291718399;

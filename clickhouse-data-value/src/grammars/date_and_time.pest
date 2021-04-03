@@ -1,4 +1,19 @@
+datetime64 = {
+  datetime64_simple_nano | datetime64_simple_micro | datetime64_simple_milli |
+  datetime64_iso_nano | datetime64_iso_micro | datetime64_iso_milli |
+  datetime64_unix_timestamp_nano | datetime64_unix_timestamp_micro | datetime64_unix_timestamp_milli
+}
 datetime = { datetime_simple | datetime_iso | datetime_unix_timestamp }
+
+datetime64_simple_milli = @{ datetime_simple ~ "." ~ time_3f }
+datetime64_simple_micro = @{ datetime_simple ~ "." ~ time_6f }
+datetime64_simple_nano = @{ datetime_simple ~ "." ~ time_9f }
+datetime64_iso_milli = @{ date ~ "T" ~ time_H ~ ":" ~ time_M ~ ":" ~ time_S ~ "." ~ time_3f ~ "Z" }
+datetime64_iso_micro = @{ date ~ "T" ~ time_H ~ ":" ~ time_M ~ ":" ~ time_S ~ "." ~ time_6f ~ "Z" }
+datetime64_iso_nano = @{ date ~ "T" ~ time_H ~ ":" ~ time_M ~ ":" ~ time_S ~ "." ~ time_9f ~ "Z" }
+datetime64_unix_timestamp_milli = @{ ASCII_DIGIT+ ~ "." ~ time_3f }
+datetime64_unix_timestamp_micro = @{ ASCII_DIGIT+ ~ "." ~ time_6f }
+datetime64_unix_timestamp_nano = @{ ASCII_DIGIT+ ~ "." ~ time_9f }
 
 datetime_simple = @{ date ~ " " ~ time_H ~ ":" ~ time_M ~ ":" ~ time_S }
 datetime_iso = @{ date ~ "T" ~ time_H ~ ":" ~ time_M ~ ":" ~ time_S ~ "Z" }
@@ -13,3 +28,7 @@ date_d = @{ "0" ~ ASCII_NONZERO_DIGIT | "1" ~ ASCII_DIGIT  | "2" ~ ASCII_DIGIT |
 time_H = @{ "0" ~ ASCII_DIGIT | "1" ~ ASCII_DIGIT | "20" | "21" | "22" | "23" }
 time_M = @{ "0" ~ ASCII_DIGIT | "1" ~ ASCII_DIGIT | "2" ~ ASCII_DIGIT | "3" ~ ASCII_DIGIT | "4" ~ ASCII_DIGIT | "5" ~ ASCII_DIGIT }
 time_S = @{ "0" ~ ASCII_DIGIT | "1" ~ ASCII_DIGIT | "2" ~ ASCII_DIGIT | "3" ~ ASCII_DIGIT | "4" ~ ASCII_DIGIT | "5" ~ ASCII_DIGIT | "60" }
+
+time_3f = @{ ASCII_DIGIT{3} }
+time_6f = @{ ASCII_DIGIT{6} }
+time_9f = @{ ASCII_DIGIT{9} }
