@@ -15,8 +15,8 @@ use serde::{
 use crate::MAX_DATETIME_UNIX_TIMESTAMP;
 
 #[derive(Parser)]
-#[grammar = "grammars/datetime.pest"]
-struct DatetimeParser;
+#[grammar = "grammars/date_and_time.pest"]
+struct DateAndTimeParser;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct NaiveDateTime(pub ChronoNaiveDateTime);
@@ -51,7 +51,7 @@ impl FromStr for NaiveDateTime {
     type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let pair = DatetimeParser::parse(Rule::datetime, s)
+        let pair = DateAndTimeParser::parse(Rule::datetime, s)
             .map_err(|err| ParseError::FormatMismatch(err.to_string()))?
             .next()
             .ok_or(ParseError::Unknown)?
@@ -125,7 +125,7 @@ where
 mod tests {
     use super::*;
 
-    use std::error;
+    use std::{error, fs, path::PathBuf};
 
     use chrono::NaiveDate;
 
@@ -167,10 +167,11 @@ mod tests {
     }
 
     #[derive(Deserialize)]
-    struct Foo {
+    struct Row {
         #[serde(deserialize_with = "crate::datetime::deserialize")]
-        dt1: chrono::NaiveDateTime,
-        dt2: NaiveDateTime,
+        datetime_utc: chrono::NaiveDateTime,
+        #[allow(dead_code)]
+        datetime_shanghai: NaiveDateTime,
     }
 
     #[test]
@@ -181,11 +182,21 @@ mod tests {
             NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
         );
 
-        let Foo { dt1, dt2 } = serde_json::from_str(
-            r#"{"dt1": "2021-03-01 01:02:03", "dt2": "2021-03-01 01:02:03"}"#,
-        )?;
-        assert_eq!(dt1, NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3));
-        assert_eq!(dt2, NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into());
+        for format in ["simple", "iso", "unix_timestamp"].iter() {
+            let content = fs::read_to_string(
+                PathBuf::new().join(format!("tests/files/datetime_{}.txt", format)),
+            )?;
+            let line = content.lines().next().unwrap();
+
+            let Row {
+                datetime_utc,
+                datetime_shanghai: _,
+            } = serde_json::from_str(line)?;
+            assert_eq!(
+                datetime_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+            );
+        }
 
         Ok(())
     }
