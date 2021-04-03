@@ -20,7 +20,7 @@ default = []
 
 # types
 all-types = [ "chrono", "bigdecimal", "uuid" ]
-chrono = [ "sqlx-clickhouse-ext/chrono", "chrono04" ]
+chrono = [ "sqlx-clickhouse-ext/chrono", "clickhouse-data-value/with-datetime", "clickhouse-data-value/with-datetime64" ]
 bigdecimal = [ "sqlx-clickhouse-ext/bigdecimal" ]
 uuid = [ "sqlx-clickhouse-ext/uuid" ]
 
@@ -37,12 +37,12 @@ runtime-tokio-rustls = [ "sqlx-clickhouse-ext/runtime-tokio-rustls" ]
 _integration_tests = [ "all-types", "runtime-tokio-native-tls", "num-bigint" ]
 
 [dependencies]
-sqlx-clickhouse-ext = { path = "../sqlx-clickhouse-ext", version = "0.1", default-features = false, features = [ "postgres" ] }
+sqlx-clickhouse-ext = { path = "../sqlx-clickhouse-ext", version = "~0.1", default-features = false, features = [ "postgres" ] }
 url = { version = "2.1", default-features = false }
 
 num-bigint = { version = "0.4", default-features = false, features = [ "std" ], optional = true }
 
-chrono04 = { version = "0.4", default-features = false, features = [], optional = true, package = "chrono" }
+clickhouse-data-value = { path = "../clickhouse-data-value", version = "~0.1", default-features = false, optional = true}
 
 [dev-dependencies]
 tokio = { version = "1.2", features = ["macros", "rt"]}

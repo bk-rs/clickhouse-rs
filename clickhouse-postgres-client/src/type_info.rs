@@ -5,12 +5,15 @@ use std::{
 };
 
 #[cfg(feature = "chrono")]
-use chrono04::{format::ParseError as ChronoParseError, NaiveDateTime};
+use clickhouse_data_value::{
+    datetime::NaiveDateTime as DatetimeNaiveDateTime,
+    datetime64::{NaiveDateTime as Datetime64NaiveDateTime, ParseError as Datetime64ParseError},
+};
 #[cfg(feature = "num-bigint")]
 use num_bigint::{BigInt, BigUint, ParseBigIntError};
 use sqlx_clickhouse_ext::sqlx_core::error::Error;
 #[cfg(feature = "chrono")]
-use sqlx_clickhouse_ext::sqlx_core::types::chrono::NaiveDate;
+use sqlx_clickhouse_ext::sqlx_core::types::chrono::{NaiveDate, NaiveDateTime};
 #[cfg(feature = "bigdecimal")]
 use sqlx_clickhouse_ext::sqlx_core::types::BigDecimal;
 #[cfg(feature = "uuid")]
@@ -295,15 +298,13 @@ impl ClickhousePgValue {
     }
 
     #[cfg(feature = "chrono")]
-    pub fn as_naive_date_time(&self) -> Option<Result<NaiveDateTime, ChronoParseError>> {
+    pub fn as_naive_date_time(&self) -> Option<Result<NaiveDateTime, Datetime64ParseError>> {
         match *self {
-            Self::String(ref v) => match v.len() {
-                19 => Some(NaiveDateTime::parse_from_str(v, "%Y-%m-%d %H:%M:%S")),
-                23 => Some(NaiveDateTime::parse_from_str(v, "%Y-%m-%d %H:%M:%S%.3f")),
-                26 => Some(NaiveDateTime::parse_from_str(v, "%Y-%m-%d %H:%M:%S%.6f")),
-                29 => Some(NaiveDateTime::parse_from_str(v, "%Y-%m-%d %H:%M:%S%.9f")),
-                _ => None,
-            },
+            Self::String(ref v) => Some(
+                v.parse::<DatetimeNaiveDateTime>()
+                    .map(|x| x.0)
+                    .or_else(|_| v.parse::<Datetime64NaiveDateTime>().map(|x| x.0)),
+            ),
             _ => None,
         }
     }
@@ -489,32 +490,13 @@ mod tests {
     #[test]
     fn test_as_naive_date_time() {
         let dt = NaiveDate::from_ymd(2021, 1, 1).and_hms_nano(0, 0, 0, 123456789);
-        assert_eq!(
-            ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S").to_string())
-                .as_naive_date_time(),
-            Some(Ok(NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)))
-        );
-        assert_eq!(
-            ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S%.3f").to_string())
-                .as_naive_date_time(),
-            Some(Ok(
-                NaiveDate::from_ymd(2021, 1, 1).and_hms_milli(0, 0, 0, 123)
-            ))
-        );
-        assert_eq!(
-            ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S%.6f").to_string())
-                .as_naive_date_time(),
-            Some(Ok(
-                NaiveDate::from_ymd(2021, 1, 1).and_hms_micro(0, 0, 0, 123456)
-            ))
-        );
-        assert_eq!(
-            ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S%.9f").to_string())
-                .as_naive_date_time(),
-            Some(Ok(
-                NaiveDate::from_ymd(2021, 1, 1).and_hms_nano(0, 0, 0, 123456789)
-            ))
-        );
+        match ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S").to_string())
+            .as_naive_date_time()
+        {
+            Some(Ok(dt)) => assert_eq!(dt, NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)),
+            Some(Err(err)) => assert!(false, "{:?}", err),
+            None => assert!(false),
+        }
     }
 
     #[test]
