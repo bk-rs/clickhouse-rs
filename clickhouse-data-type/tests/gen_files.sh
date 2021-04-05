@@ -248,7 +248,8 @@ SELECT
     toTypeName(toNullable(toDate('2021-03-01'))) as nullable_date,
     toTypeName(toNullable(toDateTime('2021-03-01 01:02:03'))) as nullable_datetime,
     toTypeName(toNullable(toDateTime64('2021-03-01 01:02:03', 0))) as nullable_datetime64,
-    toTypeName(toNullable(CAST('a', 'Enum(\'a\'=-128, \'b\'=127)'))) as nullable_enum8
+    toTypeName(toNullable(CAST('a', 'Enum(\'a\'=-128, \'b\'=127)'))) as nullable_enum8,
+    toTypeName(NULL) as nullable_nothing
 END
 )
 $(echo ${query_nullable} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/nullable.txt")

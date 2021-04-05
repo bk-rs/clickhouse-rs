@@ -485,6 +485,10 @@ mod tests {
             )),
             iter.next().unwrap().parse()?
         );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Nothing),
+            iter.next().unwrap().parse()?
+        );
 
         assert_eq!(iter.next(), None);
 

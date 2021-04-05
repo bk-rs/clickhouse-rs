@@ -15,6 +15,8 @@ use crate::{
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum NullableTypeName {
+    Nothing,
+    //
     UInt8,
     UInt16,
     UInt32,
@@ -44,6 +46,8 @@ impl TryFrom<Pair<'_, Rule>> for NullableTypeName {
 
     fn try_from(pair: Pair<'_, Rule>) -> Result<Self, Self::Error> {
         match pair.as_rule() {
+            Rule::Nullable_Nothing => Ok(Self::Nothing),
+            //
             Rule::UInt8 => Ok(Self::UInt8),
             Rule::UInt16 => Ok(Self::UInt16),
             Rule::UInt32 => Ok(Self::UInt32),

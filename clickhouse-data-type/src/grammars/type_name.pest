@@ -68,6 +68,7 @@ LowCardinality_data_type = {
 
 Nullable = { "Nullable" ~ "(" ~ Nullable_type_name ~ ")" }
 Nullable_type_name = {
+    Nullable_Nothing |
     UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
     Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
     Float32 | Float64 |
@@ -78,5 +79,6 @@ Nullable_type_name = {
     DateTime64 | DateTime | Date |
     Enum16 | Enum8
 }
+Nullable_Nothing = { "Nothing" }
 
 WHITESPACE = _{ " " }
