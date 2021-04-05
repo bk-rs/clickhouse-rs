@@ -28,6 +28,11 @@ pub enum LowCardinalityDataType {
     FixedString(FixedStringN),
     Date,
     DateTime(Option<Tz>),
+    Ipv4,
+    Ipv6,
+    //
+    //
+    //
     Nullable(NullableTypeName),
 }
 
@@ -58,6 +63,11 @@ impl TryFrom<Pair<'_, Rule>> for LowCardinalityDataType {
 
                 Ok(Self::DateTime(timezone))
             }
+            Rule::IPv4 => Ok(Self::Ipv4),
+            Rule::IPv6 => Ok(Self::Ipv6),
+            //
+            //
+            //
             Rule::Nullable => {
                 let data_type = nullable::get_type_name(pair.into_inner())?;
 

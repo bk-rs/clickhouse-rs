@@ -39,6 +39,8 @@ pub enum NullableTypeName {
     DateTime64(DateTime64Precision, Option<Tz>),
     Enum8(Enum8),
     Enum16(Enum16),
+    Ipv4,
+    Ipv6,
 }
 
 impl TryFrom<Pair<'_, Rule>> for NullableTypeName {
@@ -95,6 +97,8 @@ impl TryFrom<Pair<'_, Rule>> for NullableTypeName {
 
                 Ok(Self::Enum16(inner))
             }
+            Rule::IPv4 => Ok(Self::Ipv4),
+            Rule::IPv6 => Ok(Self::Ipv6),
             _ => Err(ParseError::Unknown),
         }
     }

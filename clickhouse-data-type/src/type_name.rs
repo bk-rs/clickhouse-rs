@@ -39,6 +39,8 @@ pub enum TypeName {
     DateTime64(DateTime64Precision, Option<Tz>),
     Enum8(Enum8),
     Enum16(Enum16),
+    Ipv4,
+    Ipv6,
     //
     //
     //
@@ -117,6 +119,8 @@ impl TypeName {
 
                 Ok(Self::Enum16(inner))
             }
+            Rule::IPv4 => Ok(Self::Ipv4),
+            Rule::IPv6 => Ok(Self::Ipv6),
             //
             //
             //
@@ -454,6 +458,14 @@ mod tests {
             TypeName::LowCardinality(LowCardinalityDataType::Nullable(NullableTypeName::String)),
             iter.next().unwrap().parse()?
         );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Ipv4),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Ipv6),
+            iter.next().unwrap().parse()?
+        );
 
         assert_eq!(iter.next(), None);
 
@@ -528,6 +540,14 @@ mod tests {
         );
         assert_eq!(
             TypeName::Nullable(NullableTypeName::Nothing),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Ipv4),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Ipv6),
             iter.next().unwrap().parse()?
         );
 
@@ -614,6 +634,34 @@ mod tests {
             ]),
             iter.next().unwrap().parse()?
         );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_ipv4() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/ipv4.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::Ipv4, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_ipv6() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/ipv6.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::Ipv6, iter.next().unwrap().parse()?);
 
         assert_eq!(iter.next(), None);
 

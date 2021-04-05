@@ -228,7 +228,9 @@ SELECT
     toTypeName(toLowCardinality(toFloat32(0))) as lowcardinality_float32,
     toTypeName(toLowCardinality(toFloat64(0))) as lowcardinality_float64,
     toTypeName(toLowCardinality(toNullable(''))) as lowcardinality_nullable_string,
-    toTypeName(toNullable(toLowCardinality(''))) as lowcardinality_nullable_string_2
+    toTypeName(toNullable(toLowCardinality(''))) as lowcardinality_nullable_string_2,
+    toTypeName(toLowCardinality(toIPv4('127.0.0.1'))) as lowcardinality_ipv4,
+    toTypeName(toLowCardinality(toIPv6('2a02:aa08:e000:3100::2'))) as lowcardinality_ipv6
 END
 )
 $(echo ${query_lowcardinality} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/lowcardinality.txt")
@@ -249,7 +251,9 @@ SELECT
     toTypeName(toNullable(toDateTime('2021-03-01 01:02:03'))) as nullable_datetime,
     toTypeName(toNullable(toDateTime64('2021-03-01 01:02:03', 0))) as nullable_datetime64,
     toTypeName(toNullable(CAST('a', 'Enum(\'a\'=-128, \'b\'=127)'))) as nullable_enum8,
-    toTypeName(NULL) as nullable_nothing
+    toTypeName(NULL) as nullable_nothing,
+    toTypeName(toNullable(toIPv4('127.0.0.1'))) as nullable_ipv4,
+    toTypeName(toNullable(toIPv6('2a02:aa08:e000:3100::2'))) as nullable_ipv6
 END
 )
 $(echo ${query_nullable} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/nullable.txt")
@@ -277,5 +281,22 @@ SELECT
 END
 )
 $(echo ${query_tuple} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/tuple.txt")
+
+# 
+query_ipv4=$(cat <<-END
+SELECT
+    toTypeName(toIPv4('127.0.0.1')) as ipv4
+END
+)
+$(echo ${query_ipv4} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/ipv4.txt")
+
+# 
+query_ipv6=$(cat <<-END
+SELECT
+    toTypeName(toIPv6('2a02:aa08:e000:3100::2')) as ipv4
+END
+)
+$(echo ${query_ipv6} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/ipv6.txt")
+
 
 sleep 1

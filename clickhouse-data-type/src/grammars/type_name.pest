@@ -8,6 +8,7 @@ type_name = {
     UUID |
     DateTime64 | DateTime | Date |
     Enum16 | Enum8 |
+    IPv4 | IPv6 |
     // 
     // 
     //
@@ -60,6 +61,10 @@ Enum_pair = { "'" ~ Enum_key ~ "'" ~ " "* ~ "=" ~ " "* ~ Enum_value }
 Enum_key = @{ ASCII_ALPHANUMERIC+ }
 Enum_value = @{ "-"? ~ ASCII_DIGIT+ }
 
+IPv4 = { "IPv4" }
+
+IPv6 = { "IPv6" }
+
 LowCardinality = { "LowCardinality" ~ "(" ~ LowCardinality_data_type ~ ")" }
 LowCardinality_data_type = {
     UInt64 | UInt32 | UInt16 | UInt8 |
@@ -68,6 +73,11 @@ LowCardinality_data_type = {
     String |
     FixedString |
     DateTime | Date |
+    Enum16 | Enum8 |
+    IPv4 | IPv6 |
+    // 
+    // 
+    // 
     Nullable
 }
 
@@ -82,7 +92,8 @@ Nullable_type_name = {
     FixedString |
     UUID |
     DateTime64 | DateTime | Date |
-    Enum16 | Enum8
+    Enum16 | Enum8 |
+    IPv4 | IPv6
 }
 Nullable_Nothing = { "Nothing" }
 
