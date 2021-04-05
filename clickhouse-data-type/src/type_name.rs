@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, num::ParseIntError, str::FromStr};
 
 use chrono_tz::Tz;
 use pest::Parser as _;
@@ -13,6 +13,9 @@ mod type_name_parser {
     pub(super) struct TypeNameParser;
 }
 use type_name_parser::{Rule, TypeNameParser};
+
+const DECIMAL_PRECISION_MIN: u8 = 1;
+const DECIMAL_PRECISION_MAX: u8 = 76;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TypeName {
@@ -73,6 +76,43 @@ impl FromStr for TypeName {
             Rule::Int64 => Ok(Self::Int64),
             Rule::Int128 => Ok(Self::Int128),
             Rule::Int256 => Ok(Self::Int256),
+            Rule::Float32 => Ok(Self::Float32),
+            Rule::Float64 => Ok(Self::Float64),
+            Rule::Decimal => {
+                let mut pair_inner = pair.into_inner();
+                let precision: u8 = pair_inner
+                    .next()
+                    .ok_or(ParseError::Unknown)?
+                    .as_str()
+                    .parse()
+                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                if precision < DECIMAL_PRECISION_MIN {
+                    return Err(ParseError::ValueInvalid(
+                        "invalid decimal precision".to_string(),
+                    ));
+                }
+                if precision > DECIMAL_PRECISION_MAX {
+                    return Err(ParseError::ValueInvalid(
+                        "invalid decimal precision".to_string(),
+                    ));
+                }
+
+                let scale: u8 = pair_inner
+                    .next()
+                    .ok_or(ParseError::Unknown)?
+                    .as_str()
+                    .parse()
+                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                if scale > precision {
+                    return Err(ParseError::ValueInvalid(
+                        "invalid decimal scale".to_string(),
+                    ));
+                }
+
+                Ok(Self::Decimal { precision, scale })
+            }
             _ => Err(ParseError::Unknown),
         }
     }
@@ -102,6 +142,54 @@ mod tests {
         assert_eq!(TypeName::Int64, iter.next().unwrap().parse()?);
         assert_eq!(TypeName::Int128, iter.next().unwrap().parse()?);
         assert_eq!(TypeName::Int256, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_float() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/float.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::Float32, iter.next().unwrap().parse()?);
+        assert_eq!(TypeName::Float64, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_decimal() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/decimal.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        for (precision, scale) in vec![
+            (9, 9),
+            (9, 1),
+            (18, 18),
+            (18, 2),
+            (38, 38),
+            (38, 3),
+            (76, 76),
+            (76, 4),
+        ]
+        .into_iter()
+        {
+            assert_eq!(
+                TypeName::Decimal {
+                    precision: precision,
+                    scale: scale
+                },
+                iter.next().unwrap().parse()?
+            );
+        }
 
         assert_eq!(iter.next(), None);
 

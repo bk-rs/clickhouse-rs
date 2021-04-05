@@ -83,6 +83,7 @@ sleep 2
 
 files_path="${script_path_root}files"
 
+# 
 query_int_uint=$(cat <<-END
 SELECT
     toTypeName(toUInt8(0)) as uint8,
@@ -99,6 +100,55 @@ SELECT
 END
 )
 $(echo ${query_int_uint} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/int_uint.txt")
+
+# 
+query_float=$(cat <<-END
+SELECT
+    toTypeName(toFloat32(0.0)) as float32,
+    toTypeName(toFloat64(0.0)) as float64
+END
+)
+$(echo ${query_float} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/float.txt")
+
+# 
+query_decimal_create_table=$(cat <<-END
+CREATE TABLE t_testing_type_decimal
+(
+    f_decimal32 Decimal32(9),
+    f_decimal64 Decimal64(18),
+    f_decimal128 Decimal128(38),
+    f_decimal256 Decimal256(76)
+) ENGINE=Memory
+END
+)
+$(echo ${query_decimal_create_table} | ${bin_client} --allow_experimental_bigint_types 1 --port ${tcp_port} --password xxx)
+
+query_decimal_insert=$(cat <<-END
+INSERT INTO t_testing_type_decimal VALUES 
+    (0.0, 0.0, 0.0, 0.0)
+END
+)
+$(echo ${query_decimal_insert} | ${bin_client} --port ${tcp_port} --password xxx)
+
+query_decimal=$(cat <<-END
+SELECT
+    toTypeName(f_decimal32) as decimal32_ct,
+    toTypeName(toDecimal32(0.0, 1)) as decimal32,
+    toTypeName(f_decimal64) as decimal64_ct,
+    toTypeName(toDecimal64(0.0, 2)) as decimal64,
+    toTypeName(f_decimal128) as decimal128_ct,
+    toTypeName(toDecimal128(0.0, 3)) as decimal128,
+    toTypeName(f_decimal256) as decimal256_ct,
+    toTypeName(toDecimal256(0.0, 4)) as decimal256
+FROM t_testing_type_decimal
+END
+)
+$(echo ${query_decimal} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/decimal.txt")
+
+query_decimal_drop_table="DROP TABLE t_testing_type_decimal"
+$(echo ${query_decimal_drop_table} | ${bin_client} --port ${tcp_port} --password xxx)
+
+# 
 
 
 sleep 1

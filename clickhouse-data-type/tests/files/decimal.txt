@@ -1,0 +1,3 @@
+["decimal32_ct", "decimal32", "decimal64_ct", "decimal64", "decimal128_ct", "decimal128", "decimal256_ct", "decimal256"]
+["String", "String", "String", "String", "String", "String", "String", "String"]
+["Decimal(9, 9)", "Decimal(9, 1)", "Decimal(18, 18)", "Decimal(18, 2)", "Decimal(38, 38)", "Decimal(38, 3)", "Decimal(76, 76)", "Decimal(76, 4)"]

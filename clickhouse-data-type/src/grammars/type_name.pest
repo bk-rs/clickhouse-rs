@@ -26,11 +26,14 @@ Int256 = { "Int256" }
 Float32 = { "Float32" }
 Float64 = { "Float64" }
 
-Decimal = { "Decimal" ~ "(" ~ ASCII_NONZERO_DIGIT ~ "," ~ ASCII_DIGIT ~ ")" }
+Decimal = { "Decimal" ~ "(" ~ Decimal_precision ~ "," ~ Decimal_scale ~ ")" }
+Decimal_precision = @{ ASCII_NONZERO_DIGIT{1, 2} }
+Decimal_scale = @{ ASCII_DIGIT{1, 2} }
 
 String = { "String" }
 
-FixedString = { "FixedString" ~ "(" ~ ASCII_NONZERO_DIGIT ~ ")" }
+FixedString = { "FixedString" ~ "(" ~ FixedString_n ~ ")" }
+FixedString_n = @{ ASCII_NONZERO_DIGIT+ }
 
 UUID = { "UUID" }
 
