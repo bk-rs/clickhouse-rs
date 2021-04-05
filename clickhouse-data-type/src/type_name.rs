@@ -7,6 +7,7 @@ use pest::Parser as _;
 #[allow(clippy::upper_case_acronyms)]
 mod type_name_parser {
     use pest_derive::Parser;
+
     #[derive(Parser)]
     #[grammar = "grammars/type_name.pest"]
     pub(super) struct TypeNameParser;

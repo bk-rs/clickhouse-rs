@@ -1,6 +1,5 @@
 #[cfg(any(feature = "with-datetime", feature = "with-datetime64"))]
-#[macro_use]
-extern crate pest_derive;
+pub(crate) mod date_and_time_parser;
 
 #[cfg(feature = "with-date")]
 pub mod date;

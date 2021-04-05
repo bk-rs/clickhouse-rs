@@ -6,17 +6,16 @@ use std::{
 };
 
 use chrono::NaiveDateTime as ChronoNaiveDateTime;
-use pest::Parser;
+use pest::Parser as _;
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,
 };
 
-use crate::MAX_DATETIME_UNIX_TIMESTAMP;
-
-#[derive(Parser)]
-#[grammar = "grammars/date_and_time.pest"]
-struct DateAndTimeParser;
+use crate::{
+    date_and_time_parser::{DateAndTimeParser, Rule},
+    MAX_DATETIME_UNIX_TIMESTAMP,
+};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct NaiveDateTime(pub ChronoNaiveDateTime);
