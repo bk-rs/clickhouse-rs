@@ -298,5 +298,19 @@ END
 )
 $(echo ${query_ipv6} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/ipv6.txt")
 
+# 
+query_map=$(cat <<-END
+SELECT
+    toTypeName(CAST((['1', '2'], ['a', 'b']), 'Map(String, String)')) as map_string_string,
+    toTypeName(CAST((['1', '2'], ['a', 'b']), 'Map(FixedString(2), String)')) as map_fixedstring_string,
+    toTypeName(CAST(([1, 2], ['a', 'b']), 'Map(UInt256, String)')) as map_uint256_string,
+    toTypeName(CAST(([1, 2], ['a', 'b']), 'Map(Int256, String)')) as map_int256_string,
+    toTypeName(CAST(([1, 2], ['a', 'b']), 'Map(Float64, String)')) as map_float64_string,
+    toTypeName(CAST(([1, 2], ['a', 'b']), 'Map(Decimal(9, 9), String)')) as map_decimal_string,
+    toTypeName(CAST((['1', '2'], [array('a'), array('b')]), 'Map(String, Array(String))')) as map_string_array_string
+END
+)
+$(echo ${query_map} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/map.txt")
+
 
 sleep 1

@@ -19,7 +19,8 @@ type_name = {
     // 
     // 
     Array |
-    Tuple
+    Tuple |
+    Map
 }
 
 
@@ -101,6 +102,28 @@ Nullable_Nothing = { "Nothing" }
 Array = { "Array" ~ "(" ~ type_name ~ ")" }
 
 Tuple = { "Tuple" ~ "(" ~ type_name ~ ("," ~ type_name)* ~ ")" }
+
+Map = { "Map" ~ "(" ~ Map_key ~ "," ~ Map_value ~ ")" }
+Map_key = {
+    UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
+    Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
+    Float32 | Float64 |
+    Decimal |
+    String |
+    FixedString
+}
+Map_value = {
+    UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
+    Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
+    Float32 | Float64 |
+    Decimal |
+    String |
+    FixedString |
+    // 
+    // 
+    // 
+    Array
+}
 
 // geo
 Point = { "Point" }

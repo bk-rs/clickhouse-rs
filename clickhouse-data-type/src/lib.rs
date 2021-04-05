@@ -1,9 +1,11 @@
+pub mod array;
 pub mod date_time;
 pub mod date_time64;
 pub mod decimal;
 pub mod r#enum;
 pub mod fixed_string;
 pub mod low_cardinality;
+pub mod map;
 pub mod nullable;
 
 pub mod type_name;

@@ -4,11 +4,12 @@ use chrono_tz::Tz;
 use pest::{iterators::Pair, Parser as _};
 
 use crate::{
-    date_time,
+    array, date_time,
     date_time64::{self, DateTime64Precision},
     decimal::{self, DecimalPrecision, DecimalScale},
     fixed_string::{self, FixedStringN},
     low_cardinality::{self, LowCardinalityDataType},
+    map::{self, MapKey, MapValue},
     nullable::{self, NullableTypeName},
     r#enum::{self, Enum16, Enum8},
     type_name_parser::{Rule, TypeNameParser},
@@ -55,6 +56,7 @@ pub enum TypeName {
     //
     Array(Box<Self>),
     Tuple(Vec<Self>),
+    Map(MapKey, MapValue),
 }
 
 impl FromStr for TypeName {
@@ -74,7 +76,7 @@ impl FromStr for TypeName {
 }
 
 impl TypeName {
-    fn from_pair(pair: Pair<'_, Rule>) -> Result<TypeName, ParseError> {
+    pub(crate) fn from_pair(pair: Pair<'_, Rule>) -> Result<TypeName, ParseError> {
         match pair.as_rule() {
             Rule::UInt8 => Ok(Self::UInt8),
             Rule::UInt16 => Ok(Self::UInt16),
@@ -146,16 +148,9 @@ impl TypeName {
             //
             //
             Rule::Array => {
-                let pair = pair
-                    .into_inner()
-                    .next()
-                    .ok_or(ParseError::Unknown)?
-                    .into_inner()
-                    .next()
-                    .ok_or(ParseError::Unknown)?;
+                let data_type = array::get_data_type(pair.into_inner())?;
 
-                let this = Self::from_pair(pair)?;
-                Ok(Self::Array(Box::new(this)))
+                Ok(Self::Array(data_type.into()))
             }
             Rule::Tuple => {
                 let pairs: Vec<_> = pair.into_inner().collect();
@@ -172,6 +167,11 @@ impl TypeName {
                 }
                 Ok(Self::Tuple(type_names))
             }
+            Rule::Map => {
+                let (map_key, map_value) = map::get_map_key_and_map_value(pair.into_inner())?;
+
+                Ok(Self::Map(map_key, map_value))
+            }
             _ => Err(ParseError::Unknown),
         }
     }
@@ -182,6 +182,8 @@ mod tests {
     use super::*;
 
     use std::{error, fs, path::PathBuf};
+
+    use crate::map::{MapKey, MapValue};
 
     #[test]
     fn test_parse_int_uint() -> Result<(), Box<dyn error::Error>> {
@@ -682,6 +684,50 @@ mod tests {
         assert_eq!(TypeName::Ring, "Ring".parse()?);
         assert_eq!(TypeName::Polygon, "Polygon".parse()?);
         assert_eq!(TypeName::MultiPolygon, "MultiPolygon".parse()?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_map() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/map.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::Map(MapKey::String, MapValue::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(MapKey::FixedString(FixedStringN(2)), MapValue::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(MapKey::UInt256, MapValue::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(MapKey::Int256, MapValue::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(MapKey::Float64, MapValue::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(
+                MapKey::Decimal(DecimalPrecision(9), DecimalScale(9)),
+                MapValue::String
+            ),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Map(MapKey::String, MapValue::Array(TypeName::String.into())),
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
 
         Ok(())
     }
