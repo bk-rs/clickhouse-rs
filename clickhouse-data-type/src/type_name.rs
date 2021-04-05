@@ -1,23 +1,16 @@
-use std::{collections::HashMap, num::ParseIntError, str::FromStr};
+use std::{collections::HashMap, convert::TryFrom, num::ParseIntError, str::FromStr};
 
 use chrono_tz::Tz;
 use pest::Parser as _;
 
-// https://github.com/pest-parser/pest/issues/490#issuecomment-808942497
-#[allow(clippy::upper_case_acronyms)]
-mod type_name_parser {
-    use pest_derive::Parser;
-
-    #[derive(Parser)]
-    #[grammar = "grammars/type_name.pest"]
-    pub(super) struct TypeNameParser;
-}
-use type_name_parser::{Rule, TypeNameParser};
+use crate::{
+    low_cardinality::LowCardinalityDataType,
+    type_name_parser::{parse_date_time, parse_fixed_string, Rule, TypeNameParser},
+    ParseError,
+};
 
 const DECIMAL_PRECISION_MIN: u8 = 1;
 const DECIMAL_PRECISION_MAX: u8 = 76;
-
-const FIXEDSTRING_N_MIN: usize = 1;
 
 const DATETIME64_PRECISION_MAX: u8 = 9;
 
@@ -38,24 +31,16 @@ pub enum TypeName {
     Float64,
     Decimal { precision: u8, scale: u8 },
     String,
-    FixedString { n: usize },
+    FixedString(usize),
     Uuid,
     Date,
     DateTime { timezone: Option<Tz> },
     DateTime64 { precision: u8, timezone: Option<Tz> },
     Enum8(HashMap<String, i8>),
     Enum16(HashMap<String, i16>),
+    LowCardinality(LowCardinalityDataType),
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum ParseError {
-    #[error("FormatMismatch {0}")]
-    FormatMismatch(String),
-    #[error("ValueInvalid {0}")]
-    ValueInvalid(String),
-    #[error("Unknown")]
-    Unknown,
-}
 impl FromStr for TypeName {
     type Err = ParseError;
 
@@ -119,36 +104,14 @@ impl FromStr for TypeName {
             }
             Rule::String => Ok(Self::String),
             Rule::FixedString => {
-                let mut pair_inner = pair.into_inner();
-                let n: usize = pair_inner
-                    .next()
-                    .ok_or(ParseError::Unknown)?
-                    .as_str()
-                    .parse()
-                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+                let n = parse_fixed_string(pair)?;
 
-                if n < FIXEDSTRING_N_MIN {
-                    return Err(ParseError::ValueInvalid(
-                        "invalid fixedstring n".to_string(),
-                    ));
-                }
-
-                Ok(Self::FixedString { n })
+                Ok(Self::FixedString(n))
             }
             Rule::UUID => Ok(Self::Uuid),
             Rule::Date => Ok(Self::Date),
             Rule::DateTime => {
-                let mut pair_inner = pair.into_inner();
-                let timezone = if let Some(pair_timezone) = pair_inner.next() {
-                    Some(
-                        pair_timezone
-                            .as_str()
-                            .parse::<Tz>()
-                            .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
-                    )
-                } else {
-                    None
-                };
+                let timezone = parse_date_time(pair)?;
 
                 Ok(Self::DateTime { timezone })
             }
@@ -229,6 +192,17 @@ impl FromStr for TypeName {
                 }
 
                 Ok(Self::Enum16(map))
+            }
+            Rule::LowCardinality => {
+                let mut pair_inner = pair.into_inner();
+                let data_type_pair = pair_inner.next().ok_or(ParseError::Unknown)?;
+
+                let mut data_type_pair_inner = data_type_pair.into_inner();
+                let data_type_pair = data_type_pair_inner.next().ok_or(ParseError::Unknown)?;
+
+                let data_type = LowCardinalityDataType::try_from(data_type_pair)?;
+
+                Ok(Self::LowCardinality(data_type))
             }
             _ => Err(ParseError::Unknown),
         }
@@ -334,10 +308,7 @@ mod tests {
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
 
-        assert_eq!(
-            TypeName::FixedString { n: 8 },
-            iter.next().unwrap().parse()?
-        );
+        assert_eq!(TypeName::FixedString(8), iter.next().unwrap().parse()?);
 
         assert_eq!(iter.next(), None);
 
@@ -464,6 +435,75 @@ mod tests {
                     .into_iter()
                     .collect()
             ),
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_lowcardinality() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/lowcardinality.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::FixedString(1)),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Date),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::DateTime { timezone: None }),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::UInt8),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::UInt16),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::UInt32),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::UInt64),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Int8),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Int16),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Int32),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Int64),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Float32),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Float64),
             iter.next().unwrap().parse()?
         );
 

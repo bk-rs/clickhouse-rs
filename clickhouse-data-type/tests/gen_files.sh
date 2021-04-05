@@ -210,5 +210,25 @@ END
 )
 $(echo ${query_enum} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/enum.txt")
 
+# 
+query_lowcardinality=$(cat <<-END
+SELECT
+    toTypeName(toLowCardinality('')) as lowcardinality_string,
+    toTypeName(toLowCardinality(toFixedString('', 1))) as lowcardinality_fixedstring,
+    toTypeName(toLowCardinality(toDate('2021-03-01'))) as lowcardinality_date,
+    toTypeName(toLowCardinality(toDateTime('2021-03-01 01:02:03'))) as lowcardinality_datetime,
+    toTypeName(toLowCardinality(toUInt8(0))) as lowcardinality_uint8,
+    toTypeName(toLowCardinality(toUInt16(0))) as lowcardinality_uint16,
+    toTypeName(toLowCardinality(toUInt32(0))) as lowcardinality_uint32,
+    toTypeName(toLowCardinality(toUInt64(0))) as lowcardinality_uint64,
+    toTypeName(toLowCardinality(toInt8(0))) as lowcardinality_int8,
+    toTypeName(toLowCardinality(toInt16(0))) as lowcardinality_int16,
+    toTypeName(toLowCardinality(toInt32(0))) as lowcardinality_int32,
+    toTypeName(toLowCardinality(toInt64(0))) as lowcardinality_int64,
+    toTypeName(toLowCardinality(toFloat32(0))) as lowcardinality_float32,
+    toTypeName(toLowCardinality(toFloat64(0))) as lowcardinality_float64
+END
+)
+$(echo ${query_lowcardinality} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/lowcardinality.txt")
 
 sleep 1

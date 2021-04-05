@@ -7,7 +7,8 @@ type_name = {
     FixedString |
     UUID |
     DateTime64 | DateTime | Date |
-    Enum16 | Enum8
+    Enum16 | Enum8 |
+    LowCardinality
 }
 
 UInt8 = { "UInt8" }
@@ -45,8 +46,18 @@ DateTime_timezone_char = @{ ASCII_ALPHA | "-" | "_" }
 
 Enum8 = { "Enum8" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
 Enum16 = { "Enum16" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
-Enum_pair = { "'" ~ Enum_key ~ "'" ~ WHITESPACE* ~ "=" ~ WHITESPACE* ~ Enum_value }
+Enum_pair = { "'" ~ Enum_key ~ "'" ~ " "* ~ "=" ~ " "* ~ Enum_value }
 Enum_key = @{ ASCII_ALPHANUMERIC+ }
 Enum_value = @{ "-"? ~ ASCII_DIGIT+ }
+
+LowCardinality = { "LowCardinality" ~ "(" ~ LowCardinality_data_type ~ ")" }
+LowCardinality_data_type = {
+    UInt64 | UInt32 | UInt16 | UInt8 |
+    Int64 | Int32 | Int16 | Int8 |
+    Float32 | Float64 |
+    String |
+    FixedString |
+    DateTime | Date
+}
 
 WHITESPACE = _{ " " }
