@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use chrono_tz::Tz;
-use pest::Parser as _;
+use pest::{iterators::Pair, Parser as _};
 
 use crate::{
     date_time,
@@ -44,6 +44,11 @@ pub enum TypeName {
     //
     LowCardinality(LowCardinalityDataType),
     Nullable(NullableTypeName),
+    //
+    //
+    //
+    Array(Box<Self>),
+    Tuple(Vec<Self>),
 }
 
 impl FromStr for TypeName {
@@ -58,6 +63,12 @@ impl FromStr for TypeName {
             .next()
             .ok_or(ParseError::Unknown)?;
 
+        Self::from_pair(pair)
+    }
+}
+
+impl TypeName {
+    fn from_pair(pair: Pair<'_, Rule>) -> Result<TypeName, ParseError> {
         match pair.as_rule() {
             Rule::UInt8 => Ok(Self::UInt8),
             Rule::UInt16 => Ok(Self::UInt16),
@@ -118,6 +129,36 @@ impl FromStr for TypeName {
                 let type_name = nullable::get_type_name(pair.into_inner())?;
 
                 Ok(Self::Nullable(type_name))
+            }
+            //
+            //
+            //
+            Rule::Array => {
+                let pair = pair
+                    .into_inner()
+                    .next()
+                    .ok_or(ParseError::Unknown)?
+                    .into_inner()
+                    .next()
+                    .ok_or(ParseError::Unknown)?;
+
+                let this = Self::from_pair(pair)?;
+                Ok(Self::Array(Box::new(this)))
+            }
+            Rule::Tuple => {
+                let pairs: Vec<_> = pair.into_inner().collect();
+
+                if pairs.is_empty() {
+                    return Err(ParseError::Unknown);
+                }
+
+                let mut type_names = vec![];
+                for pair in pairs {
+                    let this =
+                        Self::from_pair(pair.into_inner().next().ok_or(ParseError::Unknown)?)?;
+                    type_names.push(this);
+                }
+                Ok(Self::Tuple(type_names))
             }
             _ => Err(ParseError::Unknown),
         }
@@ -487,6 +528,90 @@ mod tests {
         );
         assert_eq!(
             TypeName::Nullable(NullableTypeName::Nothing),
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_array() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/array.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::Array(TypeName::UInt8.into()),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Array(TypeName::UInt8.into()),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Array(TypeName::Nullable(NullableTypeName::UInt8).into()),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Array(TypeName::Array(TypeName::UInt8.into()).into()),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Array(
+                TypeName::Tuple(vec![
+                    TypeName::UInt8.into(),
+                    TypeName::Nullable(NullableTypeName::Nothing).into()
+                ])
+                .into()
+            ),
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_tuple() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/tuple.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::Tuple(vec![TypeName::String, TypeName::UInt8]),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Tuple(vec![TypeName::String, TypeName::UInt8]),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Tuple(vec![
+                TypeName::String,
+                TypeName::Nullable(NullableTypeName::UInt8)
+            ]),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Tuple(vec![
+                TypeName::String,
+                TypeName::Array(TypeName::UInt8.into()),
+            ]),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Tuple(vec![
+                TypeName::String,
+                TypeName::Tuple(vec![
+                    TypeName::UInt8,
+                    TypeName::Nullable(NullableTypeName::Nothing)
+                ]),
+            ]),
             iter.next().unwrap().parse()?
         );
 

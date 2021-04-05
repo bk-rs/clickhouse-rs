@@ -12,7 +12,12 @@ type_name = {
     // 
     //
     LowCardinality |
-    Nullable
+    Nullable |
+    // 
+    // 
+    // 
+    Array |
+    Tuple
 }
 
 
@@ -80,5 +85,9 @@ Nullable_type_name = {
     Enum16 | Enum8
 }
 Nullable_Nothing = { "Nothing" }
+
+Array = { "Array" ~ "(" ~ type_name ~ ")" }
+
+Tuple = { "Tuple" ~ "(" ~ type_name ~ ("," ~ type_name)* ~ ")" }
 
 WHITESPACE = _{ " " }

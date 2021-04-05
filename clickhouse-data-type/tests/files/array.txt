@@ -1,0 +1,3 @@
+["array_uint8", "array_lowcardinality_uint8", "array_nullable_uint8", "array_array_uint8", "array_tuple_uint8_nullable_nothing"]
+["String", "String", "String", "String", "String"]
+["Array(UInt8)", "Array(UInt8)", "Array(Nullable(UInt8))", "Array(Array(UInt8))", "Array(Tuple(UInt8, Nullable(Nothing)))"]

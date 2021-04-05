@@ -254,4 +254,28 @@ END
 )
 $(echo ${query_nullable} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/nullable.txt")
 
+# 
+query_array=$(cat <<-END
+SELECT
+    toTypeName(array(toUInt8(0))) as array_uint8,
+    toTypeName(array(toLowCardinality(toUInt8(0)))) as array_lowcardinality_uint8,
+    toTypeName(array(toNullable(toUInt8(0)))) as array_nullable_uint8,
+    toTypeName(array(array(toUInt8(0)))) as array_array_uint8,
+    toTypeName(array(tuple(toUInt8(0), NULL))) as array_tuple_uint8_nullable_nothing
+END
+)
+$(echo ${query_array} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/array.txt")
+
+# 
+query_tuple=$(cat <<-END
+SELECT
+    toTypeName(tuple('', toUInt8(0))) as tuple_string_uint8,
+    toTypeName(tuple('', toLowCardinality(toUInt8(0)))) as tuple_string_lowcardinality_uint8,
+    toTypeName(tuple('', toNullable(toUInt8(0)))) as tuple_string_nullable_uint8,
+    toTypeName(tuple('', array(toUInt8(0)))) as tuple_string_array_uint8,
+    toTypeName(tuple('', tuple(toUInt8(0), NULL))) as tuple_string_tuple_uint8_nullable_nothing
+END
+)
+$(echo ${query_tuple} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/tuple.txt")
+
 sleep 1
