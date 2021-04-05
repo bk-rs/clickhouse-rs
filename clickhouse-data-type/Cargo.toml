@@ -16,4 +16,9 @@ readme = "README.md"
 pest = { version = "2.1", default-features = false }
 pest_derive = { version = "2.1", default-features = false }
 
+thiserror = { version = "1.0", default-features = false }
+
 chrono-tz = { version = "0.5", default-features = false }
+
+[dev-dependencies]
+serde_json = { version = "1.0" }
