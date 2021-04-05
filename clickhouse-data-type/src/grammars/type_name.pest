@@ -15,7 +15,6 @@ UInt16 = { "UInt16" }
 UInt32 = { "UInt32" }
 UInt64 = { "UInt64" }
 UInt256 = { "UInt256" }
-
 Int8 = { "Int8" }
 Int16 = { "Int16" }
 Int32 = { "Int32" }
@@ -46,6 +45,8 @@ DateTime_timezone_char = @{ ASCII_ALPHA | "-" | "_" }
 
 Enum8 = { "Enum8" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
 Enum16 = { "Enum16" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
-Enum_pair = @{ "'" ~ ASCII_ALPHA+ ~ "'" ~ "=" ~ "-"? ~ ASCII_DIGIT+ }
+Enum_pair = { "'" ~ Enum_key ~ "'" ~ WHITESPACE* ~ "=" ~ WHITESPACE* ~ Enum_value }
+Enum_key = @{ ASCII_ALPHANUMERIC+ }
+Enum_value = @{ "-"? ~ ASCII_DIGIT+ }
 
 WHITESPACE = _{ " " }

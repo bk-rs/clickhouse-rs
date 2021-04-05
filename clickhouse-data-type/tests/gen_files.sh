@@ -200,5 +200,15 @@ END
 )
 $(echo ${query_datetime64} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/datetime64.txt")
 
+# 
+query_enum=$(cat <<-END
+SELECT
+    toTypeName(CAST('a', 'Enum(\'a\'=-128, \'b\'=127)')) as enum8,
+    toTypeName(CAST('a', 'Enum16(\'a\'=-32768, \'b\'=32767)')) as enum16,
+    toTypeName(CAST('0', 'Enum(\'0\'=0, \'1\'=1)')) as enum8_2
+END
+)
+$(echo ${query_enum} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/enum.txt")
+
 
 sleep 1

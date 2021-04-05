@@ -1,0 +1,3 @@
+["enum8", "enum16", "enum8_2"]
+["String", "String", "String"]
+["Enum8('a' = -128, 'b' = 127)", "Enum16('a' = -32768, 'b' = 32767)", "Enum8('0' = 0, '1' = 1)"]

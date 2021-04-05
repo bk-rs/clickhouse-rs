@@ -184,6 +184,52 @@ impl FromStr for TypeName {
                     timezone,
                 })
             }
+            Rule::Enum8 => {
+                let pair_inner = pair.into_inner();
+
+                let mut map = HashMap::new();
+                for pair in pair_inner {
+                    let mut pair_inner = pair.into_inner();
+                    let key = pair_inner
+                        .next()
+                        .ok_or(ParseError::Unknown)?
+                        .as_str()
+                        .to_string();
+                    let value: i8 = pair_inner
+                        .next()
+                        .ok_or(ParseError::Unknown)?
+                        .as_str()
+                        .parse()
+                        .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                    map.insert(key, value);
+                }
+
+                Ok(Self::Enum8(map))
+            }
+            Rule::Enum16 => {
+                let pair_inner = pair.into_inner();
+
+                let mut map = HashMap::new();
+                for pair in pair_inner {
+                    let mut pair_inner = pair.into_inner();
+                    let key = pair_inner
+                        .next()
+                        .ok_or(ParseError::Unknown)?
+                        .as_str()
+                        .to_string();
+                    let value: i16 = pair_inner
+                        .next()
+                        .ok_or(ParseError::Unknown)?
+                        .as_str()
+                        .parse()
+                        .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                    map.insert(key, value);
+                }
+
+                Ok(Self::Enum16(map))
+            }
             _ => Err(ParseError::Unknown),
         }
     }
@@ -381,6 +427,43 @@ mod tests {
                 precision: 9,
                 timezone: Some(Tz::Asia__Shanghai)
             },
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_enum() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/enum.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::Enum8(
+                vec![("a".to_owned(), -128), ("b".to_owned(), 127)]
+                    .into_iter()
+                    .collect()
+            ),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Enum16(
+                vec![("a".to_owned(), -32768), ("b".to_owned(), 32767)]
+                    .into_iter()
+                    .collect()
+            ),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Enum8(
+                vec![("0".to_owned(), 0), ("1".to_owned(), 1)]
+                    .into_iter()
+                    .collect()
+            ),
             iter.next().unwrap().parse()?
         );
 
