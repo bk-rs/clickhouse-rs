@@ -46,6 +46,10 @@ pub enum TypeName {
     //
     LowCardinality(LowCardinalityDataType),
     Nullable(NullableTypeName),
+    Point,
+    Ring,
+    Polygon,
+    MultiPolygon,
     //
     //
     //
@@ -134,6 +138,10 @@ impl TypeName {
 
                 Ok(Self::Nullable(type_name))
             }
+            Rule::Point => Ok(Self::Point),
+            Rule::Ring => Ok(Self::Ring),
+            Rule::Polygon => Ok(Self::Polygon),
+            Rule::MultiPolygon => Ok(Self::MultiPolygon),
             //
             //
             //
@@ -664,6 +672,16 @@ mod tests {
         assert_eq!(TypeName::Ipv6, iter.next().unwrap().parse()?);
 
         assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_geo() -> Result<(), Box<dyn error::Error>> {
+        assert_eq!(TypeName::Point, "Point".parse()?);
+        assert_eq!(TypeName::Ring, "Ring".parse()?);
+        assert_eq!(TypeName::Polygon, "Polygon".parse()?);
+        assert_eq!(TypeName::MultiPolygon, "MultiPolygon".parse()?);
 
         Ok(())
     }

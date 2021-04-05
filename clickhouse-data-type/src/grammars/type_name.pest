@@ -14,6 +14,7 @@ type_name = {
     //
     LowCardinality |
     Nullable |
+    Point | Ring | Polygon | MultiPolygon |
     // 
     // 
     // 
@@ -100,5 +101,11 @@ Nullable_Nothing = { "Nothing" }
 Array = { "Array" ~ "(" ~ type_name ~ ")" }
 
 Tuple = { "Tuple" ~ "(" ~ type_name ~ ("," ~ type_name)* ~ ")" }
+
+// geo
+Point = { "Point" }
+Ring = { "Ring" }
+Polygon = { "Polygon" }
+MultiPolygon = { "MultiPolygon" }
 
 WHITESPACE = _{ " " }
