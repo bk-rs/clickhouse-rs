@@ -20,7 +20,7 @@ default = []
 
 # types
 all-types = [ "chrono", "bigdecimal", "uuid" ]
-chrono = [ "sqlx-clickhouse-ext/chrono", "clickhouse-data-value/with-datetime", "clickhouse-data-value/with-datetime64" ]
+chrono = [ "sqlx-clickhouse-ext/chrono", "clickhouse-data-value" ]
 bigdecimal = [ "sqlx-clickhouse-ext/bigdecimal" ]
 uuid = [ "sqlx-clickhouse-ext/uuid" ]
 
