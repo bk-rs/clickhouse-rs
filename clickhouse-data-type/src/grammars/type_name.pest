@@ -1,0 +1,48 @@
+type_name = { 
+    UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
+    Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
+    Float32 | Float64 |
+    Decimal |
+    String |
+    FixedString |
+    UUID |
+    Datetime64 | DateTime | Date |
+    Enum16 | Enum8
+}
+
+UInt8 = { "UInt8" }
+UInt16 = { "UInt16" }
+UInt32 = { "UInt32" }
+UInt64 = { "UInt64" }
+UInt256 = { "UInt256" }
+
+Int8 = { "Int8" }
+Int16 = { "Int16" }
+Int32 = { "Int32" }
+Int64 = { "Int64" }
+Int128 = { "Int128" }
+Int256 = { "Int256" }
+
+Float32 = { "Float32" }
+Float64 = { "Float64" }
+
+Decimal = { "Decimal" ~ "(" ~ ASCII_NONZERO_DIGIT ~ "," ~ ASCII_DIGIT ~ ")" }
+
+String = { "String" }
+
+FixedString = { "FixedString" ~ "(" ~ ASCII_NONZERO_DIGIT ~ ")" }
+
+UUID = { "UUID" }
+
+Date = { "Date" }
+DateTime = { "DateTime" | "DateTime" ~ "(" ~ timezone ~ ")" }
+Datetime64 = { "Datetime64" ~ "(" ~ DateTime64_precision ~ ("," ~ timezone)? ~ ")" }
+DateTime64_precision = @{ ASCII_DIGIT }
+
+Enum8 = { "Enum8" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
+Enum16 = { "Enum16" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
+Enum_pair = @{ "'" ~ ASCII_ALPHA+ ~ "'" ~ "=" ~ "-"? ~ ASCII_DIGIT+ }
+
+WHITESPACE = _{ " " }
+
+timezone = @{ "UTC" | ASCII_ALPHA+ ~ "/" ~ ASCII_ALPHA+ }
