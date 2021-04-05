@@ -172,5 +172,33 @@ END
 )
 $(echo ${query_uuid} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/uuid.txt")
 
+# 
+query_date=$(cat <<-END
+SELECT
+    toTypeName(toDate('2021-03-01')) as date
+END
+)
+$(echo ${query_date} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/date.txt")
+
+# 
+query_datetime=$(cat <<-END
+SELECT
+    toTypeName(toDateTime('2021-03-01 01:02:03')) as datetime,
+    toTypeName(toDateTime('2021-03-01 01:02:03', 'UTC')) as datetime_utc,
+    toTypeName(toDateTime('2021-03-01 01:02:03', 'Asia/Shanghai')) as datetime_shanghai
+END
+)
+$(echo ${query_datetime} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/datetime.txt")
+
+# 
+query_datetime64=$(cat <<-END
+SELECT
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 0)) as datetime,
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 3, 'UTC')) as datetime_utc,
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 9, 'Asia/Shanghai')) as datetime_shanghai
+END
+)
+$(echo ${query_datetime64} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/datetime64.txt")
+
 
 sleep 1

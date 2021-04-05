@@ -19,6 +19,8 @@ const DECIMAL_PRECISION_MAX: u8 = 76;
 
 const FIXEDSTRING_N_MIN: usize = 1;
 
+const DATETIME64_PRECISION_MAX: u8 = 9;
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TypeName {
     UInt8,
@@ -39,8 +41,8 @@ pub enum TypeName {
     FixedString { n: usize },
     Uuid,
     Date,
-    DateTime { timezone: Tz },
-    DateTime64 { precision: u8, timezone: Tz },
+    DateTime { timezone: Option<Tz> },
+    DateTime64 { precision: u8, timezone: Option<Tz> },
     Enum8(HashMap<String, i8>),
     Enum16(HashMap<String, i16>),
 }
@@ -134,6 +136,54 @@ impl FromStr for TypeName {
                 Ok(Self::FixedString { n })
             }
             Rule::UUID => Ok(Self::Uuid),
+            Rule::Date => Ok(Self::Date),
+            Rule::DateTime => {
+                let mut pair_inner = pair.into_inner();
+                let timezone = if let Some(pair_timezone) = pair_inner.next() {
+                    Some(
+                        pair_timezone
+                            .as_str()
+                            .parse::<Tz>()
+                            .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
+                    )
+                } else {
+                    None
+                };
+
+                Ok(Self::DateTime { timezone })
+            }
+            Rule::DateTime64 => {
+                let mut pair_inner = pair.into_inner();
+
+                let precision: u8 = pair_inner
+                    .next()
+                    .ok_or(ParseError::Unknown)?
+                    .as_str()
+                    .parse()
+                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                if precision > DATETIME64_PRECISION_MAX {
+                    return Err(ParseError::ValueInvalid(
+                        "invalid datetime64 precision".to_string(),
+                    ));
+                }
+
+                let timezone = if let Some(pair_timezone) = pair_inner.next() {
+                    Some(
+                        pair_timezone
+                            .as_str()
+                            .parse::<Tz>()
+                            .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
+                    )
+                } else {
+                    None
+                };
+
+                Ok(Self::DateTime64 {
+                    precision,
+                    timezone,
+                })
+            }
             _ => Err(ParseError::Unknown),
         }
     }
@@ -256,6 +306,83 @@ mod tests {
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
 
         assert_eq!(TypeName::Uuid, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_date() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/date.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::Date, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_datetime() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/datetime.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::DateTime { timezone: None },
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::DateTime {
+                timezone: Some(Tz::UTC)
+            },
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::DateTime {
+                timezone: Some(Tz::Asia__Shanghai)
+            },
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_datetime64() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/datetime64.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::DateTime64 {
+                precision: 0,
+                timezone: None
+            },
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::DateTime64 {
+                precision: 3,
+                timezone: Some(Tz::UTC)
+            },
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::DateTime64 {
+                precision: 9,
+                timezone: Some(Tz::Asia__Shanghai)
+            },
+            iter.next().unwrap().parse()?
+        );
 
         assert_eq!(iter.next(), None);
 

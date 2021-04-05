@@ -6,7 +6,7 @@ type_name = {
     String |
     FixedString |
     UUID |
-    Datetime64 | DateTime | Date |
+    DateTime64 | DateTime | Date |
     Enum16 | Enum8
 }
 
@@ -38,14 +38,14 @@ FixedString_n = @{ ASCII_NONZERO_DIGIT+ }
 UUID = { "UUID" }
 
 Date = { "Date" }
-DateTime = { "DateTime" | "DateTime" ~ "(" ~ timezone ~ ")" }
-Datetime64 = { "Datetime64" ~ "(" ~ DateTime64_precision ~ ("," ~ timezone)? ~ ")" }
+DateTime = { "DateTime" ~ "(" ~ "'" ~ DateTime_timezone ~ "'" ~ ")" | "DateTime" }
+DateTime64 = { "DateTime64" ~ "(" ~ DateTime64_precision ~ ("," ~ "'" ~ DateTime_timezone ~ "'" )? ~ ")" }
 DateTime64_precision = @{ ASCII_DIGIT }
+DateTime_timezone = @{ DateTime_timezone_char+ ~ "/" ~ DateTime_timezone_char+ | DateTime_timezone_char+ }
+DateTime_timezone_char = @{ ASCII_ALPHA | "-" | "_" }
 
 Enum8 = { "Enum8" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
 Enum16 = { "Enum16" ~ "(" ~ Enum_pair ~ ("," ~ Enum_pair)* ~ ")" }
 Enum_pair = @{ "'" ~ ASCII_ALPHA+ ~ "'" ~ "=" ~ "-"? ~ ASCII_DIGIT+ }
 
 WHITESPACE = _{ " " }
-
-timezone = @{ "UTC" | ASCII_ALPHA+ ~ "/" ~ ASCII_ALPHA+ }
