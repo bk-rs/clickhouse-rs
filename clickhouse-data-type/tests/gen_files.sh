@@ -149,6 +149,28 @@ query_decimal_drop_table="DROP TABLE t_testing_type_decimal"
 $(echo ${query_decimal_drop_table} | ${bin_client} --port ${tcp_port} --password xxx)
 
 # 
+query_string=$(cat <<-END
+SELECT
+    toTypeName('') as string
+END
+)
+$(echo ${query_string} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/string.txt")
+
+# 
+query_fixedstring=$(cat <<-END
+SELECT
+    toTypeName(toFixedString('foo', 8)) as fixedstring
+END
+)
+$(echo ${query_fixedstring} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/fixedstring.txt")
+
+# 
+query_uuid=$(cat <<-END
+SELECT
+    toTypeName(toUUID('61f0c404-5cb3-11e7-907b-a6006ad3dba0')) as uuid
+END
+)
+$(echo ${query_uuid} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/uuid.txt")
 
 
 sleep 1

@@ -1,0 +1,3 @@
+["fixedstring"]
+["String"]
+["FixedString(8)"]

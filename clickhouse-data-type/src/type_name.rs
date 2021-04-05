@@ -17,6 +17,8 @@ use type_name_parser::{Rule, TypeNameParser};
 const DECIMAL_PRECISION_MIN: u8 = 1;
 const DECIMAL_PRECISION_MAX: u8 = 76;
 
+const FIXEDSTRING_N_MIN: usize = 1;
+
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TypeName {
     UInt8,
@@ -113,6 +115,25 @@ impl FromStr for TypeName {
 
                 Ok(Self::Decimal { precision, scale })
             }
+            Rule::String => Ok(Self::String),
+            Rule::FixedString => {
+                let mut pair_inner = pair.into_inner();
+                let n: usize = pair_inner
+                    .next()
+                    .ok_or(ParseError::Unknown)?
+                    .as_str()
+                    .parse()
+                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+                if n < FIXEDSTRING_N_MIN {
+                    return Err(ParseError::ValueInvalid(
+                        "invalid fixedstring n".to_string(),
+                    ));
+                }
+
+                Ok(Self::FixedString { n })
+            }
+            Rule::UUID => Ok(Self::Uuid),
             _ => Err(ParseError::Unknown),
         }
     }
@@ -190,6 +211,51 @@ mod tests {
                 iter.next().unwrap().parse()?
             );
         }
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_string() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/string.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::String, iter.next().unwrap().parse()?);
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_fixedstring() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/fixedstring.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::FixedString { n: 8 },
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_uuid() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/uuid.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(TypeName::Uuid, iter.next().unwrap().parse()?);
 
         assert_eq!(iter.next(), None);
 
