@@ -9,6 +9,7 @@ use crate::{
     decimal::{self, DecimalPrecision, DecimalScale},
     fixed_string::{self, FixedStringN},
     low_cardinality::{self, LowCardinalityDataType},
+    nullable::{self, NullableTypeName},
     r#enum::{self, Enum16, Enum8},
     type_name_parser::{Rule, TypeNameParser},
     ParseError,
@@ -38,7 +39,11 @@ pub enum TypeName {
     DateTime64(DateTime64Precision, Option<Tz>),
     Enum8(Enum8),
     Enum16(Enum16),
+    //
+    //
+    //
     LowCardinality(LowCardinalityDataType),
+    Nullable(NullableTypeName),
 }
 
 impl FromStr for TypeName {
@@ -101,10 +106,18 @@ impl FromStr for TypeName {
 
                 Ok(Self::Enum16(inner))
             }
+            //
+            //
+            //
             Rule::LowCardinality => {
                 let data_type = low_cardinality::get_data_type(pair.into_inner())?;
 
                 Ok(Self::LowCardinality(data_type))
+            }
+            Rule::Nullable => {
+                let type_name = nullable::get_type_name(pair.into_inner())?;
+
+                Ok(Self::Nullable(type_name))
             }
             _ => Err(ParseError::Unknown),
         }
@@ -390,6 +403,86 @@ mod tests {
         );
         assert_eq!(
             TypeName::LowCardinality(LowCardinalityDataType::Float64),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Nullable(NullableTypeName::String)),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::LowCardinality(LowCardinalityDataType::Nullable(NullableTypeName::String)),
+            iter.next().unwrap().parse()?
+        );
+
+        assert_eq!(iter.next(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_nullable() -> Result<(), Box<dyn error::Error>> {
+        let content = fs::read_to_string(PathBuf::new().join("tests/files/nullable.txt"))?;
+        let line = content.lines().skip(2).next().unwrap();
+
+        let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
+
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::UInt8),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::UInt256),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Int8),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Int256),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Float64),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Decimal(
+                DecimalPrecision(76),
+                DecimalScale(4)
+            )),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::String),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::FixedString(FixedStringN(1))),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Uuid),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Date),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::DateTime(None)),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::DateTime64(DateTime64Precision(0), None)),
+            iter.next().unwrap().parse()?
+        );
+        assert_eq!(
+            TypeName::Nullable(NullableTypeName::Enum8(
+                vec![("a".to_owned(), -128), ("b".to_owned(), 127)]
+                    .into_iter()
+                    .collect()
+            )),
             iter.next().unwrap().parse()?
         );
 

@@ -193,9 +193,9 @@ $(echo ${query_datetime} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_clie
 # 
 query_datetime64=$(cat <<-END
 SELECT
-    toTypeName(toDateTime64('2021-03-01 01:02:03', 0)) as datetime,
-    toTypeName(toDateTime64('2021-03-01 01:02:03', 3, 'UTC')) as datetime_utc,
-    toTypeName(toDateTime64('2021-03-01 01:02:03', 9, 'Asia/Shanghai')) as datetime_shanghai
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 0)) as datetime64,
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 3, 'UTC')) as datetime64_utc,
+    toTypeName(toDateTime64('2021-03-01 01:02:03', 9, 'Asia/Shanghai')) as datetime64_shanghai
 END
 )
 $(echo ${query_datetime64} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/datetime64.txt")
@@ -226,9 +226,31 @@ SELECT
     toTypeName(toLowCardinality(toInt32(0))) as lowcardinality_int32,
     toTypeName(toLowCardinality(toInt64(0))) as lowcardinality_int64,
     toTypeName(toLowCardinality(toFloat32(0))) as lowcardinality_float32,
-    toTypeName(toLowCardinality(toFloat64(0))) as lowcardinality_float64
+    toTypeName(toLowCardinality(toFloat64(0))) as lowcardinality_float64,
+    toTypeName(toLowCardinality(toNullable(''))) as lowcardinality_nullable_string,
+    toTypeName(toNullable(toLowCardinality(''))) as lowcardinality_nullable_string_2
 END
 )
 $(echo ${query_lowcardinality} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/lowcardinality.txt")
+
+# 
+query_nullable=$(cat <<-END
+SELECT
+    toTypeName(toNullable(toUInt8(0))) as nullable_uint8,
+    toTypeName(toNullable(toUInt256(0))) as nullable_uint256,
+    toTypeName(toNullable(toInt8(0))) as nullable_int8,
+    toTypeName(toNullable(toInt256(0))) as nullable_int256,
+    toTypeName(toNullable(toFloat64(0))) as nullable_float64,
+    toTypeName(toNullable(toDecimal256(0.0, 4))) as nullable_decimal256,
+    toTypeName(toNullable('')) as nullable_string,
+    toTypeName(toNullable(toFixedString('', 1))) as nullable_fixedstring,
+    toTypeName(toNullable(toUUID('61f0c404-5cb3-11e7-907b-a6006ad3dba0'))) as nullable_uuid,
+    toTypeName(toNullable(toDate('2021-03-01'))) as nullable_date,
+    toTypeName(toNullable(toDateTime('2021-03-01 01:02:03'))) as nullable_datetime,
+    toTypeName(toNullable(toDateTime64('2021-03-01 01:02:03', 0))) as nullable_datetime64,
+    toTypeName(toNullable(CAST('a', 'Enum(\'a\'=-128, \'b\'=127)'))) as nullable_enum8
+END
+)
+$(echo ${query_nullable} FORMAT JSONCompactEachRowWithNamesAndTypes | ${bin_client} --port ${tcp_port} --password xxx > "${files_path}/nullable.txt")
 
 sleep 1

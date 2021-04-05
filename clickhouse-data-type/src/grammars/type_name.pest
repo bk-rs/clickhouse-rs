@@ -1,4 +1,4 @@
-type_name = { 
+type_name = {
     UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
     Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
     Float32 | Float64 |
@@ -8,8 +8,13 @@ type_name = {
     UUID |
     DateTime64 | DateTime | Date |
     Enum16 | Enum8 |
-    LowCardinality
+    // 
+    // 
+    //
+    LowCardinality |
+    Nullable
 }
+
 
 UInt8 = { "UInt8" }
 UInt16 = { "UInt16" }
@@ -57,7 +62,21 @@ LowCardinality_data_type = {
     Float32 | Float64 |
     String |
     FixedString |
-    DateTime | Date
+    DateTime | Date |
+    Nullable
+}
+
+Nullable = { "Nullable" ~ "(" ~ Nullable_type_name ~ ")" }
+Nullable_type_name = {
+    UInt256 | UInt64 | UInt32 | UInt16 | UInt8 |
+    Int256 | Int128 | Int64 | Int32 | Int16 | Int8 |
+    Float32 | Float64 |
+    Decimal |
+    String |
+    FixedString |
+    UUID |
+    DateTime64 | DateTime | Date |
+    Enum16 | Enum8
 }
 
 WHITESPACE = _{ " " }

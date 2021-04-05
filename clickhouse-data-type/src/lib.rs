@@ -4,6 +4,7 @@ pub mod decimal;
 pub mod r#enum;
 pub mod fixed_string;
 pub mod low_cardinality;
+pub mod nullable;
 
 pub mod type_name;
 
