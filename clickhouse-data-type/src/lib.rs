@@ -1,4 +1,10 @@
+pub mod date_time;
+pub mod date_time64;
+pub mod decimal;
+pub mod r#enum;
+pub mod fixed_string;
 pub mod low_cardinality;
+
 pub mod type_name;
 
 // https://github.com/pest-parser/pest/issues/490#issuecomment-808942497

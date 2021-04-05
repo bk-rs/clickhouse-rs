@@ -1,18 +1,18 @@
-use std::{collections::HashMap, convert::TryFrom, num::ParseIntError, str::FromStr};
+use std::str::FromStr;
 
 use chrono_tz::Tz;
 use pest::Parser as _;
 
 use crate::{
-    low_cardinality::LowCardinalityDataType,
-    type_name_parser::{parse_date_time, parse_fixed_string, Rule, TypeNameParser},
+    date_time,
+    date_time64::{self, DateTime64Precision},
+    decimal::{self, DecimalPrecision, DecimalScale},
+    fixed_string::{self, FixedStringN},
+    low_cardinality::{self, LowCardinalityDataType},
+    r#enum::{self, Enum16, Enum8},
+    type_name_parser::{Rule, TypeNameParser},
     ParseError,
 };
-
-const DECIMAL_PRECISION_MIN: u8 = 1;
-const DECIMAL_PRECISION_MAX: u8 = 76;
-
-const DATETIME64_PRECISION_MAX: u8 = 9;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TypeName {
@@ -29,15 +29,15 @@ pub enum TypeName {
     Int256,
     Float32,
     Float64,
-    Decimal { precision: u8, scale: u8 },
+    Decimal(DecimalPrecision, DecimalScale),
     String,
-    FixedString(usize),
+    FixedString(FixedStringN),
     Uuid,
     Date,
-    DateTime { timezone: Option<Tz> },
-    DateTime64 { precision: u8, timezone: Option<Tz> },
-    Enum8(HashMap<String, i8>),
-    Enum16(HashMap<String, i16>),
+    DateTime(Option<Tz>),
+    DateTime64(DateTime64Precision, Option<Tz>),
+    Enum8(Enum8),
+    Enum16(Enum16),
     LowCardinality(LowCardinalityDataType),
 }
 
@@ -68,139 +68,41 @@ impl FromStr for TypeName {
             Rule::Float32 => Ok(Self::Float32),
             Rule::Float64 => Ok(Self::Float64),
             Rule::Decimal => {
-                let mut pair_inner = pair.into_inner();
-                let precision: u8 = pair_inner
-                    .next()
-                    .ok_or(ParseError::Unknown)?
-                    .as_str()
-                    .parse()
-                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+                let (precision, scale) = decimal::get_precision_and_scale(pair.into_inner())?;
 
-                if precision < DECIMAL_PRECISION_MIN {
-                    return Err(ParseError::ValueInvalid(
-                        "invalid decimal precision".to_string(),
-                    ));
-                }
-                if precision > DECIMAL_PRECISION_MAX {
-                    return Err(ParseError::ValueInvalid(
-                        "invalid decimal precision".to_string(),
-                    ));
-                }
-
-                let scale: u8 = pair_inner
-                    .next()
-                    .ok_or(ParseError::Unknown)?
-                    .as_str()
-                    .parse()
-                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
-
-                if scale > precision {
-                    return Err(ParseError::ValueInvalid(
-                        "invalid decimal scale".to_string(),
-                    ));
-                }
-
-                Ok(Self::Decimal { precision, scale })
+                Ok(Self::Decimal(precision, scale))
             }
             Rule::String => Ok(Self::String),
             Rule::FixedString => {
-                let n = parse_fixed_string(pair)?;
+                let n = fixed_string::get_n(pair.into_inner())?;
 
                 Ok(Self::FixedString(n))
             }
             Rule::UUID => Ok(Self::Uuid),
             Rule::Date => Ok(Self::Date),
             Rule::DateTime => {
-                let timezone = parse_date_time(pair)?;
+                let timezone = date_time::get_timezone(pair.into_inner())?;
 
-                Ok(Self::DateTime { timezone })
+                Ok(Self::DateTime(timezone))
             }
             Rule::DateTime64 => {
-                let mut pair_inner = pair.into_inner();
+                let (precision, timezone) =
+                    date_time64::get_precision_and_timezone(pair.into_inner())?;
 
-                let precision: u8 = pair_inner
-                    .next()
-                    .ok_or(ParseError::Unknown)?
-                    .as_str()
-                    .parse()
-                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
-
-                if precision > DATETIME64_PRECISION_MAX {
-                    return Err(ParseError::ValueInvalid(
-                        "invalid datetime64 precision".to_string(),
-                    ));
-                }
-
-                let timezone = if let Some(pair_timezone) = pair_inner.next() {
-                    Some(
-                        pair_timezone
-                            .as_str()
-                            .parse::<Tz>()
-                            .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
-                    )
-                } else {
-                    None
-                };
-
-                Ok(Self::DateTime64 {
-                    precision,
-                    timezone,
-                })
+                Ok(Self::DateTime64(precision, timezone))
             }
             Rule::Enum8 => {
-                let pair_inner = pair.into_inner();
+                let inner = r#enum::get_enum8(pair.into_inner())?;
 
-                let mut map = HashMap::new();
-                for pair in pair_inner {
-                    let mut pair_inner = pair.into_inner();
-                    let key = pair_inner
-                        .next()
-                        .ok_or(ParseError::Unknown)?
-                        .as_str()
-                        .to_string();
-                    let value: i8 = pair_inner
-                        .next()
-                        .ok_or(ParseError::Unknown)?
-                        .as_str()
-                        .parse()
-                        .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
-
-                    map.insert(key, value);
-                }
-
-                Ok(Self::Enum8(map))
+                Ok(Self::Enum8(inner))
             }
             Rule::Enum16 => {
-                let pair_inner = pair.into_inner();
+                let inner = r#enum::get_enum16(pair.into_inner())?;
 
-                let mut map = HashMap::new();
-                for pair in pair_inner {
-                    let mut pair_inner = pair.into_inner();
-                    let key = pair_inner
-                        .next()
-                        .ok_or(ParseError::Unknown)?
-                        .as_str()
-                        .to_string();
-                    let value: i16 = pair_inner
-                        .next()
-                        .ok_or(ParseError::Unknown)?
-                        .as_str()
-                        .parse()
-                        .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
-
-                    map.insert(key, value);
-                }
-
-                Ok(Self::Enum16(map))
+                Ok(Self::Enum16(inner))
             }
             Rule::LowCardinality => {
-                let mut pair_inner = pair.into_inner();
-                let data_type_pair = pair_inner.next().ok_or(ParseError::Unknown)?;
-
-                let mut data_type_pair_inner = data_type_pair.into_inner();
-                let data_type_pair = data_type_pair_inner.next().ok_or(ParseError::Unknown)?;
-
-                let data_type = LowCardinalityDataType::try_from(data_type_pair)?;
+                let data_type = low_cardinality::get_data_type(pair.into_inner())?;
 
                 Ok(Self::LowCardinality(data_type))
             }
@@ -274,10 +176,7 @@ mod tests {
         .into_iter()
         {
             assert_eq!(
-                TypeName::Decimal {
-                    precision: precision,
-                    scale: scale
-                },
+                TypeName::Decimal(DecimalPrecision(precision), DecimalScale(scale)),
                 iter.next().unwrap().parse()?
             );
         }
@@ -308,7 +207,10 @@ mod tests {
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
 
-        assert_eq!(TypeName::FixedString(8), iter.next().unwrap().parse()?);
+        assert_eq!(
+            TypeName::FixedString(FixedStringN(8)),
+            iter.next().unwrap().parse()?
+        );
 
         assert_eq!(iter.next(), None);
 
@@ -350,20 +252,13 @@ mod tests {
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
 
+        assert_eq!(TypeName::DateTime(None), iter.next().unwrap().parse()?);
         assert_eq!(
-            TypeName::DateTime { timezone: None },
+            TypeName::DateTime(Some(Tz::UTC)),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::DateTime {
-                timezone: Some(Tz::UTC)
-            },
-            iter.next().unwrap().parse()?
-        );
-        assert_eq!(
-            TypeName::DateTime {
-                timezone: Some(Tz::Asia__Shanghai)
-            },
+            TypeName::DateTime(Some(Tz::Asia__Shanghai)),
             iter.next().unwrap().parse()?
         );
 
@@ -380,24 +275,15 @@ mod tests {
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
 
         assert_eq!(
-            TypeName::DateTime64 {
-                precision: 0,
-                timezone: None
-            },
+            TypeName::DateTime64(DateTime64Precision(0), None),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::DateTime64 {
-                precision: 3,
-                timezone: Some(Tz::UTC)
-            },
+            TypeName::DateTime64(DateTime64Precision(3), Some(Tz::UTC)),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::DateTime64 {
-                precision: 9,
-                timezone: Some(Tz::Asia__Shanghai)
-            },
+            TypeName::DateTime64(DateTime64Precision(9), Some(Tz::Asia__Shanghai)),
             iter.next().unwrap().parse()?
         );
 
@@ -455,7 +341,7 @@ mod tests {
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::LowCardinality(LowCardinalityDataType::FixedString(1)),
+            TypeName::LowCardinality(LowCardinalityDataType::FixedString(FixedStringN(1))),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
@@ -463,7 +349,7 @@ mod tests {
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::LowCardinality(LowCardinalityDataType::DateTime { timezone: None }),
+            TypeName::LowCardinality(LowCardinalityDataType::DateTime(None)),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
