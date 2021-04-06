@@ -42,7 +42,7 @@ url = { version = "2.1", default-features = false }
 
 num-bigint = { version = "0.4", default-features = false, features = [ "std" ], optional = true }
 
-clickhouse-data-value = { path = "../clickhouse-data-value", version = "=0.1.1", default-features = false, optional = true}
+clickhouse-data-value = { path = "../clickhouse-data-value", version = "~0.2", default-features = false, optional = true}
 
 [dev-dependencies]
 tokio = { version = "1.2", features = ["macros", "rt"]}
