@@ -76,43 +76,35 @@ fn from_simple_pairs(
         .next()
         .map(|time_nf_pair| time_nf_pair.as_str());
 
-    let str = if let Some(precision_str) = precision_str {
-        match precision_str.len() {
-            1 | 4 | 7 => format!(
-                "{} {}.{}00",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            2 | 5 | 8 => format!(
-                "{} {}.{}0",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            3 | 6 | 9 => format!(
-                "{} {}.{}",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            _ => return Err(ParseError::Unknown),
+    let (str, fmt) = if let Some(precision_str) = precision_str {
+        if precision_str.is_empty() {
+            return Err(ParseError::Unknown);
         }
-    } else {
-        format!("{} {}", date_pair.as_str(), time_pair.as_str())
-    };
-    let fmt = if let Some(precision_str) = precision_str {
-        match precision_str.len() {
-            1 | 2 | 3 => "%Y-%m-%d %H:%M:%S%.3f",
-            4 | 5 | 6 => "%Y-%m-%d %H:%M:%S%.6f",
-            7 | 8 | 9 => "%Y-%m-%d %H:%M:%S%.9f",
-            _ => return Err(ParseError::Unknown),
+        if precision_str.len() > 9 {
+            return Err(ParseError::Unknown);
         }
+
+        (
+            format!(
+                "{} {}.{:0<width$}",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str,
+                width = [3, 3, 3, 6, 6, 6, 9, 9, 9][precision_str.len() - 1]
+            ),
+            format!(
+                "%Y-%m-%d %H:%M:%S%.{}f",
+                [3, 3, 3, 6, 6, 6, 9, 9, 9][precision_str.len() - 1]
+            ),
+        )
     } else {
-        "%Y-%m-%d %H:%M:%S"
+        (
+            format!("{} {}", date_pair.as_str(), time_pair.as_str()),
+            "%Y-%m-%d %H:%M:%S".to_string(),
+        )
     };
 
-    ChronoNaiveDateTime::parse_from_str(&str, fmt)
+    ChronoNaiveDateTime::parse_from_str(&str, &fmt)
         .map(Into::into)
         .map_err(|err| ParseError::ValueInvalid(err.to_string()))
 }
@@ -124,42 +116,35 @@ fn from_iso_pairs(mut datetime_iso_pairs: Pairs<'_, Rule>) -> Result<NaiveDateTi
         .next()
         .map(|time_nf_pair| time_nf_pair.as_str());
 
-    let str = if let Some(precision_str) = precision_str {
-        match precision_str.len() {
-            1 | 4 | 7 => format!(
-                "{}T{}.{}00Z",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            2 | 5 | 8 => format!(
-                "{}T{}.{}0Z",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            3 | 6 | 9 => format!(
-                "{}T{}.{}Z",
-                date_pair.as_str(),
-                time_pair.as_str(),
-                precision_str
-            ),
-            _ => return Err(ParseError::Unknown),
+    let (str, fmt) = if let Some(precision_str) = precision_str {
+        if precision_str.is_empty() {
+            return Err(ParseError::Unknown);
         }
-    } else {
-        format!("{}T{}Z", date_pair.as_str(), time_pair.as_str())
-    };
-    let fmt = if let Some(precision_str) = precision_str {
-        match precision_str.len() {
-            1 | 2 | 3 => "%Y-%m-%dT%H:%M:%S%.3fZ",
-            4 | 5 | 6 => "%Y-%m-%dT%H:%M:%S%.6fZ",
-            7 | 8 | 9 => "%Y-%m-%dT%H:%M:%S%.9fZ",
-            _ => return Err(ParseError::Unknown),
+        if precision_str.len() > 9 {
+            return Err(ParseError::Unknown);
         }
+
+        (
+            format!(
+                "{}T{}.{:0<width$}Z",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str,
+                width = [3, 3, 3, 6, 6, 6, 9, 9, 9][precision_str.len() - 1]
+            ),
+            format!(
+                "%Y-%m-%dT%H:%M:%S%.{}fZ",
+                [3, 3, 3, 6, 6, 6, 9, 9, 9][precision_str.len() - 1]
+            ),
+        )
     } else {
-        "%Y-%m-%dT%H:%M:%SZ"
+        (
+            format!("{}T{}Z", date_pair.as_str(), time_pair.as_str()),
+            "%Y-%m-%dT%H:%M:%SZ".to_string(),
+        )
     };
-    ChronoNaiveDateTime::parse_from_str(&str, fmt)
+
+    ChronoNaiveDateTime::parse_from_str(&str, &fmt)
         .map(Into::into)
         .map_err(|err| ParseError::ValueInvalid(err.to_string()))
 }
@@ -186,18 +171,7 @@ fn from_unix_timestamp_pairs(
     }
 
     if let Some(precision_str) = precision_str {
-        let nsecs_str = match precision_str.len() {
-            1 => format!("{}00000000", precision_str),
-            2 => format!("{}0000000", precision_str),
-            3 => format!("{}000000", precision_str),
-            4 => format!("{}00000", precision_str),
-            5 => format!("{}0000", precision_str),
-            6 => format!("{}000", precision_str),
-            7 => format!("{}00", precision_str),
-            8 => format!("{}0", precision_str),
-            9 => precision_str.to_string(),
-            _ => return Err(ParseError::Unknown),
-        };
+        let nsecs_str = format!("{:0<9}", precision_str);
 
         let nsecs: u32 = nsecs_str
             .parse()
