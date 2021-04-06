@@ -15,4 +15,4 @@ path = "src/pool.rs"
 [dependencies]
 clickhouse-postgres-client = { path = "../../clickhouse-postgres-client", version = "0.1", features = ["all-types", "runtime-tokio-native-tls"] }
 
-tokio = { version = "1.0", default-features = false, features = ["macros"] }
+tokio = { version = "1.4", default-features = false, features = ["macros"] }
