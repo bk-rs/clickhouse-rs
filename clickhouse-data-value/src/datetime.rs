@@ -6,16 +6,16 @@ use std::{
 };
 
 use chrono::NaiveDateTime as ChronoNaiveDateTime;
-use pest::Parser as _;
+use pest::{iterators::Pairs, Parser as _};
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer,
 };
 
-use crate::{
-    date_and_time_parser::{DateAndTimeParser, Rule},
-    MAX_DATETIME_UNIX_TIMESTAMP,
-};
+use crate::date_and_time_parser::{DateAndTimeParser, Rule};
+
+// 2105-12-31 23:59:59
+pub(crate) const UNIX_TIMESTAMP_MAX: u64 = 4291718399;
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct NaiveDateTime(pub ChronoNaiveDateTime);
@@ -59,32 +59,153 @@ impl FromStr for NaiveDateTime {
             .ok_or(ParseError::Unknown)?;
 
         match pair.as_rule() {
-            Rule::datetime_simple => {
-                ChronoNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%d %H:%M:%S")
-                    .map(Into::into)
-                    .map_err(|err| ParseError::ValueInvalid(err.to_string()))
-            }
-            Rule::datetime_iso => {
-                ChronoNaiveDateTime::parse_from_str(pair.as_str(), "%Y-%m-%dT%H:%M:%SZ")
-                    .map(Into::into)
-                    .map_err(|err| ParseError::ValueInvalid(err.to_string()))
-            }
-            Rule::datetime_unix_timestamp => {
-                let v: u64 = pair
-                    .as_str()
-                    .parse()
-                    .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
-
-                if v > MAX_DATETIME_UNIX_TIMESTAMP {
-                    return Err(ParseError::ValueInvalid(
-                        "Override the max Unix Timestamp".to_string(),
-                    ));
-                }
-
-                Ok(ChronoNaiveDateTime::from_timestamp(v as i64, 0).into())
-            }
+            Rule::datetime_simple => from_simple_pairs(pair.into_inner()),
+            Rule::datetime_iso => from_iso_pairs(pair.into_inner()),
+            Rule::datetime_unix_timestamp => from_unix_timestamp_pairs(pair.into_inner()),
             _ => Err(ParseError::Unknown),
         }
+    }
+}
+
+fn from_simple_pairs(
+    mut datetime_simple_pairs: Pairs<'_, Rule>,
+) -> Result<NaiveDateTime, ParseError> {
+    let date_pair = datetime_simple_pairs.next().ok_or(ParseError::Unknown)?;
+    let time_pair = datetime_simple_pairs.next().ok_or(ParseError::Unknown)?;
+    let precision_str = datetime_simple_pairs
+        .next()
+        .map(|time_nf_pair| time_nf_pair.as_str());
+
+    let str = if let Some(precision_str) = precision_str {
+        match precision_str.len() {
+            1 | 4 | 7 => format!(
+                "{} {}.{}00",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            2 | 5 | 8 => format!(
+                "{} {}.{}0",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            3 | 6 | 9 => format!(
+                "{} {}.{}",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            _ => return Err(ParseError::Unknown),
+        }
+    } else {
+        format!("{} {}", date_pair.as_str(), time_pair.as_str())
+    };
+    let fmt = if let Some(precision_str) = precision_str {
+        match precision_str.len() {
+            1 | 2 | 3 => "%Y-%m-%d %H:%M:%S%.3f",
+            4 | 5 | 6 => "%Y-%m-%d %H:%M:%S%.6f",
+            7 | 8 | 9 => "%Y-%m-%d %H:%M:%S%.9f",
+            _ => return Err(ParseError::Unknown),
+        }
+    } else {
+        "%Y-%m-%d %H:%M:%S"
+    };
+
+    ChronoNaiveDateTime::parse_from_str(&str, fmt)
+        .map(Into::into)
+        .map_err(|err| ParseError::ValueInvalid(err.to_string()))
+}
+
+fn from_iso_pairs(mut datetime_iso_pairs: Pairs<'_, Rule>) -> Result<NaiveDateTime, ParseError> {
+    let date_pair = datetime_iso_pairs.next().ok_or(ParseError::Unknown)?;
+    let time_pair = datetime_iso_pairs.next().ok_or(ParseError::Unknown)?;
+    let precision_str = datetime_iso_pairs
+        .next()
+        .map(|time_nf_pair| time_nf_pair.as_str());
+
+    let str = if let Some(precision_str) = precision_str {
+        match precision_str.len() {
+            1 | 4 | 7 => format!(
+                "{}T{}.{}00Z",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            2 | 5 | 8 => format!(
+                "{}T{}.{}0Z",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            3 | 6 | 9 => format!(
+                "{}T{}.{}Z",
+                date_pair.as_str(),
+                time_pair.as_str(),
+                precision_str
+            ),
+            _ => return Err(ParseError::Unknown),
+        }
+    } else {
+        format!("{}T{}Z", date_pair.as_str(), time_pair.as_str())
+    };
+    let fmt = if let Some(precision_str) = precision_str {
+        match precision_str.len() {
+            1 | 2 | 3 => "%Y-%m-%dT%H:%M:%S%.3fZ",
+            4 | 5 | 6 => "%Y-%m-%dT%H:%M:%S%.6fZ",
+            7 | 8 | 9 => "%Y-%m-%dT%H:%M:%S%.9fZ",
+            _ => return Err(ParseError::Unknown),
+        }
+    } else {
+        "%Y-%m-%dT%H:%M:%SZ"
+    };
+    ChronoNaiveDateTime::parse_from_str(&str, fmt)
+        .map(Into::into)
+        .map_err(|err| ParseError::ValueInvalid(err.to_string()))
+}
+
+fn from_unix_timestamp_pairs(
+    mut datetime_unix_timestamp_pairs: Pairs<'_, Rule>,
+) -> Result<NaiveDateTime, ParseError> {
+    let unix_timestamp_pair = datetime_unix_timestamp_pairs
+        .next()
+        .ok_or(ParseError::Unknown)?;
+    let precision_str = datetime_unix_timestamp_pairs
+        .next()
+        .map(|time_nf_pair| time_nf_pair.as_str());
+
+    let secs: u64 = unix_timestamp_pair
+        .as_str()
+        .parse()
+        .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+    if secs > UNIX_TIMESTAMP_MAX {
+        return Err(ParseError::ValueInvalid(
+            "Override the max Unix Timestamp".to_string(),
+        ));
+    }
+
+    if let Some(precision_str) = precision_str {
+        let nsecs_str = match precision_str.len() {
+            1 => format!("{}00000000", precision_str),
+            2 => format!("{}0000000", precision_str),
+            3 => format!("{}000000", precision_str),
+            4 => format!("{}00000", precision_str),
+            5 => format!("{}0000", precision_str),
+            6 => format!("{}000", precision_str),
+            7 => format!("{}00", precision_str),
+            8 => format!("{}0", precision_str),
+            9 => precision_str.to_string(),
+            _ => return Err(ParseError::Unknown),
+        };
+
+        let nsecs: u32 = nsecs_str
+            .parse()
+            .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
+
+        Ok(ChronoNaiveDateTime::from_timestamp(secs as i64, nsecs).into())
+    } else {
+        Ok(ChronoNaiveDateTime::from_timestamp(secs as i64, 0).into())
     }
 }
 
@@ -130,20 +251,72 @@ mod tests {
 
     #[test]
     fn test_parse() -> Result<(), Box<dyn error::Error>> {
-        assert_eq!(
-            "2021-03-01 01:02:03".parse::<NaiveDateTime>()?,
-            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into()
-        );
+        let dt_vec = vec![
+            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 100),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 120),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 123),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123400),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123450),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123456),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456700),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456780),
+            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456789),
+        ];
 
-        assert_eq!(
-            "2021-03-01T01:02:03Z".parse::<NaiveDateTime>()?,
-            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into()
-        );
+        for (s, dt) in vec![
+            "2021-03-01 01:02:03",
+            "2021-03-01 01:02:03.1",
+            "2021-03-01 01:02:03.12",
+            "2021-03-01 01:02:03.123",
+            "2021-03-01 01:02:03.1234",
+            "2021-03-01 01:02:03.12345",
+            "2021-03-01 01:02:03.123456",
+            "2021-03-01 01:02:03.1234567",
+            "2021-03-01 01:02:03.12345678",
+            "2021-03-01 01:02:03.123456789",
+        ]
+        .into_iter()
+        .zip(dt_vec.clone())
+        {
+            assert_eq!(s.parse::<NaiveDateTime>()?, dt.into());
+        }
 
-        assert_eq!(
-            "1614560523".parse::<NaiveDateTime>()?,
-            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3).into()
-        );
+        for (s, dt) in vec![
+            "2021-03-01T01:02:03Z",
+            "2021-03-01T01:02:03.1Z",
+            "2021-03-01T01:02:03.12Z",
+            "2021-03-01T01:02:03.123Z",
+            "2021-03-01T01:02:03.1234Z",
+            "2021-03-01T01:02:03.12345Z",
+            "2021-03-01T01:02:03.123456Z",
+            "2021-03-01T01:02:03.1234567Z",
+            "2021-03-01T01:02:03.12345678Z",
+            "2021-03-01T01:02:03.123456789Z",
+        ]
+        .into_iter()
+        .zip(dt_vec.clone())
+        {
+            assert_eq!(s.parse::<NaiveDateTime>()?, dt.into());
+        }
+
+        for (s, dt) in vec![
+            "1614560523",
+            "1614560523.1",
+            "1614560523.12",
+            "1614560523.123",
+            "1614560523.1234",
+            "1614560523.12345",
+            "1614560523.123456",
+            "1614560523.1234567",
+            "1614560523.12345678",
+            "1614560523.123456789",
+        ]
+        .into_iter()
+        .zip(dt_vec)
+        {
+            assert_eq!(s.parse::<NaiveDateTime>()?, dt.into());
+        }
 
         match format!("").parse::<NaiveDateTime>() {
             Ok(_) => assert!(false),
@@ -172,6 +345,26 @@ mod tests {
         #[allow(dead_code)]
         datetime_shanghai: NaiveDateTime,
     }
+    #[derive(Deserialize)]
+    struct Row64 {
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        datetime64_precision0_utc: chrono::NaiveDateTime,
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        datetime64_precision1_utc: chrono::NaiveDateTime,
+        //
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        datetime64_milli_utc: chrono::NaiveDateTime,
+        #[allow(dead_code)]
+        datetime64_milli_shanghai: NaiveDateTime,
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        datetime64_micro_utc: chrono::NaiveDateTime,
+        #[allow(dead_code)]
+        datetime64_micro_shanghai: NaiveDateTime,
+        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        datetime64_nano_utc: chrono::NaiveDateTime,
+        #[allow(dead_code)]
+        datetime64_nano_shanghai: NaiveDateTime,
+    }
 
     #[test]
     fn test_de() -> Result<(), Box<dyn error::Error>> {
@@ -194,6 +387,43 @@ mod tests {
             assert_eq!(
                 datetime_utc,
                 NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+            );
+
+            //
+            let content = fs::read_to_string(
+                PathBuf::new().join(format!("tests/files/datetime64_{}.txt", format)),
+            )?;
+            let line = content.lines().next().unwrap();
+
+            let Row64 {
+                datetime64_precision0_utc,
+                datetime64_precision1_utc,
+                datetime64_milli_utc,
+                datetime64_milli_shanghai: _,
+                datetime64_micro_utc,
+                datetime64_micro_shanghai: _,
+                datetime64_nano_utc,
+                datetime64_nano_shanghai: _,
+            } = serde_json::from_str(line)?;
+            assert_eq!(
+                datetime64_precision0_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+            );
+            assert_eq!(
+                datetime64_precision1_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 100)
+            );
+            assert_eq!(
+                datetime64_milli_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 123)
+            );
+            assert_eq!(
+                datetime64_micro_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123456)
+            );
+            assert_eq!(
+                datetime64_nano_utc,
+                NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456789)
             );
         }
 

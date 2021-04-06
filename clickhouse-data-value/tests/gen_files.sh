@@ -103,6 +103,8 @@ $(echo ${query_datetime} FORMAT JSONEachRow | ${bin_client} --date_time_output_f
 
 query_datetime64=$(cat <<-END
 SELECT
+    toDateTime64('2021-03-01 01:02:03.123456789', 0, 'UTC') as datetime64_precision0_utc,
+    toDateTime64('2021-03-01 01:02:03.123456789', 1, 'UTC') as datetime64_precision1_utc,
     toDateTime64('2021-03-01 01:02:03.123456789', 3, 'UTC') as datetime64_milli_utc,
     toDateTime('2021-03-01 01:02:03.123456789', 3, 'Asia/Shanghai') as datetime64_milli_shanghai,
     toDateTime64('2021-03-01 01:02:03.123456789', 6, 'UTC') as datetime64_micro_utc,

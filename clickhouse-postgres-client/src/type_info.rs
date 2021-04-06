@@ -5,9 +5,8 @@ use std::{
 };
 
 #[cfg(feature = "chrono")]
-use clickhouse_data_value::{
-    datetime::NaiveDateTime as DatetimeNaiveDateTime,
-    datetime64::{NaiveDateTime as Datetime64NaiveDateTime, ParseError as Datetime64ParseError},
+use clickhouse_data_value::datetime::{
+    NaiveDateTime as DatetimeNaiveDateTime, ParseError as DatetimeParseError,
 };
 #[cfg(feature = "num-bigint")]
 use num_bigint::{BigInt, BigUint, ParseBigIntError};
@@ -298,13 +297,9 @@ impl ClickhousePgValue {
     }
 
     #[cfg(feature = "chrono")]
-    pub fn as_naive_date_time(&self) -> Option<Result<NaiveDateTime, Datetime64ParseError>> {
+    pub fn as_naive_date_time(&self) -> Option<Result<NaiveDateTime, DatetimeParseError>> {
         match *self {
-            Self::String(ref v) => Some(
-                v.parse::<DatetimeNaiveDateTime>()
-                    .map(|x| x.0)
-                    .or_else(|_| v.parse::<Datetime64NaiveDateTime>().map(|x| x.0)),
-            ),
+            Self::String(ref v) => Some(v.parse::<DatetimeNaiveDateTime>().map(|x| x.0)),
             _ => None,
         }
     }
