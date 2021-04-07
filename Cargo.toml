@@ -3,6 +3,7 @@ members = [
     "clickhouse-data-type",
     "clickhouse-data-value",
     "clickhouse-format",
+    "clickhouse-http-client",
     "clickhouse-postgres-client",
     "demos/postgres_client",
     "sqlx-clickhouse-ext",
