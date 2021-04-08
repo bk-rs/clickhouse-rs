@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use isahc::{
     http::{Method, StatusCode},
-    HttpClient, HttpClientBuilder,
+    AsyncReadResponseExt as _, HttpClient, HttpClientBuilder,
 };
 
 use crate::{client_config::ClientConfig, error::Error};
@@ -24,8 +24,12 @@ impl ClientBuilder {
             client_config: Default::default(),
         }
     }
-    pub fn get_mut_http_client_builder(&mut self) -> &mut HttpClientBuilder {
-        &mut self.http_client_builder
+    pub fn configurable<F>(mut self, func: F) -> Self
+    where
+        F: FnOnce(HttpClientBuilder) -> HttpClientBuilder,
+    {
+        self.http_client_builder = func(self.http_client_builder);
+        self
     }
     pub fn build(self) -> Result<Client, Error> {
         Ok(Client {
@@ -56,14 +60,20 @@ impl Client {
     pub fn new() -> Result<Self, Error> {
         ClientBuilder::default().build()
     }
-    pub async fn ping(&self) -> Result<StatusCode, Error> {
+    pub async fn ping(&self) -> Result<bool, Error> {
         let (url, mut req) = self.client_config.get_url_and_request()?;
         let url = url.join("ping")?;
 
         *req.method_mut() = Method::GET;
         *req.uri_mut() = url.as_str().parse()?;
 
-        let resp = self.http_client.send_async(req).await?;
-        Ok(resp.status())
+        let mut resp = self.http_client.send_async(req).await?;
+
+        if resp.status() != StatusCode::OK {
+            return Ok(false);
+        }
+
+        let resp_body_text = resp.text().await?;
+        Ok(resp_body_text == "Ok.\n")
     }
 }

@@ -8,4 +8,6 @@ pub enum Error {
     InvalidUri(#[from] isahc::http::uri::InvalidUri),
     #[error("UrlParseError {0:?}")]
     UrlParseError(#[from] url::ParseError),
+    #[error("IoError {0:?}")]
+    IoError(#[from] std::io::Error),
 }

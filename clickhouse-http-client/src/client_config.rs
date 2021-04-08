@@ -4,7 +4,7 @@ use url::Url;
 
 use crate::error::Error;
 
-const URL_DEFAULT: Lazy<Url> = Lazy::new(|| Url::parse("http://localhost:8123/").unwrap());
+static URL_DEFAULT: Lazy<Url> = Lazy::new(|| Url::parse("http://localhost:8123/").unwrap());
 const DATABASE_KEY_URL_PARAMETER: &str = "database";
 const DATABASE_KEY_HEADER: &str = "X-ClickHouse-Database";
 const USERNAME_KEY_URL_PARAMETER: &str = "user";
