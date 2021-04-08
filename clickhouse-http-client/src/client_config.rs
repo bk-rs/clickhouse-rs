@@ -104,3 +104,90 @@ impl ClientConfig {
         Ok((url, req))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::error;
+
+    #[test]
+    fn with_default() -> Result<(), Box<dyn error::Error>> {
+        let (url, req) = ClientConfig::default().get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://localhost:8123/");
+        assert_eq!(req.headers().len(), 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_set_url() -> Result<(), Box<dyn error::Error>> {
+        let (url, req) = ClientConfig::default()
+            .set_url("http://127.0.0.1:8123/foo/?bar=1")?
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://127.0.0.1:8123/foo/?bar=1");
+        assert_eq!(req.headers().len(), 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_set_database() -> Result<(), Box<dyn error::Error>> {
+        let (url, req) = ClientConfig::default()
+            .set_url("http://127.0.0.1:8123/foo/?bar=1")?
+            .set_database("db", ClientConfigLocation::UrlParameter)
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://127.0.0.1:8123/foo/?bar=1&database=db");
+        assert_eq!(req.headers().len(), 0);
+
+        let (url, req) = ClientConfig::default()
+            .set_database("db", ClientConfigLocation::Header)
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://localhost:8123/");
+        assert_eq!(req.headers().len(), 1);
+        assert_eq!(req.headers().get("X-ClickHouse-Database").unwrap(), "db");
+
+        Ok(())
+    }
+
+    #[test]
+    fn with_set_credentials() -> Result<(), Box<dyn error::Error>> {
+        let (url, req) = ClientConfig::default()
+            .set_url("http://127.0.0.1:8123/foo/?bar=1")?
+            .set_credentials("user", None, ClientConfigLocation::UrlParameter)
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://127.0.0.1:8123/foo/?bar=1&user=user");
+        assert_eq!(req.headers().len(), 0);
+
+        let (url, req) = ClientConfig::default()
+            .set_url("http://127.0.0.1:8123/foo/?bar=1")?
+            .set_credentials(
+                "user",
+                "password".to_owned(),
+                ClientConfigLocation::UrlParameter,
+            )
+            .get_url_and_request()?;
+        assert_eq!(
+            url.as_str(),
+            "http://127.0.0.1:8123/foo/?bar=1&user=user&password=password"
+        );
+        assert_eq!(req.headers().len(), 0);
+
+        let (url, req) = ClientConfig::default()
+            .set_credentials("user", None, ClientConfigLocation::Header)
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://localhost:8123/");
+        assert_eq!(req.headers().len(), 1);
+        assert_eq!(req.headers().get("X-ClickHouse-User").unwrap(), "user");
+
+        let (url, req) = ClientConfig::default()
+            .set_credentials("user", "password".to_owned(), ClientConfigLocation::Header)
+            .get_url_and_request()?;
+        assert_eq!(url.as_str(), "http://localhost:8123/");
+        assert_eq!(req.headers().len(), 2);
+        assert_eq!(req.headers().get("X-ClickHouse-User").unwrap(), "user");
+        assert_eq!(req.headers().get("X-ClickHouse-Key").unwrap(), "password");
+
+        Ok(())
+    }
+}
