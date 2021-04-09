@@ -5,4 +5,7 @@ mod integration_tests {
 
     #[cfg(test)]
     mod ping;
+
+    #[cfg(test)]
+    mod curd;
 }

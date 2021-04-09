@@ -2,10 +2,12 @@ use std::ops::{Deref, DerefMut};
 
 use isahc::{
     http::{Method, StatusCode},
-    AsyncReadResponseExt as _, HttpClient, HttpClientBuilder,
+    AsyncReadResponseExt as _, HttpClient, HttpClientBuilder, Request,
 };
 
 use crate::{client_config::ClientConfig, error::Error};
+
+pub type Settings<'a> = Vec<(&'a str, &'a str)>;
 
 #[derive(Debug)]
 pub struct ClientBuilder {
@@ -72,6 +74,7 @@ impl Client {
     pub fn new() -> Result<Self, Error> {
         ClientBuilder::default().build()
     }
+
     pub async fn ping(&self) -> Result<bool, Error> {
         let url = self.get_url();
         let mut req = self.get_request();
@@ -89,5 +92,34 @@ impl Client {
 
         let resp_body_text = resp.text().await?;
         Ok(resp_body_text == self.get_http_server_default_response())
+    }
+
+    pub async fn execute(
+        &self,
+        sql: impl AsRef<str>,
+        settings: impl Into<Option<Settings<'_>>>,
+    ) -> Result<(), Error> {
+        let mut url = self.get_url().to_owned();
+        let mut req = self.get_request();
+
+        if let Some(settings) = settings.into() {
+            settings.iter().for_each(|(k, v)| {
+                url.query_pairs_mut().append_pair(k, v);
+            });
+        }
+
+        *req.method_mut() = Method::POST;
+        *req.uri_mut() = url.as_str().parse()?;
+
+        let (parts, _) = req.into_parts();
+        let req = Request::from_parts(parts, sql.as_ref());
+
+        let resp = self.http_client.send_async(req).await?;
+
+        if !resp.status().is_success() {
+            return Err(Error::ExecuteFailed(resp.status()));
+        }
+
+        Ok(())
     }
 }
