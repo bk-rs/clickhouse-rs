@@ -109,6 +109,11 @@ impl ClientConfig {
             .insert(PASSWORD_KEY_HEADER, val.as_ref().parse()?);
         Ok(self)
     }
+
+    pub fn set_http_server_default_response(&mut self, val: impl Into<String>) -> &mut Self {
+        self.http_server_default_response = Some(val.into());
+        self
+    }
 }
 impl ClientConfig {
     pub(crate) fn get_url(&self) -> &Url {
