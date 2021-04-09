@@ -4,8 +4,8 @@ use isahc::http;
 pub enum Error {
     #[error("IsahcError {0:?}")]
     IsahcError(#[from] isahc::Error),
-    #[error("InvalidUri {0:?}")]
-    InvalidUri(#[from] http::uri::InvalidUri),
+    #[error("HttpInvalidUri {0:?}")]
+    HttpInvalidUri(#[from] http::uri::InvalidUri),
     #[error("UrlParseError {0:?}")]
     UrlParseError(#[from] url::ParseError),
     #[error("IoError {0:?}")]
