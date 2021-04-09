@@ -17,6 +17,18 @@ impl Default for ClientBuilder {
         Self::new()
     }
 }
+impl Deref for ClientBuilder {
+    type Target = ClientConfig;
+
+    fn deref(&self) -> &Self::Target {
+        &self.client_config
+    }
+}
+impl DerefMut for ClientBuilder {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.client_config
+    }
+}
 impl ClientBuilder {
     pub fn new() -> Self {
         Self {
@@ -38,30 +50,32 @@ impl ClientBuilder {
         })
     }
 }
-impl Deref for ClientBuilder {
-    type Target = ClientConfig;
-
-    fn deref(&self) -> &Self::Target {
-        &self.client_config
-    }
-}
-impl DerefMut for ClientBuilder {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.client_config
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Client {
     http_client: HttpClient,
     client_config: ClientConfig,
 }
+impl Deref for Client {
+    type Target = ClientConfig;
+
+    fn deref(&self) -> &Self::Target {
+        &self.client_config
+    }
+}
+impl DerefMut for Client {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.client_config
+    }
+}
 impl Client {
     pub fn new() -> Result<Self, Error> {
         ClientBuilder::default().build()
     }
     pub async fn ping(&self) -> Result<bool, Error> {
-        let (url, mut req) = self.client_config.get_url_and_request()?;
+        let url = self.get_url();
+        let mut req = self.get_request();
+
         let url = url.join("ping")?;
 
         *req.method_mut() = Method::GET;
@@ -74,6 +88,6 @@ impl Client {
         }
 
         let resp_body_text = resp.text().await?;
-        Ok(resp_body_text == "Ok.\n")
+        Ok(resp_body_text == self.get_http_server_default_response())
     }
 }
