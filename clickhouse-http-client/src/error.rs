@@ -11,6 +11,34 @@ pub enum Error {
     #[error("IoError {0:?}")]
     IoError(#[from] std::io::Error),
     //
-    #[error("ExecuteFailed {0:?}")]
-    ExecuteFailed(http::StatusCode),
+    #[error("ClientExecuteError {0:?}")]
+    ClientExecuteError(#[from] ClientExecuteError),
+    #[error("ClientInsertWithFormatError {0:?}")]
+    ClientInsertWithFormatError(#[from] ClientInsertWithFormatError),
+    #[error("ClientSelectWithFormatError {0:?}")]
+    ClientSelectWithFormatError(#[from] ClientSelectWithFormatError),
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum ClientExecuteError {
+    #[error("StatusCodeMismatch {0:?}")]
+    StatusCodeMismatch(http::StatusCode),
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum ClientInsertWithFormatError {
+    #[error("FormatSerError {0:?}")]
+    FormatSerError(String),
+    #[error("StatusCodeMismatch {0:?}")]
+    StatusCodeMismatch(http::StatusCode),
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum ClientSelectWithFormatError {
+    #[error("StatusCodeMismatch {0:?}")]
+    StatusCodeMismatch(http::StatusCode),
+    #[error("FormatMismatch {0:?}")]
+    FormatMismatch(String),
+    #[error("FormatDeError {0:?}")]
+    FormatDeError(String),
 }

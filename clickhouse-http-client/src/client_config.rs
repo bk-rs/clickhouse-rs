@@ -14,6 +14,8 @@ const PASSWORD_KEY_URL_PARAMETER: &str = "password";
 const PASSWORD_KEY_HEADER: &str = "X-ClickHouse-Key";
 
 pub(crate) const FORMAT_KEY_URL_PARAMETER: &str = "default_format";
+pub(crate) const FORMAT_KEY_HEADER: &str = "X-ClickHouse-Format";
+
 pub(crate) const QUERY_KEY_URL_PARAMETER: &str = "query";
 
 const HTTP_SERVER_DEFAULT_RESPONSE_DEFAULT: &str = "Ok.\n";

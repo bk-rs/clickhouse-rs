@@ -1,11 +1,17 @@
 use std::ops::{Deref, DerefMut};
 
+use clickhouse_format::{input::Input, output::Output};
 use isahc::{
     http::{Method, StatusCode},
     AsyncReadResponseExt as _, HttpClient, HttpClientBuilder, Request,
 };
 
-use crate::{client_config::ClientConfig, error::Error};
+use crate::{
+    client_config::{
+        ClientConfig, FORMAT_KEY_HEADER, FORMAT_KEY_URL_PARAMETER, QUERY_KEY_URL_PARAMETER,
+    },
+    error::{ClientExecuteError, ClientInsertWithFormatError, ClientSelectWithFormatError, Error},
+};
 
 pub type Settings<'a> = Vec<(&'a str, &'a str)>;
 
@@ -117,9 +123,103 @@ impl Client {
         let resp = self.http_client.send_async(req).await?;
 
         if !resp.status().is_success() {
-            return Err(Error::ExecuteFailed(resp.status()));
+            return Err(ClientExecuteError::StatusCodeMismatch(resp.status()).into());
         }
 
         Ok(())
+    }
+
+    pub async fn insert_with_format<I: Input>(
+        &self,
+        sql_part: impl AsRef<str>,
+        input: I,
+        settings: impl Into<Option<Settings<'_>>>,
+    ) -> Result<(), Error> {
+        let mut url = self.get_url().to_owned();
+        let mut req = self.get_request();
+
+        url.query_pairs_mut()
+            .append_pair(QUERY_KEY_URL_PARAMETER, sql_part.as_ref())
+            .append_pair(
+                FORMAT_KEY_URL_PARAMETER,
+                I::format_name().to_string().as_str(),
+            );
+
+        if let Some(settings) = settings.into() {
+            settings.iter().for_each(|(k, v)| {
+                url.query_pairs_mut().append_pair(k, v);
+            });
+        }
+
+        *req.method_mut() = Method::POST;
+        *req.uri_mut() = url.as_str().parse()?;
+
+        let (parts, _) = req.into_parts();
+        let req = Request::from_parts(
+            parts,
+            input
+                .serialize()
+                .map_err(|err| ClientInsertWithFormatError::FormatSerError(err.to_string()))?,
+        );
+
+        let resp = self.http_client.send_async(req).await?;
+
+        if !resp.status().is_success() {
+            return Err(ClientInsertWithFormatError::StatusCodeMismatch(resp.status()).into());
+        }
+
+        Ok(())
+    }
+
+    pub async fn select_with_format<O: Output>(
+        &self,
+        sql: impl AsRef<str>,
+        output: O,
+        settings: impl Into<Option<Settings<'_>>>,
+    ) -> Result<(Vec<O::Row>, O::Info), Error> {
+        let mut url = self.get_url().to_owned();
+        let mut req = self.get_request();
+
+        url.query_pairs_mut().append_pair(
+            FORMAT_KEY_URL_PARAMETER,
+            O::format_name().to_string().as_str(),
+        );
+
+        if let Some(settings) = settings.into() {
+            settings.iter().for_each(|(k, v)| {
+                url.query_pairs_mut().append_pair(k, v);
+            });
+        }
+
+        *req.method_mut() = Method::POST;
+        *req.uri_mut() = url.as_str().parse()?;
+
+        let (parts, _) = req.into_parts();
+        let req = Request::from_parts(parts, sql.as_ref());
+
+        let mut resp = self.http_client.send_async(req).await?;
+
+        if !resp.status().is_success() {
+            return Err(ClientSelectWithFormatError::StatusCodeMismatch(resp.status()).into());
+        }
+
+        let resp_format = resp.headers().get(FORMAT_KEY_HEADER);
+        if resp_format.is_some() && resp_format.unwrap() != O::format_name().to_string().as_str() {
+            return Err(ClientSelectWithFormatError::FormatMismatch(
+                resp_format
+                    .unwrap()
+                    .to_str()
+                    .unwrap_or("Unknown")
+                    .to_string(),
+            )
+            .into());
+        }
+
+        let mut resp_body_buf = Vec::with_capacity(4096);
+        resp.copy_to(&mut resp_body_buf).await?;
+
+        output
+            .deserialize(&resp_body_buf[..])
+            .map_err(|err| ClientSelectWithFormatError::FormatDeError(err.to_string()).into())
     }
 }
