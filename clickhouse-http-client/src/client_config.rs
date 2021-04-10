@@ -2,10 +2,7 @@ use isahc::{
     http::header::{HeaderMap, InvalidHeaderValue},
     Request,
 };
-use once_cell::sync::Lazy;
 use url::{ParseError, Url};
-
-static URL_DEFAULT: Lazy<Url> = Lazy::new(|| Url::parse("http://localhost:8123/").unwrap());
 
 const DATABASE_KEY_URL_PARAMETER: &str = "database";
 const DATABASE_KEY_HEADER: &str = "X-ClickHouse-Database";
@@ -17,6 +14,7 @@ const PASSWORD_KEY_URL_PARAMETER: &str = "password";
 const PASSWORD_KEY_HEADER: &str = "X-ClickHouse-Key";
 
 pub(crate) const FORMAT_KEY_URL_PARAMETER: &str = "default_format";
+pub(crate) const QUERY_KEY_URL_PARAMETER: &str = "query";
 
 const HTTP_SERVER_DEFAULT_RESPONSE_DEFAULT: &str = "Ok.\n";
 
@@ -29,7 +27,7 @@ pub struct ClientConfig {
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
-            url: URL_DEFAULT.to_owned(),
+            url: "http://localhost:8123/".parse().unwrap(),
             header_map: HeaderMap::new(),
             http_server_default_response: None,
         }
