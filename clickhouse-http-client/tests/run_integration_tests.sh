@@ -7,6 +7,7 @@ set -ex
 
 # CLICKHOUSE_SERVER_BIN=/bin/clickhouse-server ./tests/run_integration_tests.sh
 # RUST_BACKTRACE=full ./tests/run_integration_tests.sh
+# RUST_LOG=trace ./tests/run_integration_tests.sh
 
 script_path=$(cd $(dirname $0) ; pwd -P)
 script_path_root="${script_path}/"
@@ -84,4 +85,4 @@ sleep 2
 
 export CLICKHOUSE_HTTP_URL="http://127.0.0.1:${http_port}"
 
-RUST_LOG=trace cargo test -p clickhouse-http-client --features _integration_tests -- --nocapture
+cargo test -p clickhouse-http-client --features _integration_tests -- --nocapture
