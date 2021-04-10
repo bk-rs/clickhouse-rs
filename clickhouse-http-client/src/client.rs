@@ -131,19 +131,21 @@ impl Client {
 
     pub async fn insert_with_format<I: Input>(
         &self,
-        sql_part: impl AsRef<str>,
+        sql_prefix: impl AsRef<str>,
         input: I,
         settings: impl Into<Option<Settings<'_>>>,
     ) -> Result<(), Error> {
         let mut url = self.get_url().to_owned();
         let mut req = self.get_request();
 
+        let mut sql = sql_prefix.as_ref().to_owned();
+        let sql_suffix = format!(" FORMAT {}", I::format_name());
+        if !sql.ends_with(sql_suffix.as_str()) {
+            sql.push_str(sql_suffix.as_str());
+        }
+
         url.query_pairs_mut()
-            .append_pair(QUERY_KEY_URL_PARAMETER, sql_part.as_ref())
-            .append_pair(
-                FORMAT_KEY_URL_PARAMETER,
-                I::format_name().to_string().as_str(),
-            );
+            .append_pair(QUERY_KEY_URL_PARAMETER, sql.as_str());
 
         if let Some(settings) = settings.into() {
             settings.iter().for_each(|(k, v)| {
