@@ -21,7 +21,7 @@ isahc = { version = "1.3", default-features = false, features = ["text-decoding"
 url = { version = "2.2", default-features = false }
 thiserror = { version = "1.0", default-features = false }
 
-clickhouse-format = { version = "~0.1", default-features = false, path = "../clickhouse-format" }
+clickhouse-format = { version = "~0.2", default-features = false, path = "../clickhouse-format" }
 
 [dev-dependencies]
 tokio = { version = "1.4", features = ["macros", "rt"] }
