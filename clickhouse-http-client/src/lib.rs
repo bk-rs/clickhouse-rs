@@ -1,3 +1,4 @@
+pub use clickhouse_format;
 pub use isahc;
 
 pub mod client;

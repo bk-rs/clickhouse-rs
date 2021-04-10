@@ -1,7 +1,7 @@
 use std::error;
 
 use chrono::{NaiveDateTime, Utc};
-use clickhouse_format::{
+use clickhouse_http_client::clickhouse_format::{
     input::JsonCompactEachRowInput, output::JsonCompactEachRowWithNamesAndTypesOutput,
 };
 use serde::Deserialize;

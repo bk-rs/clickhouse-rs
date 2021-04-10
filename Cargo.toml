@@ -6,5 +6,6 @@ members = [
     "clickhouse-http-client",
     "clickhouse-postgres-client",
     "demos/postgres_client",
+    "demos/http_client",
     "sqlx-clickhouse-ext",
 ]
