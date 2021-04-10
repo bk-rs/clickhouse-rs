@@ -8,6 +8,8 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
+use crate::format_name::FormatName;
+
 use super::{Output, OutputResult};
 
 pub struct JsonEachRowWithProgressOutput<T> {
@@ -49,6 +51,10 @@ where
     type Info = JsonEachRowProgress;
 
     type Error = JsonEachRowWithProgressOutputError;
+
+    fn format_name() -> FormatName {
+        FormatName::JsonEachRowWithProgress
+    }
 
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut data: Vec<T> = vec![];
@@ -113,8 +119,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/JSONEachRowWithProgress.txt"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONEachRowWithProgress.txt");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            GeneralJsonEachRowWithProgressOutput::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) =
             GeneralJsonEachRowWithProgressOutput::new().deserialize(&content.as_bytes()[..])?;

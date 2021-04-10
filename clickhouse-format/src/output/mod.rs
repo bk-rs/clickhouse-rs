@@ -1,3 +1,5 @@
+use crate::format_name::FormatName;
+
 //
 #[cfg(feature = "with-tsv")]
 pub mod tsv;
@@ -88,6 +90,7 @@ pub trait Output {
     type Info;
     type Error;
 
+    fn format_name() -> FormatName;
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error>;
 }
 pub type OutputResult<Row, Info, Error> = Result<(Vec<Row>, Info), Error>;

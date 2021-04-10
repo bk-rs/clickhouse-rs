@@ -3,6 +3,8 @@ use std::{collections::HashMap, marker::PhantomData};
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 
+use crate::format_name::FormatName;
+
 use super::{Output, OutputResult};
 
 pub struct JsonOutput<T> {
@@ -30,6 +32,10 @@ where
     type Info = JsonDataInfo;
 
     type Error = serde_json::Error;
+
+    fn format_name() -> FormatName {
+        FormatName::Json
+    }
 
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let json_data: JsonData<Self::Row> = serde_json::from_slice(slice)?;
@@ -87,7 +93,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/JSON.json"))?;
+        let file_path = PathBuf::new().join("tests/files/JSON.json");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            GeneralJsonOutput::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) = GeneralJsonOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(

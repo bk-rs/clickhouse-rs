@@ -1,7 +1,7 @@
 use serde::Serialize;
 use serde_json::{ser::CompactFormatter, Serializer};
 
-use crate::input::Input;
+use crate::{format_name::FormatName, input::Input};
 
 pub struct JsonCompactEachRowInput<T> {
     rows: Vec<Vec<T>>,
@@ -17,6 +17,10 @@ where
     T: Serialize,
 {
     type Error = serde_json::Error;
+
+    fn format_name() -> FormatName {
+        FormatName::JsonCompactEachRow
+    }
 
     fn serialize(&self) -> Result<Vec<u8>, Self::Error> {
         let mut buf = vec![];
@@ -56,8 +60,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactEachRow.txt"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONCompactEachRow.txt");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            JsonCompactEachRowInput::<()>::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let mut rows: Vec<Vec<Value>> = vec![];
         rows.push(vec![

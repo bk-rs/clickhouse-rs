@@ -3,6 +3,8 @@ use std::{collections::HashMap, io, marker::PhantomData};
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
 
+use crate::format_name::FormatName;
+
 use super::{tsv::TsvOutput, Output, OutputResult};
 
 pub struct TsvWithNamesAndTypesOutput<T> {
@@ -29,6 +31,10 @@ where
     type Info = Option<HashMap<String, String>>;
 
     type Error = csv::Error;
+
+    fn format_name() -> FormatName {
+        FormatName::TsvWithNamesAndTypes
+    }
 
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut rdr = ReaderBuilder::new().delimiter(b'\t').from_reader(slice);
@@ -57,8 +63,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/TSVWithNamesAndTypes.tsv"))?;
+        let file_path = PathBuf::new().join("tests/files/TSVWithNamesAndTypes.tsv");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            TsvWithNamesAndTypesOutput::<HashMap<String, String>>::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let info_expected: HashMap<String, String> = vec![
             ("array1".into(), "Array(UInt8)".into()),

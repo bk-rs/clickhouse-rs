@@ -3,6 +3,8 @@ use std::{collections::HashMap, marker::PhantomData};
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
 
+use crate::format_name::FormatName;
+
 use super::{tsv::TsvOutput, Output, OutputResult};
 
 pub struct TsvWithNamesOutput<T> {
@@ -38,6 +40,10 @@ where
 
     type Error = csv::Error;
 
+    fn format_name() -> FormatName {
+        FormatName::TsvWithNames
+    }
+
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut rdr = ReaderBuilder::new().delimiter(b'\t').from_reader(slice);
 
@@ -61,7 +67,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/TSVWithNames.tsv"))?;
+        let file_path = PathBuf::new().join("tests/files/TSVWithNames.tsv");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            TsvWithNamesOutput::<HashMap<String, String>>::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) = TsvWithNamesOutput::<HashMap<String, String>>::new()
             .deserialize(&content.as_bytes()[..])?;

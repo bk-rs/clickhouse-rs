@@ -7,6 +7,8 @@ use std::{
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
+use crate::format_name::FormatName;
+
 use super::{Output, OutputResult};
 
 pub struct JsonCompactEachRowOutput<T> {
@@ -41,6 +43,10 @@ where
 
     type Error = JsonCompactEachRowOutputError;
 
+    fn format_name() -> FormatName {
+        FormatName::JsonCompactEachRow
+    }
+
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let mut data: Vec<T> = vec![];
 
@@ -69,8 +75,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactEachRow.txt"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONCompactEachRow.txt");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            GeneralJsonCompactEachRowOutput::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) = GeneralJsonCompactEachRowOutput::new(vec![
             "array1".into(),

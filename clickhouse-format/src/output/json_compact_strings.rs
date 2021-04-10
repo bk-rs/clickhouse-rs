@@ -2,6 +2,8 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use serde::de::DeserializeOwned;
 
+use crate::format_name::FormatName;
+
 use super::{json::JsonDataInfo, json_compact::JsonCompactOutput, Output, OutputResult};
 
 pub struct JsonCompactStringsOutput<T> {
@@ -30,6 +32,10 @@ where
 
     type Error = serde_json::Error;
 
+    fn format_name() -> FormatName {
+        FormatName::JsonCompactStrings
+    }
+
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         JsonCompactOutput::new().deserialize_with::<String>(slice)
     }
@@ -45,8 +51,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/JSONCompactStrings.json"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONCompactStrings.json");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            GeneralJsonCompactStringsOutput::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) =
             GeneralJsonCompactStringsOutput::new().deserialize(&content.as_bytes()[..])?;

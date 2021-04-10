@@ -18,7 +18,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/JSONStrings.json"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONStrings.json");
+        let content = fs::read_to_string(&file_path)?;
+
+        // assert_eq!(
+        //     GeneralJsonStringsOutput::format_name(),
+        //     file_path
+        //         .file_stem()
+        //         .unwrap()
+        //         .to_string_lossy()
+        //         .parse()
+        //         .unwrap()
+        // );
 
         let (rows, info) = GeneralJsonStringsOutput::new().deserialize(&content.as_bytes()[..])?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");

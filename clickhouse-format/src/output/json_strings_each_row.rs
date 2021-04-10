@@ -19,8 +19,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content =
-            fs::read_to_string(PathBuf::new().join("tests/files/JSONStringsEachRow.txt"))?;
+        let file_path = PathBuf::new().join("tests/files/JSONStringsEachRow.txt");
+        let content = fs::read_to_string(&file_path)?;
+
+        // assert_eq!(
+        //     GeneralJsonStringsEachRowOutput::format_name(),
+        //     file_path
+        //         .file_stem()
+        //         .unwrap()
+        //         .to_string_lossy()
+        //         .parse()
+        //         .unwrap()
+        // );
 
         let (rows, info) =
             GeneralJsonStringsEachRowOutput::new().deserialize(&content.as_bytes()[..])?;

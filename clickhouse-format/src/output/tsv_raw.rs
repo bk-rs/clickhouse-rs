@@ -3,6 +3,8 @@ use std::{collections::HashMap, marker::PhantomData};
 use csv::{ReaderBuilder, StringRecord, StringRecordsIntoIter};
 use serde::de::DeserializeOwned;
 
+use crate::format_name::FormatName;
+
 use super::{Output, OutputResult};
 
 pub struct TsvRawOutput<T> {
@@ -55,6 +57,10 @@ where
 
     type Error = csv::Error;
 
+    fn format_name() -> FormatName {
+        FormatName::TsvRaw
+    }
+
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
         let rdr = ReaderBuilder::new()
             .delimiter(b'\t')
@@ -102,7 +108,18 @@ mod tests {
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/TSVRaw.tsv"))?;
+        let file_path = PathBuf::new().join("tests/files/TSVRaw.tsv");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            TsvRawOutput::<HashMap<String, String>>::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) = TsvRawOutput::<HashMap<String, String>>::with_names(vec![
             "array1".into(),
