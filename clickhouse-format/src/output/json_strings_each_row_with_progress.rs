@@ -1,11 +1,45 @@
 use std::collections::HashMap;
 
-use super::json_each_row_with_progress::JsonEachRowWithProgressOutput;
+use serde::de::DeserializeOwned;
 
-pub type JsonStringsEachRowWithProgressOutput<T> = JsonEachRowWithProgressOutput<T>;
+use crate::format_name::FormatName;
+
+use super::{json_each_row_with_progress::JsonEachRowWithProgressOutput, Output, OutputResult};
+
+type Inner<T> = JsonEachRowWithProgressOutput<T>;
+
+#[derive(Default)]
+pub struct JsonStringsEachRowWithProgressOutput<T> {
+    inner: Inner<T>,
+}
+impl<T> JsonStringsEachRowWithProgressOutput<T> {
+    pub fn new() -> Self {
+        Self {
+            inner: Inner::new(),
+        }
+    }
+}
 
 pub type GeneralJsonStringsEachRowWithProgressOutput =
     JsonStringsEachRowWithProgressOutput<HashMap<String, String>>;
+
+impl<T> Output for JsonStringsEachRowWithProgressOutput<T>
+where
+    T: DeserializeOwned,
+{
+    type Row = <Inner<T> as Output>::Row;
+    type Info = <Inner<T> as Output>::Info;
+
+    type Error = <Inner<T> as Output>::Error;
+
+    fn format_name() -> crate::format_name::FormatName {
+        FormatName::JsonStringsEachRowWithProgress
+    }
+
+    fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error> {
+        self.inner.deserialize(slice)
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -13,16 +47,22 @@ mod tests {
 
     use std::{error, fs, path::PathBuf};
 
-    use crate::{
-        output::Output as _,
-        test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1},
-    };
+    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
 
     #[test]
     fn simple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(
-            PathBuf::new().join("tests/files/JSONStringsEachRowWithProgress.txt"),
-        )?;
+        let file_path = PathBuf::new().join("tests/files/JSONStringsEachRowWithProgress.txt");
+        let content = fs::read_to_string(&file_path)?;
+
+        assert_eq!(
+            GeneralJsonStringsEachRowWithProgressOutput::format_name(),
+            file_path
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .parse()
+                .unwrap()
+        );
 
         let (rows, info) = GeneralJsonStringsEachRowWithProgressOutput::new()
             .deserialize(&content.as_bytes()[..])?;
