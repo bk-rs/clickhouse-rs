@@ -5,7 +5,7 @@ authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-clickhouse-http-client = { version = "0.1", features = ["with-format-json"], path = "../../clickhouse-http-client" }
+clickhouse-http-client = { features = ["with-format-json"], path = "../../clickhouse-http-client" }
 
 serde = { version = "1", features = ["derive"] }
 
