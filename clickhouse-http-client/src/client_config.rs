@@ -1,22 +1,25 @@
-use isahc::{
-    http::header::{HeaderMap, InvalidHeaderValue},
+use isahc::http::{
+    header::{HeaderMap, InvalidHeaderValue},
     Request,
 };
 use url::{ParseError, Url};
 
-const DATABASE_KEY_URL_PARAMETER: &str = "database";
-const DATABASE_KEY_HEADER: &str = "X-ClickHouse-Database";
+pub const DATABASE_KEY_URL_PARAMETER: &str = "database";
+pub const DATABASE_KEY_HEADER: &str = "X-ClickHouse-Database";
 
-const USERNAME_KEY_URL_PARAMETER: &str = "user";
-const USERNAME_KEY_HEADER: &str = "X-ClickHouse-User";
+pub const USERNAME_KEY_URL_PARAMETER: &str = "user";
+pub const USERNAME_KEY_HEADER: &str = "X-ClickHouse-User";
 
-const PASSWORD_KEY_URL_PARAMETER: &str = "password";
-const PASSWORD_KEY_HEADER: &str = "X-ClickHouse-Key";
+pub const PASSWORD_KEY_URL_PARAMETER: &str = "password";
+pub const PASSWORD_KEY_HEADER: &str = "X-ClickHouse-Key";
 
-pub(crate) const FORMAT_KEY_URL_PARAMETER: &str = "default_format";
-pub(crate) const FORMAT_KEY_HEADER: &str = "X-ClickHouse-Format";
+pub const FORMAT_KEY_URL_PARAMETER: &str = "default_format";
+pub const FORMAT_KEY_HEADER: &str = "X-ClickHouse-Format";
 
-pub(crate) const QUERY_KEY_URL_PARAMETER: &str = "query";
+pub const QUERY_KEY_URL_PARAMETER: &str = "query";
+
+pub const SUMMARY_KEY_HEADER: &str = "X-ClickHouse-Summary";
+pub const QUERY_ID_KEY_HEADER: &str = "X-ClickHouse-Query-Id";
 
 const HTTP_SERVER_DEFAULT_RESPONSE_DEFAULT: &str = "Ok.\n";
 

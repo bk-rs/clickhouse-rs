@@ -5,11 +5,11 @@ authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
 
 [[bin]]
-name = "conn"
+name = "clickhouse-demo-postgres-client-conn"
 path = "src/conn.rs"
 
 [[bin]]
-name = "pool"
+name = "clickhouse-demo-postgres-client-pool"
 path = "src/pool.rs"
 
 [dependencies]
