@@ -2,7 +2,7 @@
 name = "clickhouse-postgres-client"
 version = "0.1.4"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "ClickHouse Postgres Client"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/clickhouse-rs"
