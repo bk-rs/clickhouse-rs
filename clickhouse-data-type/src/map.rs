@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use pest::iterators::{Pair, Pairs};
 
 use crate::{

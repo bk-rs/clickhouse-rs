@@ -1,4 +1,5 @@
-use std::{collections::HashMap, num::ParseIntError};
+use core::num::ParseIntError;
+use std::collections::HashMap;
 
 use pest::iterators::Pairs;
 

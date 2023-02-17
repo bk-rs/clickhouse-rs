@@ -1,8 +1,5 @@
-use std::{
-    convert::TryFrom,
-    net::{AddrParseError, Ipv4Addr},
-    num::ParseIntError,
-};
+use core::num::ParseIntError;
+use std::net::{AddrParseError, Ipv4Addr};
 
 #[cfg(feature = "chrono")]
 use clickhouse_data_value::datetime::{
@@ -54,14 +51,14 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
             "DATE" => Ok(Self::Date),
             #[cfg(not(feature = "chrono"))]
             "DATE" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable chrono feature", s).into(),
             }),
             #[cfg(feature = "bigdecimal")]
             "NUMERIC" => Ok(Self::Numeric),
             #[cfg(not(feature = "bigdecimal"))]
             "NUMERIC" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable bigdecimal feature", s)
                     .into(),
             }),
@@ -69,12 +66,12 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
             "UUID" => Ok(Self::Uuid),
             #[cfg(not(feature = "uuid"))]
             "UUID" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable uuid feature", s).into(),
             }),
             _ => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
-                source: format!("unknown SQL type `{}`", s).into(),
+                index: format!("{index:?}"),
+                source: format!("unknown SQL type `{s}`").into(),
             }),
         }
     }
@@ -82,6 +79,7 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum ClickhousePgValue {
+    Bool(bool),
     Char(i8),
     I16(i16),
     I32(i32),
@@ -95,6 +93,11 @@ pub enum ClickhousePgValue {
     BigDecimal(BigDecimal),
     #[cfg(feature = "uuid")]
     Uuid(Uuid),
+}
+impl From<bool> for ClickhousePgValue {
+    fn from(val: bool) -> Self {
+        Self::Bool(val)
+    }
 }
 impl From<i8> for ClickhousePgValue {
     fn from(val: i8) -> Self {
@@ -173,6 +176,7 @@ impl From<Uuid> for ClickhousePgValue {
 impl ClickhousePgValue {
     pub fn as_bool(&self) -> Option<bool> {
         match *self {
+            Self::Bool(v) => Some(v),
             Self::Char(v) if v == '1' as i8 => Some(true),
             Self::Char(v) if v == '0' as i8 => Some(false),
             _ => self.as_u8().and_then(|v| match v {
@@ -318,6 +322,9 @@ mod tests {
 
     #[test]
     fn test_as_bool() {
+        assert_eq!(ClickhousePgValue::from(false).as_bool(), Some(false));
+        assert_eq!(ClickhousePgValue::from(true).as_bool(), Some(true));
+
         assert_eq!(ClickhousePgValue::from('0' as i8).as_bool(), Some(false));
         assert_eq!(ClickhousePgValue::from('1' as i8).as_bool(), Some(true));
         assert_eq!(ClickhousePgValue::from('2' as i8).as_bool(), None);
@@ -459,10 +466,10 @@ mod tests {
     #[cfg(feature = "chrono")]
     #[test]
     fn test_as_naive_date() {
-        let naive_date = NaiveDate::from_ymd(2021, 1, 1);
+        let naive_date = NaiveDate::from_ymd_opt(2021, 1, 1).expect("");
         assert_eq!(
             ClickhousePgValue::from(naive_date).as_naive_date(),
-            Some(&NaiveDate::from_ymd(2021, 1, 1))
+            Some(&NaiveDate::from_ymd_opt(2021, 1, 1).expect(""))
         );
     }
     #[cfg(feature = "bigdecimal")]
@@ -484,13 +491,22 @@ mod tests {
     #[cfg(feature = "chrono")]
     #[test]
     fn test_as_naive_date_time() {
-        let dt = NaiveDate::from_ymd(2021, 1, 1).and_hms_nano(0, 0, 0, 123456789);
+        let dt = NaiveDate::from_ymd_opt(2021, 1, 1)
+            .expect("")
+            .and_hms_nano_opt(0, 0, 0, 123456789)
+            .expect("");
         match ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S").to_string())
             .as_naive_date_time()
         {
-            Some(Ok(dt)) => assert_eq!(dt, NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)),
-            Some(Err(err)) => assert!(false, "{:?}", err),
-            None => assert!(false),
+            Some(Ok(dt)) => assert_eq!(
+                dt,
+                NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .expect("")
+                    .and_hms_opt(0, 0, 0)
+                    .expect("")
+            ),
+            Some(Err(err)) => panic!("{err:?}"),
+            None => panic!(),
         }
     }
 

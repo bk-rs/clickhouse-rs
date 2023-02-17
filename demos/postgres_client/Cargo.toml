@@ -2,7 +2,7 @@
 name = "clickhouse-demo-postgres-client"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [[bin]]
 name = "conn"
@@ -13,6 +13,6 @@ name = "pool"
 path = "src/pool.rs"
 
 [dependencies]
-clickhouse-postgres-client = { path = "../../clickhouse-postgres-client", version = "0.1", features = ["all-types", "runtime-tokio-native-tls"] }
+clickhouse-postgres-client = { version = "0.1", default-features = false, features = ["all-types", "runtime-tokio-native-tls"], path = "../../clickhouse-postgres-client" }
 
-tokio = { version = "1.4", default-features = false, features = ["macros"] }
+tokio = { version = "1", default-features = false, features = ["macros"] }

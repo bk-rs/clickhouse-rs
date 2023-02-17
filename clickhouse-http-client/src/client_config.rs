@@ -127,8 +127,7 @@ impl ClientConfig {
         req
     }
     pub(crate) fn get_http_server_default_response(&self) -> &str {
-        &self
-            .http_server_default_response
+        self.http_server_default_response
             .as_deref()
             .unwrap_or(HTTP_SERVER_DEFAULT_RESPONSE_DEFAULT)
     }
@@ -138,10 +137,8 @@ impl ClientConfig {
 mod tests {
     use super::*;
 
-    use std::error;
-
     #[test]
-    fn with_default() -> Result<(), Box<dyn error::Error>> {
+    fn with_default() -> Result<(), Box<dyn std::error::Error>> {
         let config = ClientConfig::default();
         assert_eq!(config.url.as_str(), "http://localhost:8123/");
         assert_eq!(config.header_map.len(), 0);
@@ -150,7 +147,7 @@ mod tests {
     }
 
     #[test]
-    fn with_set_url() -> Result<(), Box<dyn error::Error>> {
+    fn with_set_url() -> Result<(), Box<dyn std::error::Error>> {
         let mut config = ClientConfig::default();
         config.set_url("http://127.0.0.1:8123/foo/?bar=1")?;
         assert_eq!(config.url.as_str(), "http://127.0.0.1:8123/foo/?bar=1");
@@ -160,7 +157,7 @@ mod tests {
     }
 
     #[test]
-    fn with_set_database() -> Result<(), Box<dyn error::Error>> {
+    fn with_set_database() -> Result<(), Box<dyn std::error::Error>> {
         let mut config = ClientConfig::default();
         config
             .set_url("http://127.0.0.1:8123/foo/?bar=1")?
@@ -184,7 +181,7 @@ mod tests {
     }
 
     #[test]
-    fn with_set_username() -> Result<(), Box<dyn error::Error>> {
+    fn with_set_username() -> Result<(), Box<dyn std::error::Error>> {
         let mut config = ClientConfig::default();
         config
             .set_url("http://127.0.0.1:8123/foo/?bar=1")?
@@ -205,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    fn with_set_password() -> Result<(), Box<dyn error::Error>> {
+    fn with_set_password() -> Result<(), Box<dyn std::error::Error>> {
         let mut config = ClientConfig::default();
         config
             .set_url("http://127.0.0.1:8123/foo/?bar=1")?

@@ -13,7 +13,7 @@ pub(crate) struct TestRow {
 }
 
 #[allow(dead_code)]
-pub(crate) const TEST_ROW_1: Lazy<TestRow> = Lazy::new(|| TestRow {
+pub(crate) static TEST_ROW_1: Lazy<TestRow> = Lazy::new(|| TestRow {
     array1: vec![1, 2],
     array2: vec!["a".into(), "b".into()],
     tuple1: (1, "a".into()),
@@ -27,7 +27,7 @@ pub(crate) const TEST_ROW_1: Lazy<TestRow> = Lazy::new(|| TestRow {
     .collect(),
 });
 #[allow(dead_code)]
-pub(crate) const TEST_ROW_2: Lazy<TestRow> = Lazy::new(|| TestRow {
+pub(crate) static TEST_ROW_2: Lazy<TestRow> = Lazy::new(|| TestRow {
     array1: vec![3, 4],
     array2: vec!["c".into(), "d".into()],
     tuple1: (2, "b".into()),
@@ -45,7 +45,7 @@ pub(crate) struct TestStringsRow {
 }
 
 #[allow(dead_code)]
-pub(crate) const TEST_STRINGS_ROW_1: Lazy<TestStringsRow> = Lazy::new(|| TestStringsRow {
+pub(crate) static TEST_STRINGS_ROW_1: Lazy<TestStringsRow> = Lazy::new(|| TestStringsRow {
     array1: "[1,2]".into(),
     array2: "['a','b']".into(),
     tuple1: "(1,'a')".into(),
@@ -53,7 +53,7 @@ pub(crate) const TEST_STRINGS_ROW_1: Lazy<TestStringsRow> = Lazy::new(|| TestStr
     map1: "{'1':'Ready','2':'Steady','3':'Go'}".into(),
 });
 #[allow(dead_code)]
-pub(crate) const TEST_STRINGS_ROW_2: Lazy<TestStringsRow> = Lazy::new(|| TestStringsRow {
+pub(crate) static TEST_STRINGS_ROW_2: Lazy<TestStringsRow> = Lazy::new(|| TestStringsRow {
     array1: "[3,4]".into(),
     array2: "['c','d']".into(),
     tuple1: "(2,'b')".into(),

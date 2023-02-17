@@ -1,5 +1,3 @@
-use std::error;
-
 use chrono::{NaiveDateTime, Utc};
 use clickhouse_http_client::clickhouse_format::{
     input::JsonCompactEachRowInput, output::JsonCompactEachRowWithNamesAndTypesOutput,
@@ -10,15 +8,15 @@ use serde_json::Value;
 use super::helpers::*;
 
 #[derive(Deserialize, Debug)]
-struct Event {
+pub struct Event {
     #[serde(rename = "event_id")]
-    id: u32,
+    pub id: u32,
     #[serde(deserialize_with = "clickhouse_data_value::datetime::deserialize")]
-    created_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
 }
 
 #[tokio::test]
-async fn simple() -> Result<(), Box<dyn error::Error>> {
+async fn simple() -> Result<(), Box<dyn std::error::Error>> {
     init_logger();
 
     let client = get_client()?;
@@ -55,8 +53,8 @@ CREATE TABLE t_testing_events
             None,
         )
         .await?;
-    println!("{:?}", events);
-    println!("{:?}", info);
+    println!("{events:?}");
+    println!("{info:?}");
     assert_eq!(events.len(), 2);
     let event = events.first().unwrap();
     assert_eq!(event.id, 1);
@@ -68,8 +66,8 @@ CREATE TABLE t_testing_events
             vec![("date_time_output_format", "iso")],
         )
         .await?;
-    println!("{:?}", events);
-    println!("{:?}", info);
+    println!("{events:?}");
+    println!("{info:?}");
 
     client.execute("DROP TABLE t_testing_events", None).await?;
 

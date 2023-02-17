@@ -2,7 +2,7 @@
 name = "clickhouse-format"
 version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "ClickHouse Formats"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/clickhouse-rs"
@@ -13,28 +13,28 @@ categories = []
 readme = "README.md"
 
 [package.metadata.docs.rs]
-features = [ "with-all" ]
+features = ["with-all"]
 
 [features]
-default = [ "with-json" ]
+default = ["with-json"]
 
-with-all = [ "with-tsv", "with-json" ]
+with-all = ["with-tsv", "with-json"]
 
-with-tsv = [ "csv", "serde" ]
-with-json = [ "serde_json", "serde", "thiserror", "serde-aux" ]
+with-tsv = ["csv", "serde"]
+with-json = ["serde_json", "serde", "thiserror", "serde-aux"]
 
 [dependencies]
-strum = { version = "0.20", default-features = false, features = ["derive"] }
+strum = { version = "0.24", default-features = false, features = ["derive"] }
 
-csv = { version = "1.1", default-features = false, optional = true }
-serde_json = { version = "1.0", default-features = false, features = [ "std" ], optional = true }
-serde = { version = "1.0", default-features = false, features = [ "std", "derive" ], optional = true }
-thiserror = { version = "1.0", default-features = false, optional = true }
-serde-aux = { version = "2.1", default-features = false, optional = true }
+csv = { version = "1", default-features = false, optional = true }
+serde_json = { version = "1", default-features = false, features = ["std"], optional = true }
+serde = { version = "1", default-features = false, features = ["std", "derive"], optional = true }
+thiserror = { version = "1", default-features = false, optional = true }
+serde-aux = { version = "4", default-features = false, optional = true }
 
 [dev-dependencies]
-serde = { version = "1.0", features = [ "derive" ] }
-once_cell = { version = "1.7" }
+serde = { version = "1", features = ["derive"] }
+once_cell = { version = "1" }
 
 [package.metadata.cargo-all-features]
 skip_optional_dependencies = true

@@ -1,3 +1,5 @@
+use std::io::Error as IoError;
+
 use isahc::http;
 
 #[derive(thiserror::Error, Debug)]
@@ -9,7 +11,7 @@ pub enum Error {
     #[error("UrlParseError {0:?}")]
     UrlParseError(#[from] url::ParseError),
     #[error("IoError {0:?}")]
-    IoError(#[from] std::io::Error),
+    IoError(#[from] IoError),
     //
     #[error("ClientExecuteError {0:?}")]
     ClientExecuteError(#[from] ClientExecuteError),

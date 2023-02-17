@@ -1,8 +1,8 @@
-use std::{
-    env::{set_var, var, VarError},
+use core::{
     ops::{Deref, DerefMut},
     str::FromStr,
 };
+use std::env::{set_var, var, VarError};
 
 use sqlx_clickhouse_ext::sqlx_core::{error::Error, postgres::PgConnectOptions};
 use url::Url;

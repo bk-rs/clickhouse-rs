@@ -1,4 +1,5 @@
-use std::{collections::HashMap, marker::PhantomData};
+use core::marker::PhantomData;
+use std::collections::HashMap;
 
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
@@ -61,12 +62,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/TSVWithNames.tsv");
         let content = fs::read_to_string(&file_path)?;
 
@@ -80,13 +81,13 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = TsvWithNamesOutput::<HashMap<String, String>>::new()
-            .deserialize(&content.as_bytes()[..])?;
+        let (rows, info) =
+            TsvWithNamesOutput::<HashMap<String, String>>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, None);
 
         let (rows, info) =
-            TsvWithNamesOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            TsvWithNamesOutput::<TestStringsRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, None);
 

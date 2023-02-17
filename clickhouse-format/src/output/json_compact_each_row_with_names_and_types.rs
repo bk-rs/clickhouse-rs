@@ -1,7 +1,7 @@
+use core::marker::PhantomData;
 use std::{
     collections::HashMap,
-    io::{self, BufRead as _},
-    marker::PhantomData,
+    io::{BufRead as _, Error as IoError},
 };
 
 use serde::de::DeserializeOwned;
@@ -33,7 +33,7 @@ pub type GeneralJsonCompactEachRowWithNamesAndTypesOutput =
 #[derive(thiserror::Error, Debug)]
 pub enum JsonCompactEachRowWithNamesAndTypesOutputError {
     #[error("IoError {0:?}")]
-    IoError(#[from] io::Error),
+    IoError(#[from] IoError),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
@@ -68,9 +68,8 @@ where
             let line = line?;
             let values: Vec<Value> = serde_json::from_str(&line)?;
 
-            let row: T = serde_json::from_value(Value::Object(
-                names.to_owned().into_iter().zip(values).collect(),
-            ))?;
+            let row: T =
+                serde_json::from_value(Value::Object(names.iter().cloned().zip(values).collect()))?;
 
             data.push(row);
         }
@@ -83,12 +82,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSONCompactEachRowWithNamesAndTypes.txt");
         let content = fs::read_to_string(&file_path)?;
 
@@ -103,7 +102,7 @@ mod tests {
         );
 
         let (rows, info) = GeneralJsonCompactEachRowWithNamesAndTypesOutput::new()
-            .deserialize(&content.as_bytes()[..])?;
+            .deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -111,7 +110,7 @@ mod tests {
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 
         let (rows, info) = JsonCompactEachRowWithNamesAndTypesOutput::<TestRow>::new()
-            .deserialize(&content.as_bytes()[..])?;
+            .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 

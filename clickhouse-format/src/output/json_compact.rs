@@ -1,4 +1,5 @@
-use std::{collections::HashMap, marker::PhantomData};
+use core::marker::PhantomData;
+use std::collections::HashMap;
 
 use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
@@ -88,12 +89,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSONCompact.json");
         let content = fs::read_to_string(&file_path)?;
 
@@ -107,15 +108,14 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = GeneralJsonCompactOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = GeneralJsonCompactOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
         assert_eq!(info.rows, 2);
 
-        let (rows, info) =
-            JsonCompactOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = JsonCompactOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.rows, 2);
 

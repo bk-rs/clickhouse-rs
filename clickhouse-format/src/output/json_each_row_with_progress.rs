@@ -1,7 +1,7 @@
+use core::marker::PhantomData;
 use std::{
     collections::HashMap,
-    io::{self, BufRead as _},
-    marker::PhantomData,
+    io::{BufRead as _, Error as IoError},
 };
 
 use serde::{de::DeserializeOwned, Deserialize};
@@ -34,7 +34,7 @@ pub type GeneralJsonEachRowWithProgressOutput =
 #[derive(thiserror::Error, Debug)]
 pub enum JsonEachRowWithProgressOutputError {
     #[error("IoError {0:?}")]
-    IoError(#[from] io::Error),
+    IoError(#[from] IoError),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
     #[error("ProgressInTheWrongPosition")]
@@ -113,12 +113,12 @@ pub struct JsonEachRowProgress {
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSONEachRowWithProgress.txt");
         let content = fs::read_to_string(&file_path)?;
 
@@ -133,7 +133,7 @@ mod tests {
         );
 
         let (rows, info) =
-            GeneralJsonEachRowWithProgressOutput::new().deserialize(&content.as_bytes()[..])?;
+            GeneralJsonEachRowWithProgressOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(info.read_rows, 2);
 
         let (rows, info) =
-            JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.read_rows, 2);
 

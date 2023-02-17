@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use chrono_tz::Tz;
 use pest::iterators::{Pair, Pairs};
 

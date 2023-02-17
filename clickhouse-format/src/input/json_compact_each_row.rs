@@ -33,7 +33,7 @@ where
                 let mut ser = Serializer::with_formatter(&mut ser_buf, CompactFormatter);
                 item.serialize(&mut ser)?;
 
-                buf.extend_from_slice(&ser.into_inner());
+                buf.extend_from_slice(ser.into_inner());
 
                 if i < (row.len() - 1) {
                     buf.extend_from_slice(b", ");
@@ -52,14 +52,14 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TEST_ROW_1, TEST_ROW_2};
 
     use serde_json::{Map, Value};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSONCompactEachRow.txt");
         let content = fs::read_to_string(&file_path)?;
 
@@ -87,13 +87,10 @@ mod tests {
                 Value::Null,
             ]
             .into(),
-            Value::Object(TEST_ROW_1.map1.to_owned().into_iter().fold(
-                Map::new(),
-                |mut m, (k, v)| {
-                    m.insert(k, Value::String(v));
-                    m
-                },
-            )),
+            Value::Object(TEST_ROW_1.map1.iter().fold(Map::new(), |mut m, (k, v)| {
+                m.insert(k.to_owned(), Value::String(v.to_owned()));
+                m
+            })),
         ]);
         rows.push(vec![
             TEST_ROW_2.array1.to_owned().into(),
@@ -108,13 +105,10 @@ mod tests {
                 Value::String(TEST_ROW_2.tuple2.to_owned().1.unwrap()),
             ]
             .into(),
-            Value::Object(TEST_ROW_2.map1.to_owned().into_iter().fold(
-                Map::new(),
-                |mut m, (k, v)| {
-                    m.insert(k, Value::String(v));
-                    m
-                },
-            )),
+            Value::Object(TEST_ROW_2.map1.iter().fold(Map::new(), |mut m, (k, v)| {
+                m.insert(k.to_owned(), Value::String(v.to_owned()));
+                m
+            })),
         ]);
 
         let bytes = JsonCompactEachRowInput::new(rows).serialize()?;

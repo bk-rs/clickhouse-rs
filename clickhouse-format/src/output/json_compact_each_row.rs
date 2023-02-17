@@ -1,7 +1,7 @@
+use core::marker::PhantomData;
 use std::{
     collections::HashMap,
-    io::{self, BufRead as _},
-    marker::PhantomData,
+    io::{BufRead as _, Error as IoError},
 };
 
 use serde::de::DeserializeOwned;
@@ -29,7 +29,7 @@ pub type GeneralJsonCompactEachRowOutput = JsonCompactEachRowOutput<HashMap<Stri
 #[derive(thiserror::Error, Debug)]
 pub enum JsonCompactEachRowOutputError {
     #[error("IoError {0:?}")]
-    IoError(#[from] io::Error),
+    IoError(#[from] IoError),
     #[error("SerdeJsonError {0:?}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
@@ -55,7 +55,7 @@ where
             let values: Vec<Value> = serde_json::from_str(&line)?;
 
             let row: T = serde_json::from_value(Value::Object(
-                self.names.to_owned().into_iter().zip(values).collect(),
+                self.names.iter().cloned().zip(values).collect(),
             ))?;
 
             data.push(row);
@@ -69,12 +69,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSONCompactEachRow.txt");
         let content = fs::read_to_string(&file_path)?;
 
@@ -88,30 +88,28 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = GeneralJsonCompactEachRowOutput::new(vec![
+        let (rows, _info): (_, ()) = GeneralJsonCompactEachRowOutput::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
             "tuple2".into(),
             "map1".into(),
         ])
-        .deserialize(&content.as_bytes()[..])?;
+        .deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
-        assert_eq!(info, ());
 
-        let (rows, info) = JsonCompactEachRowOutput::<TestRow>::new(vec![
+        let (rows, _info): (_, ()) = JsonCompactEachRowOutput::<TestRow>::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
             "tuple2".into(),
             "map1".into(),
         ])
-        .deserialize(&content.as_bytes()[..])?;
+        .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
-        assert_eq!(info, ());
 
         Ok(())
     }
