@@ -1,3 +1,5 @@
+use core::str::FromStr as _;
+
 use super::helpers::*;
 
 #[tokio::test]
@@ -315,7 +317,7 @@ async fn test_dt_decimal256() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(
         fetch_one_and_get_data(get_sql("decimal/select_Decimal256"), &mut conn).await?,
         vec![
-            ("val".into(), "-1.11100".into(),),
+            ("val".into(), "-1.111".into(),),
             ("ty".into(), "Decimal(76, 5)".into())
         ],
     );
@@ -406,7 +408,10 @@ async fn test_dt_date() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(
         fetch_one_and_get_data(get_sql("date/select"), &mut conn).await?,
         vec![
-            ("val".into(), SqlxNaiveDate::from_ymd(2021, 3, 1).into()),
+            (
+                "val".into(),
+                SqlxNaiveDate::from_ymd_opt(2021, 3, 1).expect("").into()
+            ),
             ("ty".into(), "Date".into())
         ],
     );
@@ -681,7 +686,7 @@ async fn test_dt_map() -> Result<(), Box<dyn std::error::Error>> {
         fetch_one_and_get_data(get_sql("map/select_with_UInt8_and_String"), &mut conn).await?,
         vec![
             ("val".into(), "{1:'Ready',2:'Steady',3:'Go'}".into()),
-            ("ty".into(), "Map(UInt8,String)".into())
+            ("ty".into(), "Map(UInt8, String)".into())
         ],
     );
 
@@ -699,7 +704,7 @@ async fn test_dt_nullable() -> Result<(), Box<dyn std::error::Error>> {
         vec![
             ("x_val".into(), 1_i16.into()),
             ("x_ty".into(), "Int16".into()),
-            ("y_val".into(), (-1 as i16).into()),
+            ("y_val".into(), (-1_i16).into()),
             ("y_ty".into(), "Int16".into())
         ],
     );

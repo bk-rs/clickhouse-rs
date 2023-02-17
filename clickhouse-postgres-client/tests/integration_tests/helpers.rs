@@ -44,11 +44,11 @@ pub(super) async fn fetch_one_and_get_data(
 }
 
 pub(super) fn get_sql(path: &str) -> String {
-    fs::read_to_string(PathBuf::new().join(format!("../clickhouse_sqls/data_types/{}.sql", path)))
+    fs::read_to_string(PathBuf::new().join(format!("../clickhouse_sqls/data_types/{path}.sql")))
         .unwrap()
 }
 
 pub(super) fn get_setting_sql(path: &str) -> String {
-    fs::read_to_string(PathBuf::new().join(format!("../clickhouse_sqls/settings/{}.sql", path)))
+    fs::read_to_string(PathBuf::new().join(format!("../clickhouse_sqls/settings/{path}.sql")))
         .unwrap()
 }

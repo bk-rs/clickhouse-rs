@@ -6,12 +6,12 @@ set -ex
 # ./../clickhouse_tgz_archive/download.sh
 
 # CLICKHOUSE_SERVER_BIN=/bin/clickhouse-server ./tests/run_integration_tests.sh
-# RUST_BACKTRACE=full ./tests/run_integration_tests.sh
+# RUST_BACKTRACE=1 ./tests/run_integration_tests.sh
 
 script_path=$(cd $(dirname $0) ; pwd -P)
 script_path_root="${script_path}/"
 
-bin_default="${script_path_root}../../clickhouse_tgz_archive/clickhouse/usr/bin/clickhouse-server"
+bin_default="${script_path_root}../../clickhouse_tgz_archive/clickhouse/bin/clickhouse-server"
 bin="${CLICKHOUSE_SERVER_BIN:-${bin_default}}"
 
 workdir=$(mktemp -d)
