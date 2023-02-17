@@ -1,4 +1,8 @@
-use std::{collections::HashMap, io, marker::PhantomData};
+use core::marker::PhantomData;
+use std::{
+    collections::HashMap,
+    io::{Error as IoError, ErrorKind as IoErrorKind},
+};
 
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
@@ -46,7 +50,7 @@ where
 
         let record = records
             .next()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, ""))??;
+            .ok_or_else(|| IoError::new(IoErrorKind::Other, ""))??;
         let types: Vec<String> = record.iter().map(ToOwned::to_owned).collect();
 
         TsvOutput::with_names_and_types(names, types).deserialize_with_records(records)
@@ -57,12 +61,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/TSVWithNamesAndTypes.tsv");
         let content = fs::read_to_string(&file_path)?;
 

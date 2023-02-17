@@ -1,4 +1,4 @@
-use std::any::type_name;
+use core::any::type_name;
 
 use sqlx_core::{database::Database, error::BoxDynError, type_info::TypeInfo as _, types::Type};
 

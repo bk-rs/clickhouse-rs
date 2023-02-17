@@ -1,9 +1,7 @@
-use std::error;
-
 use super::helpers::*;
 
 #[tokio::test]
-async fn test_dt_int8() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int8() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     // int8 only support 0-9
@@ -21,7 +19,7 @@ async fn test_dt_int8() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_int16() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int16() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -38,7 +36,7 @@ async fn test_dt_int16() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_int32() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int32() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -55,7 +53,7 @@ async fn test_dt_int32() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_int64() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int64() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -72,7 +70,7 @@ async fn test_dt_int64() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_int128() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int128() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -95,7 +93,7 @@ async fn test_dt_int128() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_int256() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_int256() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -120,7 +118,7 @@ async fn test_dt_int256() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_uint8() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uint8() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -137,7 +135,7 @@ async fn test_dt_uint8() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_uint16() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uint16() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -154,7 +152,7 @@ async fn test_dt_uint16() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_uint32() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uint32() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -171,7 +169,7 @@ async fn test_dt_uint32() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_uint64() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uint64() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -188,7 +186,7 @@ async fn test_dt_uint64() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_uint256() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uint256() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -209,7 +207,7 @@ async fn test_dt_uint256() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_float32() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_float32() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -224,7 +222,7 @@ async fn test_dt_float32() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_float64() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_float64() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -240,9 +238,7 @@ async fn test_dt_float64() -> Result<(), Box<dyn error::Error>> {
 
 #[cfg(feature = "bigdecimal")]
 #[tokio::test]
-async fn test_dt_decimal32() -> Result<(), Box<dyn error::Error>> {
-    use std::str::FromStr as _;
-
+async fn test_dt_decimal32() -> Result<(), Box<dyn std::error::Error>> {
     use sqlx_clickhouse_ext::sqlx_core::types::BigDecimal as SqlxBigDecimal;
 
     let mut conn = get_conn(&[]).await?;
@@ -266,9 +262,7 @@ async fn test_dt_decimal32() -> Result<(), Box<dyn error::Error>> {
 
 #[cfg(feature = "bigdecimal")]
 #[tokio::test]
-async fn test_dt_decimal64() -> Result<(), Box<dyn error::Error>> {
-    use std::str::FromStr as _;
-
+async fn test_dt_decimal64() -> Result<(), Box<dyn std::error::Error>> {
     use sqlx_clickhouse_ext::sqlx_core::types::BigDecimal as SqlxBigDecimal;
 
     let mut conn = get_conn(&[]).await?;
@@ -292,9 +286,7 @@ async fn test_dt_decimal64() -> Result<(), Box<dyn error::Error>> {
 
 #[cfg(feature = "bigdecimal")]
 #[tokio::test]
-async fn test_dt_decimal128() -> Result<(), Box<dyn error::Error>> {
-    use std::str::FromStr as _;
-
+async fn test_dt_decimal128() -> Result<(), Box<dyn std::error::Error>> {
     use sqlx_clickhouse_ext::sqlx_core::types::BigDecimal as SqlxBigDecimal;
 
     let mut conn = get_conn(&[]).await?;
@@ -317,7 +309,7 @@ async fn test_dt_decimal128() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_decimal256() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_decimal256() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -332,7 +324,7 @@ async fn test_dt_decimal256() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_boolean() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_boolean() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     execute(get_sql("boolean/create_table"), &mut conn).await?;
@@ -352,7 +344,7 @@ async fn test_dt_boolean() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_string() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_string() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -367,7 +359,7 @@ async fn test_dt_string() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_fixedstring() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_fixedstring() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -383,7 +375,7 @@ async fn test_dt_fixedstring() -> Result<(), Box<dyn error::Error>> {
 
 #[cfg(feature = "uuid")]
 #[tokio::test]
-async fn test_dt_uuid() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_uuid() -> Result<(), Box<dyn std::error::Error>> {
     use sqlx_clickhouse_ext::sqlx_core::types::Uuid as SqlxUuid;
 
     let mut conn = get_conn(&[]).await?;
@@ -406,7 +398,7 @@ async fn test_dt_uuid() -> Result<(), Box<dyn error::Error>> {
 
 #[cfg(feature = "chrono")]
 #[tokio::test]
-async fn test_dt_date() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_date() -> Result<(), Box<dyn std::error::Error>> {
     use sqlx_clickhouse_ext::sqlx_core::types::chrono::NaiveDate as SqlxNaiveDate;
 
     let mut conn = get_conn(&[]).await?;
@@ -423,7 +415,7 @@ async fn test_dt_date() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_datetime() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_datetime() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -475,7 +467,7 @@ async fn test_dt_datetime() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_datetime64() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_datetime64() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -543,7 +535,7 @@ async fn test_dt_datetime64() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_enum() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_enum() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -581,7 +573,7 @@ async fn test_dt_enum() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_array() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_array() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -604,7 +596,7 @@ async fn test_dt_array() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_tuple() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_tuple() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -619,7 +611,7 @@ async fn test_dt_tuple() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_domains_ipv4() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_domains_ipv4() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -647,7 +639,7 @@ async fn test_dt_domains_ipv4() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_domains_ipv6() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_domains_ipv6() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     assert_eq!(
@@ -662,7 +654,7 @@ async fn test_dt_domains_ipv6() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_geo() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_geo() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn =
         get_conn(&[get_setting_sql("enable_allow_experimental_geo_types").as_str()]).await?;
 
@@ -681,7 +673,7 @@ async fn test_dt_geo() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_map() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_map() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn =
         get_conn(&[get_setting_sql("enable_allow_experimental_map_type").as_str()]).await?;
 
@@ -697,7 +689,7 @@ async fn test_dt_map() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[tokio::test]
-async fn test_dt_nullable() -> Result<(), Box<dyn error::Error>> {
+async fn test_dt_nullable() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = get_conn(&[]).await?;
 
     execute(get_sql("nullable/create_table"), &mut conn).await?;

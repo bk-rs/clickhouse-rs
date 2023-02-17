@@ -29,4 +29,9 @@ cargo test -p clickhouse-format --features with-all -- --nocapture
 cargo test -p clickhouse-http-client --features with-format-all -- --nocapture
 cargo test -p clickhouse-postgres-client --features all-types,runtime-tokio-native-tls,num-bigint -- --nocapture
 cargo test -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls -- --nocapture
+
+
+
+./clickhouse-http-client/tests/run_integration_tests.sh
+./clickhouse-postgres-client/tests/run_integration_tests.sh
 ```

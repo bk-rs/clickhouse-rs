@@ -2,7 +2,8 @@
 cargo run -p clickhouse-demo-http-client -- "http://127.0.0.1:8123" default xxx system
 */
 
-use std::{env, error, time::Duration};
+use core::time::Duration;
+use std::env;
 
 use clickhouse_http_client::{
     clickhouse_format::output::JsonCompactEachRowWithNamesAndTypesOutput,
@@ -11,11 +12,11 @@ use clickhouse_http_client::{
 use futures_executor::block_on;
 use serde::Deserialize;
 
-fn main() -> Result<(), Box<dyn error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     block_on(run())
 }
 
-async fn run() -> Result<(), Box<dyn error::Error>> {
+async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let url = env::args().nth(1);
     let username = env::args().nth(2);
     let password = env::args().nth(3);

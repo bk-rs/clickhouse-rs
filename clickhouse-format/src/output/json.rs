@@ -1,4 +1,5 @@
-use std::{collections::HashMap, marker::PhantomData};
+use core::marker::PhantomData;
+use std::collections::HashMap;
 
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -87,12 +88,12 @@ pub struct JsonDataInfo {
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use crate::test_helpers::{TestRow, TEST_ROW_1};
 
     #[test]
-    fn simple() -> Result<(), Box<dyn error::Error>> {
+    fn simple() -> Result<(), Box<dyn std::error::Error>> {
         let file_path = PathBuf::new().join("tests/files/JSON.json");
         let content = fs::read_to_string(&file_path)?;
 

@@ -1,5 +1,3 @@
-use std::error::Error as StdError;
-
 use crate::format_name::FormatName;
 
 //
@@ -90,7 +88,7 @@ pub use self::{
 pub trait Output {
     type Row;
     type Info;
-    type Error: StdError;
+    type Error: std::error::Error;
 
     fn format_name() -> FormatName;
     fn deserialize(&self, slice: &[u8]) -> OutputResult<Self::Row, Self::Info, Self::Error>;

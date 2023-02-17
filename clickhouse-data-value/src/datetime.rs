@@ -1,5 +1,4 @@
-use std::{
-    fmt,
+use core::{
     num::ParseIntError,
     ops::{Deref, DerefMut},
     str::FromStr,
@@ -193,7 +192,7 @@ struct NaiveDateTimeVisitor;
 impl<'de> Visitor<'de> for NaiveDateTimeVisitor {
     type Value = NaiveDateTime;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
         formatter.write_str("format simple or iso or unix_timestamp")
     }
 
@@ -225,12 +224,12 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
+    use std::{fs, path::PathBuf};
 
     use chrono::NaiveDate;
 
     #[test]
-    fn test_parse() -> Result<(), Box<dyn error::Error>> {
+    fn test_parse() -> Result<(), Box<dyn std::error::Error>> {
         let dt_vec = vec![
             NaiveDate::from_ymd_opt(2021, 3, 1)
                 .expect("")
@@ -381,7 +380,7 @@ mod tests {
     }
 
     #[test]
-    fn test_de() -> Result<(), Box<dyn error::Error>> {
+    fn test_de() -> Result<(), Box<dyn std::error::Error>> {
         let deserializer = de::IntoDeserializer::<de::value::Error>::into_deserializer;
         assert_eq!(
             super::deserialize(deserializer("2021-03-01 01:02:03")).unwrap(),

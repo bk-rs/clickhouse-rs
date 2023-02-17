@@ -1,5 +1,3 @@
-use std::error;
-
 use chrono::{NaiveDateTime, Utc};
 use clickhouse_http_client::clickhouse_format::{
     input::JsonCompactEachRowInput, output::JsonCompactEachRowWithNamesAndTypesOutput,
@@ -18,7 +16,7 @@ pub struct Event {
 }
 
 #[tokio::test]
-async fn simple() -> Result<(), Box<dyn error::Error>> {
+async fn simple() -> Result<(), Box<dyn std::error::Error>> {
     init_logger();
 
     let client = get_client()?;

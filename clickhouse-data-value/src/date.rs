@@ -1,5 +1,4 @@
-use std::{
-    fmt,
+use core::{
     ops::{Deref, DerefMut},
     str::FromStr,
 };
@@ -43,7 +42,7 @@ struct NaiveDateVisitor;
 impl<'de> Visitor<'de> for NaiveDateVisitor {
     type Value = NaiveDate;
 
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
         formatter.write_str("format %Y-%m-%d")
     }
 
@@ -75,12 +74,10 @@ where
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
-
     use chrono::NaiveDate;
 
     #[test]
-    fn test_parse() -> Result<(), Box<dyn error::Error>> {
+    fn test_parse() -> Result<(), Box<dyn std::error::Error>> {
         assert_eq!(
             "2021-03-01"
                 .parse::<NaiveDate>()
@@ -98,14 +95,14 @@ mod tests {
     }
 
     #[test]
-    fn test_de() -> Result<(), Box<dyn error::Error>> {
+    fn test_de() -> Result<(), Box<dyn std::error::Error>> {
         let deserializer = de::IntoDeserializer::<de::value::Error>::into_deserializer;
         assert_eq!(
             super::deserialize(deserializer("2021-03-01")).unwrap(),
             NaiveDate::from_ymd_opt(2021, 3, 1).expect("")
         );
 
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/date.txt"))?;
+        let content = include_str!("../tests/files/date.txt");
         let line = content.lines().next().unwrap();
 
         let Row { date } = serde_json::from_str(line)?;

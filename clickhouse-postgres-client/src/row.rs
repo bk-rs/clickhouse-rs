@@ -1,5 +1,3 @@
-use std::convert::TryFrom as _;
-
 use sqlx_clickhouse_ext::{
     sqlx_core::{
         column::Column as _, column::ColumnIndex, error::Error, postgres::PgRow, row::Row as _,

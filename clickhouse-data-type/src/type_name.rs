@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use core::str::FromStr;
 
 use chrono_tz::Tz;
 use pest::{iterators::Pair, Parser as _};
@@ -181,13 +181,11 @@ impl TypeName {
 mod tests {
     use super::*;
 
-    use std::{error, fs, path::PathBuf};
-
     use crate::map::{MapKey, MapValue};
 
     #[test]
-    fn test_parse_int_uint() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/int_uint.txt"))?;
+    fn test_parse_int_uint() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/int_uint.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -210,8 +208,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_float() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/float.txt"))?;
+    fn test_parse_float() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/float.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -225,8 +223,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_decimal() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/decimal.txt"))?;
+    fn test_parse_decimal() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/decimal.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -255,8 +253,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_string() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/string.txt"))?;
+    fn test_parse_string() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/string.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -269,8 +267,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_fixedstring() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/fixedstring.txt"))?;
+    fn test_parse_fixedstring() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/fixedstring.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -286,8 +284,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_uuid() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/uuid.txt"))?;
+    fn test_parse_uuid() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/uuid.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -300,8 +298,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_date() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/date.txt"))?;
+    fn test_parse_date() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/date.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -314,8 +312,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_datetime() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/datetime.txt"))?;
+    fn test_parse_datetime() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/datetime.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -336,8 +334,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_datetime64() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/datetime64.txt"))?;
+    fn test_parse_datetime64() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/datetime64.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -361,8 +359,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_enum() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/enum.txt"))?;
+    fn test_parse_enum() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/enum.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -398,8 +396,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_lowcardinality() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/lowcardinality.txt"))?;
+    fn test_parse_lowcardinality() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/lowcardinality.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -483,8 +481,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_nullable() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/nullable.txt"))?;
+    fn test_parse_nullable() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/nullable.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -567,8 +565,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_array() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/array.txt"))?;
+    fn test_parse_array() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/array.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -606,8 +604,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_tuple() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/tuple.txt"))?;
+    fn test_parse_tuple() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/tuple.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -651,8 +649,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_ipv4() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/ipv4.txt"))?;
+    fn test_parse_ipv4() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/ipv4.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -665,8 +663,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_ipv6() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/ipv6.txt"))?;
+    fn test_parse_ipv6() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/ipv6.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
@@ -679,7 +677,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_geo() -> Result<(), Box<dyn error::Error>> {
+    fn test_parse_geo() -> Result<(), Box<dyn std::error::Error>> {
         assert_eq!(TypeName::Point, "Point".parse()?);
         assert_eq!(TypeName::Ring, "Ring".parse()?);
         assert_eq!(TypeName::Polygon, "Polygon".parse()?);
@@ -689,8 +687,8 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_map() -> Result<(), Box<dyn error::Error>> {
-        let content = fs::read_to_string(PathBuf::new().join("tests/files/map.txt"))?;
+    fn test_parse_map() -> Result<(), Box<dyn std::error::Error>> {
+        let content = include_str!("../tests/files/map.txt");
         let line = content.lines().nth(2).unwrap();
 
         let mut iter = serde_json::from_str::<Vec<String>>(line)?.into_iter();
