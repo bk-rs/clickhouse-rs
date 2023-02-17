@@ -48,8 +48,6 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("databases: {:?}", databases);
 
-    println!("done");
-
     Ok(())
 }
 

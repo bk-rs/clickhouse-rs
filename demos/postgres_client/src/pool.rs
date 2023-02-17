@@ -1,5 +1,5 @@
 /*
-cargo run -p clickhouse-demo-postgres-client --bin pool postgres://default:xxx@127.0.0.1:9005
+cargo run -p clickhouse-demo-postgres-client --bin clickhouse-demo-postgres-client-pool postgres://default:xxx@127.0.0.1:9005
 */
 
 use std::env;
@@ -35,8 +35,6 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     for row in rows.iter() {
         println!("data: {:?}", row.try_get_data());
     }
-
-    println!("done");
 
     Ok(())
 }
