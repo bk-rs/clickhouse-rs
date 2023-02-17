@@ -1,4 +1,5 @@
-use std::{collections::HashMap, marker::PhantomData};
+use core::marker::PhantomData;
+use std::collections::HashMap;
 
 use serde::de::DeserializeOwned;
 
