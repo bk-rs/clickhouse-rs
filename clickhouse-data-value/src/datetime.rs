@@ -177,9 +177,15 @@ fn from_unix_timestamp_pairs(
             .parse()
             .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
 
-        Ok(ChronoNaiveDateTime::from_timestamp(secs as i64, nsecs).into())
+        Ok(ChronoNaiveDateTime::from_timestamp_opt(secs as i64, nsecs)
+            .ok_or(ParseError::ValueInvalid(format!(
+                "secs [{secs}] or nsecs [{nsecs}] invalid"
+            )))?
+            .into())
     } else {
-        Ok(ChronoNaiveDateTime::from_timestamp(secs as i64, 0).into())
+        Ok(ChronoNaiveDateTime::from_timestamp_opt(secs as i64, 0)
+            .ok_or(ParseError::ValueInvalid(format!("secs [{secs}] invalid")))?
+            .into())
     }
 }
 
@@ -226,16 +232,46 @@ mod tests {
     #[test]
     fn test_parse() -> Result<(), Box<dyn error::Error>> {
         let dt_vec = vec![
-            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 100),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 120),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 123),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123400),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123450),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123456),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456700),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456780),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456789),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_opt(1, 2, 3)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_milli_opt(1, 2, 3, 100)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_milli_opt(1, 2, 3, 120)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_milli_opt(1, 2, 3, 123)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_micro_opt(1, 2, 3, 123400)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_micro_opt(1, 2, 3, 123450)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_micro_opt(1, 2, 3, 123456)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_nano_opt(1, 2, 3, 123456700)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_nano_opt(1, 2, 3, 123456780)
+                .expect(""),
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_nano_opt(1, 2, 3, 123456789)
+                .expect(""),
         ];
 
         for (s, dt) in vec![
@@ -300,7 +336,11 @@ mod tests {
 
         match format!(
             "{}",
-            NaiveDate::from_ymd(2106, 1, 1).and_hms(0, 0, 0).timestamp()
+            NaiveDate::from_ymd_opt(2106, 1, 1)
+                .expect("")
+                .and_hms_opt(0, 0, 0)
+                .expect("")
+                .timestamp()
         )
         .parse::<NaiveDateTime>()
         {
@@ -345,7 +385,10 @@ mod tests {
         let deserializer = de::IntoDeserializer::<de::value::Error>::into_deserializer;
         assert_eq!(
             super::deserialize(deserializer("2021-03-01 01:02:03")).unwrap(),
-            NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+            NaiveDate::from_ymd_opt(2021, 3, 1)
+                .expect("")
+                .and_hms_opt(1, 2, 3)
+                .expect("")
         );
 
         for format in ["simple", "iso", "unix_timestamp"].iter() {
@@ -360,7 +403,10 @@ mod tests {
             } = serde_json::from_str(line)?;
             assert_eq!(
                 datetime_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_opt(1, 2, 3)
+                    .expect("")
             );
 
             //
@@ -381,23 +427,38 @@ mod tests {
             } = serde_json::from_str(line)?;
             assert_eq!(
                 datetime64_precision0_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms(1, 2, 3)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_opt(1, 2, 3)
+                    .expect("")
             );
             assert_eq!(
                 datetime64_precision1_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 100)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_milli_opt(1, 2, 3, 100)
+                    .expect("")
             );
             assert_eq!(
                 datetime64_milli_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms_milli(1, 2, 3, 123)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_milli_opt(1, 2, 3, 123)
+                    .expect("")
             );
             assert_eq!(
                 datetime64_micro_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms_micro(1, 2, 3, 123456)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_micro_opt(1, 2, 3, 123456)
+                    .expect("")
             );
             assert_eq!(
                 datetime64_nano_utc,
-                NaiveDate::from_ymd(2021, 3, 1).and_hms_nano(1, 2, 3, 123456789)
+                NaiveDate::from_ymd_opt(2021, 3, 1)
+                    .expect("")
+                    .and_hms_nano_opt(1, 2, 3, 123456789)
+                    .expect("")
             );
         }
 

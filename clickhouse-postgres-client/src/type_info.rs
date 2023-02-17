@@ -459,10 +459,10 @@ mod tests {
     #[cfg(feature = "chrono")]
     #[test]
     fn test_as_naive_date() {
-        let naive_date = NaiveDate::from_ymd(2021, 1, 1);
+        let naive_date = NaiveDate::from_ymd_opt(2021, 1, 1).expect("");
         assert_eq!(
             ClickhousePgValue::from(naive_date).as_naive_date(),
-            Some(&NaiveDate::from_ymd(2021, 1, 1))
+            Some(&NaiveDate::from_ymd_opt(2021, 1, 1).expect(""))
         );
     }
     #[cfg(feature = "bigdecimal")]
@@ -484,11 +484,20 @@ mod tests {
     #[cfg(feature = "chrono")]
     #[test]
     fn test_as_naive_date_time() {
-        let dt = NaiveDate::from_ymd(2021, 1, 1).and_hms_nano(0, 0, 0, 123456789);
+        let dt = NaiveDate::from_ymd_opt(2021, 1, 1)
+            .expect("")
+            .and_hms_nano_opt(0, 0, 0, 123456789)
+            .expect("");
         match ClickhousePgValue::from(dt.format("%Y-%m-%d %H:%M:%S").to_string())
             .as_naive_date_time()
         {
-            Some(Ok(dt)) => assert_eq!(dt, NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)),
+            Some(Ok(dt)) => assert_eq!(
+                dt,
+                NaiveDate::from_ymd_opt(2021, 1, 1)
+                    .expect("")
+                    .and_hms_opt(0, 0, 0)
+                    .expect("")
+            ),
             Some(Err(err)) => panic!("{err:?}"),
             None => panic!(),
         }

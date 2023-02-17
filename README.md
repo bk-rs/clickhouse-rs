@@ -12,27 +12,21 @@
 cargo clippy -p clickhouse-data-type -p clickhouse-data-value -p clickhouse-format -p clickhouse-http-client --all-features --tests -- -D clippy::all
 cargo +nightly clippy -p clickhouse-data-type -p clickhouse-data-value -p clickhouse-format -p clickhouse-http-client --all-features --tests -- -D clippy::all
 
-cargo fmt -p clickhouse-data-type -p clickhouse-data-value -p clickhouse-format -p clickhouse-http-client -- --check
+cargo clippy -p clickhouse-postgres-client --features _integration_tests -- -D clippy::all
+cargo +nightly clippy -p clickhouse-postgres-client --features _integration_tests -- -D clippy::all
+
+cargo clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
+cargo +nightly clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
+
+
+
+cargo fmt -- --check
+
+
 
 cargo test -p clickhouse-data-type -p clickhouse-data-value -- --nocapture
 cargo test -p clickhouse-format --features with-all -- --nocapture
 cargo test -p clickhouse-http-client --features with-format-all -- --nocapture
-```
-
-```
-cargo clippy -p clickhouse-postgres-client --features _integration_tests -- -D clippy::all
-cargo +nightly clippy -p clickhouse-postgres-client --features _integration_tests -- -D clippy::all
-
-cargo fmt -p clickhouse-postgres-client -- --check
-
 cargo test -p clickhouse-postgres-client --features all-types,runtime-tokio-native-tls,num-bigint -- --nocapture
-```
-
-```
-cargo clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
-cargo +nightly clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
-
-cargo fmt -p sqlx-clickhouse-ext -- --check
-
 cargo test -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls -- --nocapture
 ```

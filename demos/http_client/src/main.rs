@@ -53,6 +53,6 @@ async fn run() -> Result<(), Box<dyn error::Error>> {
 }
 
 #[derive(Deserialize, Debug)]
-struct Database {
-    name: String,
+pub struct Database {
+    pub name: String,
 }

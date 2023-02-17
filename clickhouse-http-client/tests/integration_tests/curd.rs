@@ -10,11 +10,11 @@ use serde_json::Value;
 use super::helpers::*;
 
 #[derive(Deserialize, Debug)]
-struct Event {
+pub struct Event {
     #[serde(rename = "event_id")]
-    id: u32,
+    pub id: u32,
     #[serde(deserialize_with = "clickhouse_data_value::datetime::deserialize")]
-    created_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
 }
 
 #[tokio::test]

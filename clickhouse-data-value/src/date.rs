@@ -85,7 +85,7 @@ mod tests {
             "2021-03-01"
                 .parse::<NaiveDate>()
                 .map_err(|err| err.to_string())?,
-            NaiveDate::from_ymd(2021, 3, 1)
+            NaiveDate::from_ymd_opt(2021, 3, 1).expect("")
         );
 
         Ok(())
@@ -102,14 +102,14 @@ mod tests {
         let deserializer = de::IntoDeserializer::<de::value::Error>::into_deserializer;
         assert_eq!(
             super::deserialize(deserializer("2021-03-01")).unwrap(),
-            NaiveDate::from_ymd(2021, 3, 1)
+            NaiveDate::from_ymd_opt(2021, 3, 1).expect("")
         );
 
         let content = fs::read_to_string(PathBuf::new().join("tests/files/date.txt"))?;
         let line = content.lines().next().unwrap();
 
         let Row { date } = serde_json::from_str(line)?;
-        assert_eq!(date, NaiveDate::from_ymd(2021, 3, 1));
+        assert_eq!(date, NaiveDate::from_ymd_opt(2021, 3, 1).expect(""));
 
         Ok(())
     }
