@@ -13,6 +13,6 @@ name = "pool"
 path = "src/pool.rs"
 
 [dependencies]
-clickhouse-postgres-client = { version = "0.1", default-features = false, features = ["all-types", "runtime-tokio-native-tls"], path = "../../clickhouse-postgres-client" }
+clickhouse-postgres-client = { default-features = false, features = ["all-types", "runtime-tokio-native-tls"], path = "../../clickhouse-postgres-client" }
 
 tokio = { version = "1", default-features = false, features = ["macros"] }
