@@ -85,7 +85,7 @@ mod tests {
             "2021-03-01"
                 .parse::<NaiveDate>()
                 .map_err(|err| err.to_string())?,
-            NaiveDate::from_ymd(2021, 3, 1).into()
+            NaiveDate::from_ymd(2021, 3, 1)
         );
 
         Ok(())

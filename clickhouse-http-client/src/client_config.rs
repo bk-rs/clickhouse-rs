@@ -127,8 +127,7 @@ impl ClientConfig {
         req
     }
     pub(crate) fn get_http_server_default_response(&self) -> &str {
-        &self
-            .http_server_default_response
+        self.http_server_default_response
             .as_deref()
             .unwrap_or(HTTP_SERVER_DEFAULT_RESPONSE_DEFAULT)
     }

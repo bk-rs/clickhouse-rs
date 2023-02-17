@@ -85,17 +85,16 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = GeneralJsonEachRowOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, _info): (_, ()) =
+            GeneralJsonEachRowOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
-        assert_eq!(info, ());
 
-        let (rows, info) =
-            JsonEachRowOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, _info): (_, ()) =
+            JsonEachRowOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
-        assert_eq!(info, ());
 
         Ok(())
     }

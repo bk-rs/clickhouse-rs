@@ -54,14 +54,14 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
             "DATE" => Ok(Self::Date),
             #[cfg(not(feature = "chrono"))]
             "DATE" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable chrono feature", s).into(),
             }),
             #[cfg(feature = "bigdecimal")]
             "NUMERIC" => Ok(Self::Numeric),
             #[cfg(not(feature = "bigdecimal"))]
             "NUMERIC" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable bigdecimal feature", s)
                     .into(),
             }),
@@ -69,12 +69,12 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
             "UUID" => Ok(Self::Uuid),
             #[cfg(not(feature = "uuid"))]
             "UUID" => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
+                index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable uuid feature", s).into(),
             }),
             _ => Err(Error::ColumnDecode {
-                index: format!("{:?}", index),
-                source: format!("unknown SQL type `{}`", s).into(),
+                index: format!("{index:?}"),
+                source: format!("unknown SQL type `{s}`").into(),
             }),
         }
     }
@@ -489,8 +489,8 @@ mod tests {
             .as_naive_date_time()
         {
             Some(Ok(dt)) => assert_eq!(dt, NaiveDate::from_ymd(2021, 1, 1).and_hms(0, 0, 0)),
-            Some(Err(err)) => assert!(false, "{:?}", err),
-            None => assert!(false),
+            Some(Err(err)) => panic!("{err:?}"),
+            None => panic!(),
         }
     }
 

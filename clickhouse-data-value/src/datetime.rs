@@ -171,7 +171,7 @@ fn from_unix_timestamp_pairs(
     }
 
     if let Some(precision_str) = precision_str {
-        let nsecs_str = format!("{:0<9}", precision_str);
+        let nsecs_str = format!("{precision_str:0<9}");
 
         let nsecs: u32 = nsecs_str
             .parse()
@@ -292,10 +292,10 @@ mod tests {
             assert_eq!(s.parse::<NaiveDateTime>()?, dt.into());
         }
 
-        match format!("").parse::<NaiveDateTime>() {
-            Ok(_) => assert!(false),
+        match "".parse::<NaiveDateTime>() {
+            Ok(_) => panic!(),
             Err(ParseError::FormatMismatch(err)) if err.ends_with("= expected datetime") => {}
-            Err(err) => assert!(false, "{:?}", err),
+            Err(err) => panic!("{err:?}"),
         }
 
         match format!(
@@ -304,9 +304,9 @@ mod tests {
         )
         .parse::<NaiveDateTime>()
         {
-            Ok(_) => assert!(false),
+            Ok(_) => panic!(),
             Err(ParseError::ValueInvalid(err)) if err == "Override the max Unix Timestamp" => {}
-            Err(err) => assert!(false, "{:?}", err),
+            Err(err) => panic!("{err:?}"),
         }
 
         Ok(())
@@ -350,7 +350,7 @@ mod tests {
 
         for format in ["simple", "iso", "unix_timestamp"].iter() {
             let content = fs::read_to_string(
-                PathBuf::new().join(format!("tests/files/datetime_{}.txt", format)),
+                PathBuf::new().join(format!("tests/files/datetime_{format}.txt")),
             )?;
             let line = content.lines().next().unwrap();
 
@@ -365,7 +365,7 @@ mod tests {
 
             //
             let content = fs::read_to_string(
-                PathBuf::new().join(format!("tests/files/datetime64_{}.txt", format)),
+                PathBuf::new().join(format!("tests/files/datetime64_{format}.txt")),
             )?;
             let line = content.lines().next().unwrap();
 

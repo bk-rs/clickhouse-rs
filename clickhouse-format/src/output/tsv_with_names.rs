@@ -80,13 +80,13 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = TsvWithNamesOutput::<HashMap<String, String>>::new()
-            .deserialize(&content.as_bytes()[..])?;
+        let (rows, info) =
+            TsvWithNamesOutput::<HashMap<String, String>>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, None);
 
         let (rows, info) =
-            TsvWithNamesOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+            TsvWithNamesOutput::<TestStringsRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, None);
 

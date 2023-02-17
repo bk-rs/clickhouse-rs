@@ -55,8 +55,8 @@ CREATE TABLE t_testing_events
             None,
         )
         .await?;
-    println!("{:?}", events);
-    println!("{:?}", info);
+    println!("{events:?}");
+    println!("{info:?}");
     assert_eq!(events.len(), 2);
     let event = events.first().unwrap();
     assert_eq!(event.id, 1);
@@ -68,8 +68,8 @@ CREATE TABLE t_testing_events
             vec![("date_time_output_format", "iso")],
         )
         .await?;
-    println!("{:?}", events);
-    println!("{:?}", info);
+    println!("{events:?}");
+    println!("{info:?}");
 
     client.execute("DROP TABLE t_testing_events", None).await?;
 

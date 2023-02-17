@@ -107,15 +107,14 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = GeneralJsonCompactOutput::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = GeneralJsonCompactOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
         assert_eq!(info.rows, 2);
 
-        let (rows, info) =
-            JsonCompactOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = JsonCompactOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.rows, 2);
 

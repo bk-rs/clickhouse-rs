@@ -55,7 +55,7 @@ where
             let values: Vec<Value> = serde_json::from_str(&line)?;
 
             let row: T = serde_json::from_value(Value::Object(
-                self.names.to_owned().into_iter().zip(values).collect(),
+                self.names.iter().cloned().zip(values).collect(),
             ))?;
 
             data.push(row);
@@ -88,30 +88,28 @@ mod tests {
                 .unwrap()
         );
 
-        let (rows, info) = GeneralJsonCompactEachRowOutput::new(vec![
+        let (rows, _info): (_, ()) = GeneralJsonCompactEachRowOutput::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
             "tuple2".into(),
             "map1".into(),
         ])
-        .deserialize(&content.as_bytes()[..])?;
+        .deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
-        assert_eq!(info, ());
 
-        let (rows, info) = JsonCompactEachRowOutput::<TestRow>::new(vec![
+        let (rows, _info): (_, ()) = JsonCompactEachRowOutput::<TestRow>::new(vec![
             "array1".into(),
             "array2".into(),
             "tuple1".into(),
             "tuple2".into(),
             "map1".into(),
         ])
-        .deserialize(&content.as_bytes()[..])?;
+        .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
-        assert_eq!(info, ());
 
         Ok(())
     }

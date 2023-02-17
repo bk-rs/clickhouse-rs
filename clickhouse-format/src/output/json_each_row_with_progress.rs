@@ -133,7 +133,7 @@ mod tests {
         );
 
         let (rows, info) =
-            GeneralJsonEachRowWithProgressOutput::new().deserialize(&content.as_bytes()[..])?;
+            GeneralJsonEachRowWithProgressOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(info.read_rows, 2);
 
         let (rows, info) =
-            JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(&content.as_bytes()[..])?;
+            JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
         assert_eq!(info.read_rows, 2);
 

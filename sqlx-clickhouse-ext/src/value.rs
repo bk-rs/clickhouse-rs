@@ -31,14 +31,14 @@ where
 
             if !ty.is_null() && !T::compatible(&ty) {
                 return Err(Error::ColumnDecode {
-                    index: format!("{:?}", index),
+                    index: format!("{index:?}"),
                     source: mismatched_types::<DB, T>(&ty),
                 });
             }
         }
 
         T::decode(value).map_err(|source| Error::ColumnDecode {
-            index: format!("{:?}", index),
+            index: format!("{index:?}"),
             source,
         })
     }

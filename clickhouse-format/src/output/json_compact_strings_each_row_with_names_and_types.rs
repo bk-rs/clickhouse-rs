@@ -68,13 +68,13 @@ mod tests {
         );
 
         let (rows, info) = GeneralJsonCompactStringsEachRowWithNamesAndTypesOutput::new()
-            .deserialize(&content.as_bytes()[..])?;
+            .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 
         let (rows, info) =
             JsonCompactStringsEachRowWithNamesAndTypesOutput::<TestStringsRow>::new()
-                .deserialize(&content.as_bytes()[..])?;
+                .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
 

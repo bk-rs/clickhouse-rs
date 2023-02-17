@@ -2,14 +2,3 @@
 
 * [ClickHouse Doc](https://clickhouse.tech/docs/en/sql-reference/data-types/)
 * [Cargo package](https://crates.io/crates/clickhouse-data-type)
-
-## Dev
-
-```
-cargo clippy -p clickhouse-data-type --all-features --tests -- -D clippy::all
-cargo +nightly clippy -p clickhouse-data-type --all-features --tests -- -D clippy::all
-
-cargo fmt -p clickhouse-data-type -- --check
-
-cargo test -p clickhouse-data-type -- --nocapture
-```

@@ -128,12 +128,11 @@ mod tests {
             "tuple2".into(),
             "map1".into(),
         ])
-        .deserialize(&content.as_bytes()[..])?;
+        .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
         assert_eq!(info, None);
 
-        let (rows, info) =
-            TsvRawOutput::<TestStringsRow>::new().deserialize(&content.as_bytes()[..])?;
+        let (rows, info) = TsvRawOutput::<TestStringsRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
         assert_eq!(info, None);
 
