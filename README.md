@@ -35,3 +35,13 @@ cargo test -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-na
 RUST_BACKTRACE=1 RUST_LOG=trace ./clickhouse-http-client/tests/run_integration_tests.sh
 RUST_BACKTRACE=1 RUST_LOG=trace ./clickhouse-postgres-client/tests/run_integration_tests.sh
 ```
+
+## Publish order
+
+clickhouse-data-type clickhouse-data-value clickhouse-format
+
+clickhouse-http-client
+
+sqlx-clickhouse-ext
+
+clickhouse-postgres-client

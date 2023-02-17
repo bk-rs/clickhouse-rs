@@ -23,7 +23,7 @@ with-format-json = ["clickhouse-format/with-json"]
 _integration_tests = ["with-format-json"]
 
 [dependencies]
-clickhouse-format = { version = "0.2", default-features = false, path = "../clickhouse-format" }
+clickhouse-format = { version = "0.3", default-features = false, path = "../clickhouse-format" }
 
 isahc = { version = "1", default-features = false, features = ["text-decoding"] }
 url = { version = "2", default-features = false }
@@ -37,7 +37,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 chrono = { version = "0.4" }
 
-clickhouse-data-value = { version = "0.2", default-features = false, path = "../clickhouse-data-value" }
+clickhouse-data-value = { version = "0.3", default-features = false, path = "../clickhouse-data-value" }
 
 [package.metadata.cargo-all-features]
 skip_feature_sets = [
