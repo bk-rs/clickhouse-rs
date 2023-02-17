@@ -8,7 +8,7 @@ use chrono::NaiveDateTime as ChronoNaiveDateTime;
 use pest::{iterators::Pairs, Parser as _};
 use serde::{
     de::{self, Visitor},
-    Deserialize, Deserializer,
+    ser, Deserialize, Deserializer, Serialize, Serializer,
 };
 
 use crate::date_and_time_parser::{DateAndTimeParser, Rule};
@@ -220,6 +220,22 @@ where
     d.deserialize_str(NaiveDateTimeVisitor).map(|x| x.0)
 }
 
+impl Serialize for NaiveDateTime {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serialize(&self.0, serializer)
+    }
+}
+
+pub fn serialize<S>(dt: &ChronoNaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: ser::Serializer,
+{
+    serializer.serialize_str(dt.format("%Y-%m-%d %H:%M:%S").to_string().as_str())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -351,9 +367,9 @@ mod tests {
         Ok(())
     }
 
-    #[derive(Deserialize)]
+    #[derive(Deserialize, Serialize)]
     struct Row {
-        #[serde(deserialize_with = "crate::datetime::deserialize")]
+        #[serde(with = "crate::datetime")]
         datetime_utc: chrono::NaiveDateTime,
         #[allow(dead_code)]
         datetime_shanghai: NaiveDateTime,
@@ -462,5 +478,27 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_ser() {
+        let row = Row {
+            datetime_utc: NaiveDate::from_ymd_opt(2023, 1, 2)
+                .expect("")
+                .and_hms_opt(3, 4, 5)
+                .expect(""),
+            datetime_shanghai: NaiveDate::from_ymd_opt(2023, 11, 12)
+                .expect("")
+                .and_hms_opt(12, 13, 14)
+                .expect("")
+                .into(),
+        };
+        assert_eq!(
+            serde_json::to_value(&row).unwrap(),
+            serde_json::json!({
+                "datetime_utc": "2023-01-02 03:04:05",
+                "datetime_shanghai": "2023-11-12 12:13:14",
+            })
+        );
     }
 }
