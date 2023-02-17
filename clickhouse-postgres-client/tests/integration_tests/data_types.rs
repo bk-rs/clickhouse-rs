@@ -334,10 +334,10 @@ async fn test_dt_boolean() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(
         fetch_one_and_get_data(get_sql("boolean/select"), &mut conn).await?,
         vec![
-            ("true_val".into(), ('1' as i8).into()),
-            ("true_ty".into(), "Int8".into()),
-            ("false_val".into(), ('0' as i8).into()),
-            ("false_ty".into(), "Int8".into())
+            ("true_val".into(), true.into()),
+            ("true_ty".into(), "Bool".into()),
+            ("false_val".into(), false.into()),
+            ("false_ty".into(), "Bool".into())
         ],
     );
     execute(get_sql("boolean/drop_table"), &mut conn).await?;

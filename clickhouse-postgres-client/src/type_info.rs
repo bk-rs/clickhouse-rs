@@ -79,6 +79,7 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum ClickhousePgValue {
+    Bool(bool),
     Char(i8),
     I16(i16),
     I32(i32),
@@ -92,6 +93,11 @@ pub enum ClickhousePgValue {
     BigDecimal(BigDecimal),
     #[cfg(feature = "uuid")]
     Uuid(Uuid),
+}
+impl From<bool> for ClickhousePgValue {
+    fn from(val: bool) -> Self {
+        Self::Bool(val)
+    }
 }
 impl From<i8> for ClickhousePgValue {
     fn from(val: i8) -> Self {
@@ -170,6 +176,7 @@ impl From<Uuid> for ClickhousePgValue {
 impl ClickhousePgValue {
     pub fn as_bool(&self) -> Option<bool> {
         match *self {
+            Self::Bool(v) => Some(v),
             Self::Char(v) if v == '1' as i8 => Some(true),
             Self::Char(v) if v == '0' as i8 => Some(false),
             _ => self.as_u8().and_then(|v| match v {
@@ -315,6 +322,9 @@ mod tests {
 
     #[test]
     fn test_as_bool() {
+        assert_eq!(ClickhousePgValue::from(false).as_bool(), Some(false));
+        assert_eq!(ClickhousePgValue::from(true).as_bool(), Some(true));
+
         assert_eq!(ClickhousePgValue::from('0' as i8).as_bool(), Some(false));
         assert_eq!(ClickhousePgValue::from('1' as i8).as_bool(), Some(true));
         assert_eq!(ClickhousePgValue::from('2' as i8).as_bool(), None);

@@ -37,7 +37,21 @@ impl ClickhousePgRow {
 
         match cpt {
             ClickhousePgType::Char => (value, index).try_get().map(ClickhousePgValue::Char),
-            ClickhousePgType::Int2 => (value, index).try_get().map(ClickhousePgValue::I16),
+            ClickhousePgType::Int2 => {
+                // Fix v23
+                if let Ok(bytes) = value.as_bytes() {
+                    match bytes {
+                        b"true" => {
+                            return Ok(ClickhousePgValue::Bool(true));
+                        }
+                        b"false" => {
+                            return Ok(ClickhousePgValue::Bool(false));
+                        }
+                        _ => {}
+                    }
+                }
+                (value, index).try_get().map(ClickhousePgValue::I16)
+            }
             ClickhousePgType::Int4 => (value, index).try_get().map(ClickhousePgValue::I32),
             ClickhousePgType::Int8 => (value, index).try_get().map(ClickhousePgValue::I64),
             ClickhousePgType::Float4 => (value, index).try_get().map(ClickhousePgValue::F32),
