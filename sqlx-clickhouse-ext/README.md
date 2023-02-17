@@ -5,8 +5,8 @@
 ## Dev
 
 ```
-cargo clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls -- -D clippy::all
-cargo +nightly clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls -- -D clippy::all
+cargo clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
+cargo +nightly clippy -p sqlx-clickhouse-ext --features postgres,all-types,runtime-tokio-native-tls --tests -- -D clippy::all
 
 cargo fmt -p sqlx-clickhouse-ext -- --check
 

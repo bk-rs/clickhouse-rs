@@ -13,29 +13,29 @@ categories = []
 readme = "README.md"
 
 [package.metadata.docs.rs]
-features = [ "postgres", "all-types", "runtime-tokio-native-tls" ]
+features = ["postgres", "all-types", "runtime-tokio-native-tls"]
 
 [features]
 default = []
 
 # databases
-postgres = [ "sqlx-core/postgres" ]
+postgres = ["sqlx-core/postgres"]
 
 # types
-all-types = [ "chrono", "bigdecimal", "uuid" ]
-chrono = [ "sqlx-core/chrono" ]
-bigdecimal = [ "sqlx-core/bigdecimal" ]
-uuid = [ "sqlx-core/uuid" ]
+all-types = ["chrono", "bigdecimal", "uuid"]
+chrono = ["sqlx-core/chrono"]
+bigdecimal = ["sqlx-core/bigdecimal"]
+uuid = ["sqlx-core/uuid"]
 
 # runtimes
-runtime-actix-native-tls = [ "sqlx-core/runtime-actix-native-tls" ]
-runtime-async-std-native-tls = [ "sqlx-core/runtime-async-std-native-tls" ]
-runtime-tokio-native-tls = [ "sqlx-core/runtime-tokio-native-tls" ]
+runtime-actix-native-tls = ["sqlx-core/runtime-actix-native-tls"]
+runtime-async-std-native-tls = ["sqlx-core/runtime-async-std-native-tls"]
+runtime-tokio-native-tls = ["sqlx-core/runtime-tokio-native-tls"]
 
-runtime-actix-rustls = [ "sqlx-core/runtime-actix-rustls" ]
-runtime-async-std-rustls = [ "sqlx-core/runtime-async-std-rustls" ]
-runtime-tokio-rustls = [ "sqlx-core/runtime-tokio-rustls" ]
+runtime-actix-rustls = ["sqlx-core/runtime-actix-rustls"]
+runtime-async-std-rustls = ["sqlx-core/runtime-async-std-rustls"]
+runtime-tokio-rustls = ["sqlx-core/runtime-tokio-rustls"]
 
 [dependencies]
-sqlx-core = { version = "0.5", default-features = false, features = [] }
+sqlx-core = { version = "0.6", default-features = false }
 futures-core = { version = "0.3", default-features = false }

@@ -6,11 +6,10 @@
 ## Dev
 
 ```
-cargo clippy -p clickhouse-http-client --all-features -- -D clippy::all
-cargo +nightly clippy -p clickhouse-http-client --all-features -- -D clippy::all
+cargo clippy -p clickhouse-http-client --all-features --tests -- -D clippy::all
+cargo +nightly clippy -p clickhouse-http-client --all-features --tests -- -D clippy::all
 
 cargo fmt -p clickhouse-http-client -- --check
 
-cargo build-all-features -p clickhouse-http-client
-cargo test-all-features -p clickhouse-http-client -- --nocapture
+cargo test -p clickhouse-http-client --features with-all -- --nocapture
 ```

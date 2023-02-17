@@ -13,7 +13,9 @@ categories = []
 readme = "README.md"
 
 [features]
-# default = ["_integration_tests"]
+# default = []
+
+with-format-all = ["with-format-tsv", "with-format-json"]
 
 with-format-tsv = ["clickhouse-format/with-tsv"]
 with-format-json = ["clickhouse-format/with-json"]
@@ -21,21 +23,21 @@ with-format-json = ["clickhouse-format/with-json"]
 _integration_tests = ["with-format-json"]
 
 [dependencies]
-clickhouse-format = { version = "~0.2", default-features = false, path = "../clickhouse-format" }
+clickhouse-format = { version = "0.2", default-features = false, path = "../clickhouse-format" }
 
-isahc = { version = "1.3", default-features = false, features = ["text-decoding"] }
-url = { version = "2.2", default-features = false }
-thiserror = { version = "1.0", default-features = false }
+isahc = { version = "1", default-features = false, features = ["text-decoding"] }
+url = { version = "2", default-features = false }
+thiserror = { version = "1", default-features = false }
 
 [dev-dependencies]
-tokio = { version = "1.4", features = ["macros", "rt"] }
-env_logger = { version = "0.8" }
+tokio = { version = "1", features = ["macros", "rt"] }
+env_logger = { version = "0.10" }
 
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
 chrono = { version = "0.4" }
 
-clickhouse-data-value = { version = "~0.2", default-features = false, path = "../clickhouse-data-value" }
+clickhouse-data-value = { version = "0.2", default-features = false, path = "../clickhouse-data-value" }
 
 [package.metadata.cargo-all-features]
 skip_feature_sets = [

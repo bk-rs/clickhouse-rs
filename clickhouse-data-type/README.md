@@ -6,11 +6,10 @@
 ## Dev
 
 ```
-cargo clippy -p clickhouse-data-type --all-features -- -D clippy::all
-cargo +nightly clippy -p clickhouse-data-type --all-features -- -D clippy::all
+cargo clippy -p clickhouse-data-type --all-features --tests -- -D clippy::all
+cargo +nightly clippy -p clickhouse-data-type --all-features --tests -- -D clippy::all
 
 cargo fmt -p clickhouse-data-type -- --check
 
-cargo build-all-features -p clickhouse-data-type
-cargo test-all-features -p clickhouse-data-type -- --nocapture
+cargo test -p clickhouse-data-type -- --nocapture
 ```
