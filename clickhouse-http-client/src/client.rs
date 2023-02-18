@@ -2,7 +2,7 @@ use core::ops::{Deref, DerefMut};
 
 use clickhouse_format::{format_name::FormatName, input::Input, output::Output};
 use isahc::{
-    http::{HeaderMap, Method, Request, Response, StatusCode},
+    http::{response::Parts as ResponseParts, Method, Request, Response, StatusCode},
     AsyncBody, AsyncReadResponseExt as _, HttpClient, HttpClientBuilder,
 };
 
@@ -100,12 +100,15 @@ impl Client {
         Ok(resp_body_text == self.get_http_server_default_response())
     }
 
+    //
+    //
+    //
     pub async fn execute(
         &self,
         sql: impl AsRef<str>,
         settings: impl Into<Option<Settings<'_>>>,
     ) -> Result<(), Error> {
-        let resp = self.respond_execute(sql, settings).await?;
+        let resp = self.respond_execute(sql, settings, |req| req).await?;
 
         if !resp.status().is_success() {
             return Err(ClientExecuteError::StatusCodeMismatch(resp.status()).into());
@@ -114,11 +117,15 @@ impl Client {
         Ok(())
     }
 
-    pub async fn respond_execute(
+    pub async fn respond_execute<PreRF>(
         &self,
         sql: impl AsRef<str>,
         settings: impl Into<Option<Settings<'_>>>,
-    ) -> Result<Response<AsyncBody>, Error> {
+        mut pre_respond_fn: PreRF,
+    ) -> Result<Response<AsyncBody>, Error>
+    where
+        PreRF: FnMut(Request<Vec<u8>>) -> Request<Vec<u8>> + Send,
+    {
         let mut url = self.get_url().to_owned();
         let mut req = self.get_request();
 
@@ -132,26 +139,26 @@ impl Client {
         *req.uri_mut() = url.as_str().parse()?;
 
         let (parts, _) = req.into_parts();
-        let req = Request::from_parts(parts, sql.as_ref());
+        let req = Request::from_parts(parts, sql.as_ref().as_bytes().to_owned());
+
+        let req = pre_respond_fn(req);
 
         let resp = self.http_client.send_async(req).await?;
 
         Ok(resp)
     }
 
+    //
+    //
+    //
     pub async fn insert_with_format<I: Input>(
         &self,
         sql_prefix: impl AsRef<str>,
         input: I,
         settings: impl Into<Option<Settings<'_>>>,
     ) -> Result<(), Error> {
-        let format_name = I::format_name();
-        let format_bytes = input
-            .serialize()
-            .map_err(|err| ClientInsertWithFormatError::FormatSerError(err.to_string()))?;
-
         let resp = self
-            .respond_insert_with_format_bytes(sql_prefix, format_name, format_bytes, settings)
+            .respond_insert_with_format(sql_prefix, input, settings, |req| req)
             .await?;
 
         if !resp.status().is_success() {
@@ -159,6 +166,31 @@ impl Client {
         }
 
         Ok(())
+    }
+
+    pub async fn respond_insert_with_format<I: Input, PreRF>(
+        &self,
+        sql_prefix: impl AsRef<str>,
+        input: I,
+        settings: impl Into<Option<Settings<'_>>>,
+        pre_respond_fn: PreRF,
+    ) -> Result<Response<AsyncBody>, Error>
+    where
+        PreRF: FnMut(Request<Vec<u8>>) -> Request<Vec<u8>> + Send,
+    {
+        let format_name = I::format_name();
+        let format_bytes = input
+            .serialize()
+            .map_err(|err| ClientInsertWithFormatError::FormatSerError(err.to_string()))?;
+
+        self.respond_insert_with_format_bytes(
+            sql_prefix,
+            format_name,
+            format_bytes,
+            settings,
+            pre_respond_fn,
+        )
+        .await
     }
 
     pub async fn insert_with_format_bytes(
@@ -169,7 +201,13 @@ impl Client {
         settings: impl Into<Option<Settings<'_>>>,
     ) -> Result<(), Error> {
         let resp = self
-            .respond_insert_with_format_bytes(sql_prefix, format_name, format_bytes, settings)
+            .respond_insert_with_format_bytes(
+                sql_prefix,
+                format_name,
+                format_bytes,
+                settings,
+                |req| req,
+            )
             .await?;
 
         if !resp.status().is_success() {
@@ -179,13 +217,17 @@ impl Client {
         Ok(())
     }
 
-    pub async fn respond_insert_with_format_bytes(
+    pub async fn respond_insert_with_format_bytes<PreRF>(
         &self,
         sql_prefix: impl AsRef<str>,
         format_name: FormatName,
         format_bytes: Vec<u8>,
         settings: impl Into<Option<Settings<'_>>>,
-    ) -> Result<Response<AsyncBody>, Error> {
+        mut pre_respond_fn: PreRF,
+    ) -> Result<Response<AsyncBody>, Error>
+    where
+        PreRF: FnMut(Request<Vec<u8>>) -> Request<Vec<u8>> + Send,
+    {
         let mut url = self.get_url().to_owned();
         let mut req = self.get_request();
 
@@ -210,28 +252,37 @@ impl Client {
         let (parts, _) = req.into_parts();
         let req = Request::from_parts(parts, format_bytes);
 
+        let req = pre_respond_fn(req);
+
         let resp = self.http_client.send_async(req).await?;
 
         Ok(resp)
     }
 
+    //
+    //
+    //
     pub async fn select_with_format<O: Output>(
         &self,
         sql: impl AsRef<str>,
         output: O,
         settings: impl Into<Option<Settings<'_>>>,
     ) -> Result<(Vec<O::Row>, O::Info), Error> {
-        self.internal_select_with_format(sql, output, settings)
+        self.internal_select_with_format(sql, output, settings, |req| req)
             .await
-            .map(|(x, _, _)| x)
+            .map(|(_, x)| x)
     }
 
-    pub async fn internal_select_with_format<O: Output>(
+    pub async fn internal_select_with_format<O: Output, PreRF>(
         &self,
         sql: impl AsRef<str>,
         output: O,
         settings: impl Into<Option<Settings<'_>>>,
-    ) -> Result<((Vec<O::Row>, O::Info), StatusCode, HeaderMap), Error> {
+        mut pre_respond_fn: PreRF,
+    ) -> Result<(ResponseParts, (Vec<O::Row>, O::Info)), Error>
+    where
+        PreRF: FnMut(Request<Vec<u8>>) -> Request<Vec<u8>> + Send,
+    {
         let mut url = self.get_url().to_owned();
         let mut req = self.get_request();
 
@@ -250,9 +301,11 @@ impl Client {
         *req.uri_mut() = url.as_str().parse()?;
 
         let (parts, _) = req.into_parts();
-        let req = Request::from_parts(parts, sql.as_ref());
+        let req = Request::from_parts(parts, sql.as_ref().as_bytes().to_owned());
 
-        let mut resp = self.http_client.send_async(req).await?;
+        let req = pre_respond_fn(req);
+
+        let resp = self.http_client.send_async(req).await?;
 
         if !resp.status().is_success() {
             return Err(ClientSelectWithFormatError::StatusCodeMismatch(resp.status()).into());
@@ -270,6 +323,13 @@ impl Client {
             .into());
         }
 
+        let (parts, body) = resp.into_parts();
+        let (mut resp_parts, _) = Response::new(()).into_parts();
+        resp_parts.status = parts.status;
+        resp_parts.version = parts.version;
+        resp_parts.headers = parts.headers.to_owned();
+        let mut resp = Response::from_parts(parts, body);
+
         let mut resp_body_buf = Vec::with_capacity(4096);
         resp.copy_to(&mut resp_body_buf).await?;
 
@@ -277,6 +337,6 @@ impl Client {
             .deserialize(&resp_body_buf[..])
             .map_err(|err| ClientSelectWithFormatError::FormatDeError(err.to_string()))?;
 
-        Ok((rows_and_info, resp.status(), resp.headers().to_owned()))
+        Ok((resp_parts, rows_and_info))
     }
 }
