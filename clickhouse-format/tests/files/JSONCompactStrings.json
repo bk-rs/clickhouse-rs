@@ -18,7 +18,7 @@
         },
         {
             "name": "map1",
-            "type": "Map(String,String)"
+            "type": "Map(String, String)"
         }
     ],
     "data": [
@@ -39,8 +39,8 @@
     ],
     "rows": 2,
     "statistics": {
-        "elapsed": 0.000331107,
+        "elapsed": 0.001897166,
         "rows_read": 2,
-        "bytes_read": 207
+        "bytes_read": 193
     }
 }

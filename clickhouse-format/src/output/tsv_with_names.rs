@@ -1,5 +1,4 @@
 use core::marker::PhantomData;
-use std::collections::HashMap;
 
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
@@ -37,7 +36,7 @@ where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = Option<HashMap<String, String>>;
+    type Info = Vec<String>;
 
     type Error = csv::Error;
 
@@ -53,8 +52,11 @@ where
 
         let records = rdr.into_records();
 
+        let info = names.clone();
+
         TsvOutput::from_raw_parts(Some(names), self.types.to_owned())
             .deserialize_with_records(records)
+            .map(|(rows, _)| (rows, info))
     }
 }
 
@@ -62,7 +64,7 @@ where
 mod tests {
     use super::*;
 
-    use std::{fs, path::PathBuf};
+    use std::{collections::HashMap, fs, path::PathBuf};
 
     use crate::test_helpers::{TEST_STRINGS_ROW_1, TestStringsRow};
 
@@ -84,12 +86,12 @@ mod tests {
         let (rows, info) =
             TsvWithNamesOutput::<HashMap<String, String>>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
-        assert_eq!(info, None);
+        assert_eq!(info, vec!["array1", "array2", "tuple1", "tuple2", "map1"]);
 
         let (rows, info) =
             TsvWithNamesOutput::<TestStringsRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
-        assert_eq!(info, None);
+        assert_eq!(info, vec!["array1", "array2", "tuple1", "tuple2", "map1"]);
 
         Ok(())
     }

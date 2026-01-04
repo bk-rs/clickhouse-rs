@@ -1,3 +1,3 @@
 ["tuple_string_uint8", "tuple_string_lowcardinality_uint8", "tuple_string_nullable_uint8", "tuple_string_array_uint8", "tuple_string_tuple_uint8_nullable_nothing"]
 ["String", "String", "String", "String", "String"]
-["Tuple(String, UInt8)", "Tuple(String, UInt8)", "Tuple(String, Nullable(UInt8))", "Tuple(String, Array(UInt8))", "Tuple(String, Tuple(UInt8, Nullable(Nothing)))"]
+["Tuple(String, UInt8)", "Tuple(String, LowCardinality(UInt8))", "Tuple(String, Nullable(UInt8))", "Tuple(String, Array(UInt8))", "Tuple(String, Tuple(UInt8, Nullable(Nothing)))"]

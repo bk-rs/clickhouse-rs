@@ -575,7 +575,7 @@ mod tests {
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::Array(TypeName::UInt8.into()),
+            TypeName::Array(TypeName::LowCardinality(LowCardinalityDataType::UInt8).into()),
             iter.next().unwrap().parse()?
         );
         assert_eq!(
@@ -614,7 +614,10 @@ mod tests {
             iter.next().unwrap().parse()?
         );
         assert_eq!(
-            TypeName::Tuple(vec![TypeName::String, TypeName::UInt8]),
+            TypeName::Tuple(vec![
+                TypeName::String,
+                TypeName::LowCardinality(LowCardinalityDataType::UInt8)
+            ]),
             iter.next().unwrap().parse()?
         );
         assert_eq!(

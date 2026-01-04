@@ -1,4 +1,4 @@
 ["array1", "array2", "tuple1", "tuple2", "map1"]
-["Array(UInt8)", "Array(String)", "Tuple(UInt8, String)", "Tuple(UInt8, Nullable(String))", "Map(String,String)"]
+["Array(UInt8)", "Array(String)", "Tuple(UInt8, String)", "Tuple(UInt8, Nullable(String))", "Map(String, String)"]
 [[1,2], ["a","b"], [1,"a"], [1,null], {"1":"Ready","2":"Steady","3":"Go"}]
 [[3,4], ["c","d"], [2,"b"], [2,"b"], {}]

@@ -5,7 +5,7 @@ use std::{
 };
 
 use serde::{Deserialize, de::DeserializeOwned};
-use serde_aux::field_attributes::deserialize_number_from_string;
+use serde_aux::field_attributes::deserialize_option_number_from_string;
 use serde_json::Value;
 
 use crate::format_name::FormatName;
@@ -67,15 +67,20 @@ where
                 return Err(JsonEachRowWithProgressOutputError::ProgressInTheWrongPosition);
             }
 
-            match serde_json::from_str::<JsonEachRowLine<T>>(&line)? {
-                JsonEachRowLine::Row { row } => {
-                    data.push(row);
-                    continue;
-                }
-                JsonEachRowLine::Progress { progress } => {
-                    info = Some(progress);
-                    break;
-                }
+            let line = serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(&line)?;
+
+            if let Some(_meta) = line.get("meta") {
+                continue;
+            } else if let Some(row) = line.get("row") {
+                let row: T = serde_json::from_value(row.clone())?;
+                data.push(row);
+                continue;
+            } else if let Some(progress) = line.get("progress") {
+                let progress: JsonEachRowProgress = serde_json::from_value(progress.clone())?;
+                info = Some(progress);
+                break;
+            } else {
+                continue;
             }
         }
 
@@ -86,27 +91,19 @@ where
 }
 
 #[derive(Deserialize, Debug, Clone)]
-#[serde(untagged)]
-enum JsonEachRowLine<T>
-where
-    T: Sized,
-{
-    Row { row: T },
-    Progress { progress: JsonEachRowProgress },
-}
-
-#[derive(Deserialize, Debug, Clone)]
 pub struct JsonEachRowProgress {
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub read_rows: usize,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub read_bytes: usize,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub written_rows: usize,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub written_bytes: usize,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub total_rows_to_read: usize,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub read_rows: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub read_bytes: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub total_rows_to_read: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub written_rows: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub written_bytes: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_number_from_string")]
+    pub elapsed_ns: Option<usize>,
 }
 
 #[cfg(test)]
@@ -138,12 +135,12 @@ mod tests {
             rows.first().unwrap().get("tuple1").unwrap(),
             &Value::Array(vec![1.into(), "a".into()])
         );
-        assert_eq!(info.read_rows, 2);
+        assert_eq!(info.read_rows.unwrap(), 2);
 
         let (rows, info) =
             JsonEachRowWithProgressOutput::<TestRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_ROW_1);
-        assert_eq!(info.read_rows, 2);
+        assert_eq!(info.read_rows.unwrap(), 2);
 
         Ok(())
     }

@@ -67,12 +67,12 @@ mod tests {
         let (rows, info) =
             GeneralJsonStringsEachRowWithProgressOutput::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
-        assert_eq!(info.read_rows, 2);
+        assert_eq!(info.read_rows.unwrap(), 2);
 
         let (rows, info) = JsonStringsEachRowWithProgressOutput::<TestStringsRow>::new()
             .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
-        assert_eq!(info.read_rows, 2);
+        assert_eq!(info.read_rows.unwrap(), 2);
 
         Ok(())
     }

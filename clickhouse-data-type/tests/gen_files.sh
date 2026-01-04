@@ -10,8 +10,8 @@ set -ex
 script_path=$(cd $(dirname $0) ; pwd -P)
 script_path_root="${script_path}/"
 
-bin_server="${script_path_root}../../clickhouse_tgz_archive/clickhouse/usr/bin/clickhouse-server"
-bin_client="${script_path_root}../../clickhouse_tgz_archive/clickhouse/usr/bin/clickhouse-client"
+bin_server="${script_path_root}../../clickhouse_tgz_archive/clickhouse/bin/clickhouse-server"
+bin_client="${script_path_root}../../clickhouse_tgz_archive/clickhouse/bin/clickhouse-client"
 
 workdir=$(mktemp -d)
 

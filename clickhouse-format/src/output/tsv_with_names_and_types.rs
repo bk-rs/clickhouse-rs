@@ -29,7 +29,7 @@ where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = Option<HashMap<String, String>>;
+    type Info = HashMap<String, String>;
 
     type Error = csv::Error;
 
@@ -48,7 +48,15 @@ where
         let record = records.next().ok_or_else(|| IoError::other(""))??;
         let types: Vec<String> = record.iter().map(ToOwned::to_owned).collect();
 
-        TsvOutput::with_names_and_types(names, types).deserialize_with_records(records)
+        let info = names
+            .iter()
+            .zip(types.iter())
+            .map(|(name, type_)| (name.to_owned(), type_.to_owned()))
+            .collect();
+
+        TsvOutput::with_names_and_types(names, types)
+            .deserialize_with_records(records)
+            .map(|(rows, _)| (rows, info))
     }
 }
 
@@ -75,25 +83,29 @@ mod tests {
                 .unwrap()
         );
 
-        let info_expected: HashMap<String, String> = vec![
-            ("array1".into(), "Array(UInt8)".into()),
-            ("array2".into(), "Array(String)".into()),
-            ("tuple1".into(), "Tuple(UInt8, String)".into()),
-            ("tuple2".into(), "Tuple(UInt8, Nullable(String))".into()),
-            ("map1".into(), "Map(String,String)".into()),
-        ]
-        .into_iter()
-        .collect();
-
         let (rows, info) = TsvWithNamesAndTypesOutput::<HashMap<String, String>>::new()
             .deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap().get("tuple1").unwrap(), "(1,'a')");
-        assert_eq!(info, Some(info_expected.clone()));
+        assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
+        assert_eq!(info.get("array2"), Some(&"Array(String)".to_owned()));
+        assert_eq!(info.get("tuple1"), Some(&"Tuple(UInt8, String)".to_owned()));
+        assert_eq!(
+            info.get("tuple2"),
+            Some(&"Tuple(UInt8, Nullable(String))".to_owned())
+        );
+        assert_eq!(info.get("map1"), Some(&"Map(String, String)".to_owned()));
 
         let (rows, info) =
             TsvWithNamesAndTypesOutput::<TestStringsRow>::new().deserialize(content.as_bytes())?;
         assert_eq!(rows.first().unwrap(), &*TEST_STRINGS_ROW_1);
-        assert_eq!(info, Some(info_expected));
+        assert_eq!(info.get("array1"), Some(&"Array(UInt8)".to_owned()));
+        assert_eq!(info.get("array2"), Some(&"Array(String)".to_owned()));
+        assert_eq!(info.get("tuple1"), Some(&"Tuple(UInt8, String)".to_owned()));
+        assert_eq!(
+            info.get("tuple2"),
+            Some(&"Tuple(UInt8, Nullable(String))".to_owned())
+        );
+        assert_eq!(info.get("map1"), Some(&"Map(String, String)".to_owned()));
 
         Ok(())
     }

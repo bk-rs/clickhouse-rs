@@ -16,7 +16,7 @@ readme = "README.md"
 features = ["with-all"]
 
 [features]
-default = ["with-json"]
+default = ["with-json", "with-tsv"]
 
 with-all = ["with-tsv", "with-json"]
 

@@ -1,3 +1,3 @@
 ## ClickHouse server
 
-Ref https://clickhouse.tech/docs/en/getting-started/install/#from-tgz-archives
+Ref https://clickhouse.com/docs/install/linux_other
