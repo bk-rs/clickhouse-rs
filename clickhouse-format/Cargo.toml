@@ -2,7 +2,7 @@
 name = "clickhouse-format"
 version = "0.3.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "ClickHouse Formats"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/clickhouse-rs"
@@ -27,8 +27,13 @@ with-json = ["serde_json", "serde", "thiserror", "serde-aux"]
 strum = { version = "0.24", default-features = false, features = ["derive"] }
 
 csv = { version = "1", default-features = false, optional = true }
-serde_json = { version = "1", default-features = false, features = ["std"], optional = true }
-serde = { version = "1", default-features = false, features = ["std", "derive"], optional = true }
+serde_json = { version = "1", default-features = false, features = [
+    "std",
+], optional = true }
+serde = { version = "1", default-features = false, features = [
+    "std",
+    "derive",
+], optional = true }
 thiserror = { version = "1", default-features = false, optional = true }
 serde-aux = { version = "4", default-features = false, optional = true }
 

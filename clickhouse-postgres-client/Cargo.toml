@@ -2,7 +2,7 @@
 name = "clickhouse-postgres-client"
 version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "ClickHouse Postgres Client"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/clickhouse-rs"
@@ -26,7 +26,9 @@ uuid = ["sqlx-clickhouse-ext/uuid"]
 
 # runtimes
 runtime-actix-native-tls = ["sqlx-clickhouse-ext/runtime-actix-native-tls"]
-runtime-async-std-native-tls = ["sqlx-clickhouse-ext/runtime-async-std-native-tls"]
+runtime-async-std-native-tls = [
+    "sqlx-clickhouse-ext/runtime-async-std-native-tls",
+]
 runtime-tokio-native-tls = ["sqlx-clickhouse-ext/runtime-tokio-native-tls"]
 
 runtime-actix-rustls = ["sqlx-clickhouse-ext/runtime-actix-rustls"]
@@ -37,13 +39,17 @@ runtime-tokio-rustls = ["sqlx-clickhouse-ext/runtime-tokio-rustls"]
 _integration_tests = ["all-types", "runtime-tokio-native-tls", "num-bigint"]
 
 [dependencies]
-sqlx-clickhouse-ext = { version = "0.2", default-features = false, features = ["postgres"], path = "../sqlx-clickhouse-ext" }
+sqlx-clickhouse-ext = { version = "0.2", default-features = false, features = [
+    "postgres",
+], path = "../sqlx-clickhouse-ext" }
 url = { version = "2", default-features = false }
 
-num-bigint = { version = "0.4", default-features = false, features = ["std"], optional = true }
+num-bigint = { version = "0.4", default-features = false, features = [
+    "std",
+], optional = true }
 
-clickhouse-data-value = { version = "0.3", default-features = false, optional = true, path = "../clickhouse-data-value"}
+clickhouse-data-value = { version = "0.3", default-features = false, optional = true, path = "../clickhouse-data-value" }
 
 [dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt"]}
+tokio = { version = "1", features = ["macros", "rt"] }
 chrono04 = { version = "0.4", package = "chrono" }

@@ -2,7 +2,7 @@
 name = "clickhouse-data-type"
 version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "ClickHouse Data Types"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/clickhouse-rs"

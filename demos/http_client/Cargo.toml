@@ -2,10 +2,12 @@
 name = "clickhouse-demo-http-client"
 version = "0.1.0"
 authors = ["vkill <vkill.net@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-clickhouse-http-client = { features = ["with-format-json"], path = "../../clickhouse-http-client" }
+clickhouse-http-client = { features = [
+    "with-format-json",
+], path = "../../clickhouse-http-client" }
 
 serde = { version = "1", features = ["derive"] }
 
