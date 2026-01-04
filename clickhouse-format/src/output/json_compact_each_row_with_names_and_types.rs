@@ -4,6 +4,7 @@ use std::{
     io::{BufRead as _, Error as IoError},
 };
 
+use indexmap::IndexMap;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
@@ -43,7 +44,7 @@ where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = HashMap<String, String>;
+    type Info = IndexMap<String, String>;
 
     type Error = JsonCompactEachRowWithNamesAndTypesOutputError;
 

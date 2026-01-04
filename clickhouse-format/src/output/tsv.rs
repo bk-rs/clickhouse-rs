@@ -1,7 +1,7 @@
 use core::marker::PhantomData;
-use std::collections::HashMap;
 
 use csv::{ReaderBuilder, StringRecordsIntoIter};
+use indexmap::IndexMap;
 use serde::de::DeserializeOwned;
 
 use crate::format_name::FormatName;
@@ -47,7 +47,7 @@ where
     T: DeserializeOwned,
 {
     type Row = T;
-    type Info = Option<HashMap<String, String>>;
+    type Info = Option<IndexMap<String, String>>;
 
     type Error = csv::Error;
 
@@ -82,7 +82,7 @@ where
 mod tests {
     use super::*;
 
-    use std::{fs, path::PathBuf};
+    use std::{collections::HashMap, fs, path::PathBuf};
 
     use crate::test_helpers::{TEST_STRINGS_ROW_1, TestStringsRow};
 
