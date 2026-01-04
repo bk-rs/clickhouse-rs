@@ -24,7 +24,7 @@ with-tsv = ["csv", "serde"]
 with-json = ["serde_json", "serde", "thiserror", "serde-aux"]
 
 [dependencies]
-strum = { version = "0.24", default-features = false, features = ["derive"] }
+strum = { version = "0.27", default-features = false, features = ["derive"] }
 
 csv = { version = "1", default-features = false, optional = true }
 serde_json = { version = "1", default-features = false, features = [
@@ -34,7 +34,7 @@ serde = { version = "1", default-features = false, features = [
     "std",
     "derive",
 ], optional = true }
-thiserror = { version = "1", default-features = false, optional = true }
+thiserror = { version = "2", default-features = false, optional = true }
 serde-aux = { version = "4", default-features = false, optional = true }
 
 [dev-dependencies]

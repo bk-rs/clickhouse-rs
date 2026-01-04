@@ -1,6 +1,7 @@
+use sqlx::postgres::PgRow;
 use sqlx_clickhouse_ext::{
     sqlx_core::{
-        column::Column as _, column::ColumnIndex, error::Error, postgres::PgRow, row::Row as _,
+        column::Column as _, column::ColumnIndex, error::Error, row::Row as _,
         type_info::TypeInfo as _, value::ValueRef as _,
     },
     value::ValueRefTryGet as _,
@@ -65,6 +66,7 @@ impl ClickhousePgRow {
             }
             #[cfg(feature = "uuid")]
             ClickhousePgType::Uuid => (value, index).try_get().map(ClickhousePgValue::Uuid),
+            ClickhousePgType::Bool => (value, index).try_get().map(ClickhousePgValue::Bool),
         }
     }
 }

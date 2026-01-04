@@ -37,7 +37,7 @@ pub(crate) fn get_precision_and_timezone(
             pair_timezone
                 .as_str()
                 .parse::<Tz>()
-                .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
+                .map_err(|err| ParseError::ValueInvalid(err.to_string()))?,
         )
     } else {
         None

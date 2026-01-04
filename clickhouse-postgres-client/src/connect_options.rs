@@ -4,7 +4,8 @@ use core::{
 };
 use std::env::{VarError, set_var, var};
 
-use sqlx_clickhouse_ext::sqlx_core::{error::Error, postgres::PgConnectOptions};
+use sqlx::postgres::PgConnectOptions;
+use sqlx_clickhouse_ext::sqlx_core::error::Error;
 use url::Url;
 
 #[derive(Debug, Clone)]

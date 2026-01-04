@@ -1,3 +1,4 @@
+pub use sqlx;
 pub use sqlx_clickhouse_ext;
 
 pub mod connect_options;
@@ -10,12 +11,9 @@ pub use self::row::ClickhousePgRow;
 pub use self::type_info::ClickhousePgValue;
 
 pub type SqlxError = sqlx_clickhouse_ext::sqlx_core::error::Error;
-pub type ClickhousePgPool = sqlx_clickhouse_ext::sqlx_core::postgres::PgPool;
-pub type ClickhousePgPoolOptions = sqlx_clickhouse_ext::sqlx_core::postgres::PgPoolOptions;
-pub type ClickhousePgPoolConnection = sqlx_clickhouse_ext::sqlx_core::pool::PoolConnection<
-    sqlx_clickhouse_ext::sqlx_core::postgres::Postgres,
->;
-pub type ClickhousePgConnection = sqlx_clickhouse_ext::sqlx_core::postgres::PgConnection;
+pub type ClickhousePgPool = sqlx::postgres::PgPool;
+pub type ClickhousePgPoolOptions = sqlx::postgres::PgPoolOptions;
+pub type ClickhousePgConnection = sqlx::postgres::PgConnection;
 
 //
 use sqlx_clickhouse_ext::sqlx_core::{

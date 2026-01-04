@@ -1,5 +1,7 @@
 use core::str::FromStr as _;
 
+use sqlx::types::BigDecimal;
+
 use super::helpers::*;
 
 #[tokio::test]
@@ -317,7 +319,7 @@ async fn test_dt_decimal256() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(
         fetch_one_and_get_data(get_sql("decimal/select_Decimal256"), &mut conn).await?,
         vec![
-            ("val".into(), "-1.111".into(),),
+            ("val".into(), BigDecimal::from_str("-1.111").unwrap().into(),),
             ("ty".into(), "Decimal(76, 5)".into())
         ],
     );

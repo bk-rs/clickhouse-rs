@@ -9,7 +9,7 @@ pub(crate) fn get_timezone(mut date_time_pairs: Pairs<'_, Rule>) -> Result<Optio
             pair_timezone
                 .as_str()
                 .parse::<Tz>()
-                .map_err(|err: &str| ParseError::ValueInvalid(err.to_string()))?,
+                .map_err(|err| ParseError::ValueInvalid(err.to_string()))?,
         )
     } else {
         None

@@ -30,6 +30,7 @@ pub(crate) enum ClickhousePgType {
     Numeric,
     #[cfg(feature = "uuid")]
     Uuid,
+    Bool,
 }
 
 impl TryFrom<(&str, usize)> for ClickhousePgType {
@@ -69,6 +70,7 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
                 index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable uuid feature", s).into(),
             }),
+            "BOOL" => Ok(Self::Bool),
             _ => Err(Error::ColumnDecode {
                 index: format!("{index:?}"),
                 source: format!("unknown SQL type `{s}`").into(),

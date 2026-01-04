@@ -1,9 +1,5 @@
 pub use sqlx_core::{
-    database::{Database, HasValueRef},
-    decode::Decode,
-    error::Error,
-    type_info::TypeInfo as _,
-    types::Type,
+    database::Database, decode::Decode, error::Error, type_info::TypeInfo as _, types::Type,
     value::ValueRef as _,
 };
 
@@ -17,7 +13,7 @@ where
     fn try_get(self) -> Result<T, Error>;
 }
 
-impl<'r, DB, T> ValueRefTryGet<'r, DB, T> for (<DB as HasValueRef<'r>>::ValueRef, usize)
+impl<'r, DB, T> ValueRefTryGet<'r, DB, T> for (DB::ValueRef<'r>, usize)
 where
     DB: Database,
     T: Decode<'r, DB> + Type<DB>,

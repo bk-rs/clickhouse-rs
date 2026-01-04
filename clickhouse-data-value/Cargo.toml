@@ -13,11 +13,11 @@ categories = []
 readme = "README.md"
 
 [dependencies]
-pest = { version = "2.5", default-features = false, features = ["std"] }
-pest_derive = { version = "2.5", default-features = false, features = ["std"] }
+pest = { version = "2.8", default-features = false, features = ["std"] }
+pest_derive = { version = "2.8", default-features = false, features = ["std"] }
 
 serde = { version = "1", default-features = false, features = ["derive"] }
-thiserror = { version = "1", default-features = false }
+thiserror = { version = "2", default-features = false }
 
 chrono = { version = "0.4", default-features = false }
 

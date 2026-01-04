@@ -29,9 +29,9 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut pool_conn = pool.acquire().await?;
 
-    execute("use default", &mut pool_conn).await?;
+    execute("use default", pool_conn.as_mut()).await?;
 
-    let rows = fetch_all("show databases", &mut pool_conn).await?;
+    let rows = fetch_all("show databases", pool_conn.as_mut()).await?;
     for row in rows.iter() {
         println!("data: {:?}", row.try_get_data());
     }

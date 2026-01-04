@@ -5,5 +5,5 @@
 ## Publish
 
 ```
-cargo publish --features runtime-tokio-native-tls --dry-run
+cargo publish --features runtime-tokio,tls-rustls-aws-lc-rs --dry-run
 ```
