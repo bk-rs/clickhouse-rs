@@ -1,7 +1,7 @@
 use core::time::Duration;
 use std::env;
 
-use clickhouse_http_client::{isahc::config::Configurable as _, Client, ClientBuilder};
+use clickhouse_http_client::{Client, ClientBuilder, isahc::config::Configurable as _};
 
 pub(super) fn get_client() -> Result<Client, Box<dyn std::error::Error>> {
     let mut client = get_anonymous_client()?;

@@ -2,8 +2,8 @@ use core::ops::{Deref, DerefMut};
 
 use clickhouse_format::{format_name::FormatName, input::Input, output::Output};
 use isahc::{
-    http::{response::Parts as ResponseParts, Method, Request, Response, StatusCode},
     AsyncBody, AsyncReadResponseExt as _, HttpClient, HttpClientBuilder,
+    http::{Method, Request, Response, StatusCode, response::Parts as ResponseParts},
 };
 
 use crate::{

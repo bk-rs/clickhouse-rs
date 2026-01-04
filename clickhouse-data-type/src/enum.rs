@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use pest::iterators::Pairs;
 
-use crate::{type_name_parser::Rule, ParseError};
+use crate::{ParseError, type_name_parser::Rule};
 
 pub type Enum8 = HashMap<String, i8>;
 pub type Enum16 = HashMap<String, i16>;

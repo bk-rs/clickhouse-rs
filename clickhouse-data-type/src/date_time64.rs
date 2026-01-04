@@ -3,7 +3,7 @@ use core::num::ParseIntError;
 use chrono_tz::Tz;
 use pest::iterators::Pairs;
 
-use crate::{type_name_parser::Rule, ParseError};
+use crate::{ParseError, type_name_parser::Rule};
 
 const PRECISION_MAX: usize = 9;
 

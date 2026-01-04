@@ -4,7 +4,7 @@ use std::{
     io::{BufRead as _, Error as IoError},
 };
 
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_json::Value;
 
@@ -115,7 +115,7 @@ mod tests {
 
     use std::{fs, path::PathBuf};
 
-    use crate::test_helpers::{TestRow, TEST_ROW_1};
+    use crate::test_helpers::{TEST_ROW_1, TestRow};
 
     #[test]
     fn simple() -> Result<(), Box<dyn std::error::Error>> {

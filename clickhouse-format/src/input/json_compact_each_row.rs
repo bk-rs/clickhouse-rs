@@ -1,5 +1,5 @@
 use serde::Serialize;
-use serde_json::{ser::CompactFormatter, Serializer};
+use serde_json::{Serializer, ser::CompactFormatter};
 
 use crate::{format_name::FormatName, input::Input};
 

@@ -5,7 +5,7 @@ cargo run -p clickhouse-demo-postgres-client --bin clickhouse-demo-postgres-clie
 use std::env;
 
 use clickhouse_postgres_client::{
-    execute, fetch_all, ClickhousePgConnectOptions, ClickhousePgPoolOptions,
+    ClickhousePgConnectOptions, ClickhousePgPoolOptions, execute, fetch_all,
 };
 
 #[tokio::main]

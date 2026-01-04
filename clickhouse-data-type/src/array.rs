@@ -1,6 +1,6 @@
 use pest::iterators::Pairs;
 
-use crate::{type_name::TypeName, type_name_parser::Rule, ParseError};
+use crate::{ParseError, type_name::TypeName, type_name_parser::Rule};
 
 pub(crate) fn get_data_type(mut array_pairs: Pairs<'_, Rule>) -> Result<TypeName, ParseError> {
     let data_type_pair = array_pairs

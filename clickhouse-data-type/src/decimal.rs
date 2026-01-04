@@ -2,7 +2,7 @@ use core::num::ParseIntError;
 
 use pest::iterators::Pairs;
 
-use crate::{type_name_parser::Rule, ParseError};
+use crate::{ParseError, type_name_parser::Rule};
 
 const PRECISION_MIN: usize = 1;
 const PRECISION_MAX: usize = 76;

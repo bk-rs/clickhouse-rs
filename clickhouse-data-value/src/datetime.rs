@@ -5,10 +5,11 @@ use core::{
 };
 
 use chrono::NaiveDateTime as ChronoNaiveDateTime;
-use pest::{iterators::Pairs, Parser as _};
+use pest::{Parser as _, iterators::Pairs};
 use serde::{
+    Deserialize, Deserializer, Serialize, Serializer,
     de::{self, Visitor},
-    ser, Deserialize, Deserializer, Serialize, Serializer,
+    ser,
 };
 
 use crate::date_and_time_parser::{DateAndTimeParser, Rule};

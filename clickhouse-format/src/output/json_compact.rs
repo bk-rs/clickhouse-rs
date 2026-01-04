@@ -7,8 +7,8 @@ use serde_json::{Map, Value};
 use crate::format_name::FormatName;
 
 use super::{
-    json::{JsonData, JsonDataInfo},
     Output, OutputResult,
+    json::{JsonData, JsonDataInfo},
 };
 
 pub struct JsonCompactOutput<T> {
@@ -91,7 +91,7 @@ mod tests {
 
     use std::{fs, path::PathBuf};
 
-    use crate::test_helpers::{TestRow, TEST_ROW_1};
+    use crate::test_helpers::{TEST_ROW_1, TestRow};
 
     #[test]
     fn simple() -> Result<(), Box<dyn std::error::Error>> {

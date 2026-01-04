@@ -1,12 +1,11 @@
 use pest::iterators::{Pair, Pairs};
 
 use crate::{
-    array,
+    ParseError, array,
     decimal::{self, DecimalPrecision, DecimalScale},
     fixed_string::{self, FixedStringN},
     type_name::TypeName,
     type_name_parser::Rule,
-    ParseError,
 };
 
 #[derive(PartialEq, Eq, Debug, Clone)]

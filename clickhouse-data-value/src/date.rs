@@ -5,8 +5,8 @@ use core::{
 
 use chrono::NaiveDate as ChronoNaiveDate;
 use serde::{
-    de::{self, Visitor},
     Deserialize, Deserializer,
+    de::{self, Visitor},
 };
 
 #[derive(PartialEq, Debug, Clone)]

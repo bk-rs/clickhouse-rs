@@ -8,12 +8,12 @@ use clickhouse_data_value::datetime::{
 #[cfg(feature = "num-bigint")]
 use num_bigint::{BigInt, BigUint, ParseBigIntError};
 use sqlx_clickhouse_ext::sqlx_core::error::Error;
-#[cfg(feature = "chrono")]
-use sqlx_clickhouse_ext::sqlx_core::types::chrono::{NaiveDate, NaiveDateTime};
 #[cfg(feature = "bigdecimal")]
 use sqlx_clickhouse_ext::sqlx_core::types::BigDecimal;
 #[cfg(feature = "uuid")]
 use sqlx_clickhouse_ext::sqlx_core::types::Uuid;
+#[cfg(feature = "chrono")]
+use sqlx_clickhouse_ext::sqlx_core::types::chrono::{NaiveDate, NaiveDateTime};
 
 // https://github.com/ClickHouse/ClickHouse/blob/master/src/Core/PostgreSQLProtocol.cpp
 pub(crate) enum ClickhousePgType {

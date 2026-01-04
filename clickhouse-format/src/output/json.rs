@@ -1,7 +1,7 @@
 use core::marker::PhantomData;
 use std::collections::HashMap;
 
-use serde::{de::DeserializeOwned, Deserialize};
+use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::Value;
 
 use crate::format_name::FormatName;
@@ -90,7 +90,7 @@ mod tests {
 
     use std::{fs, path::PathBuf};
 
-    use crate::test_helpers::{TestRow, TEST_ROW_1};
+    use crate::test_helpers::{TEST_ROW_1, TestRow};
 
     #[test]
     fn simple() -> Result<(), Box<dyn std::error::Error>> {

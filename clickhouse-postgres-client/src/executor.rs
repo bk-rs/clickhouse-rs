@@ -1,7 +1,7 @@
 pub use sqlx_clickhouse_ext::executor::ExecutorExt as ClickhouseExecutor;
 
 use crate::{
-    row::ClickhousePgRow, ClickhousePgConnection, ClickhousePgPool, ClickhousePgPoolConnection,
+    ClickhousePgConnection, ClickhousePgPool, ClickhousePgPoolConnection, row::ClickhousePgRow,
 };
 
 impl<'c, 'q, 'async_trait> ClickhouseExecutor<'c, 'q, 'async_trait, ClickhousePgRow>

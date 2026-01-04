@@ -1,19 +1,18 @@
 use core::str::FromStr;
 
 use chrono_tz::Tz;
-use pest::{iterators::Pair, Parser as _};
+use pest::{Parser as _, iterators::Pair};
 
 use crate::{
-    array, date_time,
+    ParseError, array, date_time,
     date_time64::{self, DateTime64Precision},
     decimal::{self, DecimalPrecision, DecimalScale},
+    r#enum::{self, Enum8, Enum16},
     fixed_string::{self, FixedStringN},
     low_cardinality::{self, LowCardinalityDataType},
     map::{self, MapKey, MapValue},
     nullable::{self, NullableTypeName},
-    r#enum::{self, Enum16, Enum8},
     type_name_parser::{Rule, TypeNameParser},
-    ParseError,
 };
 
 #[derive(PartialEq, Eq, Debug, Clone)]

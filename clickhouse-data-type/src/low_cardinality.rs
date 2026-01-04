@@ -2,11 +2,10 @@ use chrono_tz::Tz;
 use pest::iterators::{Pair, Pairs};
 
 use crate::{
-    date_time,
+    ParseError, date_time,
     fixed_string::{self, FixedStringN},
     nullable::{self, NullableTypeName},
     type_name_parser::Rule,
-    ParseError,
 };
 
 // https://clickhouse.tech/docs/en/sql-reference/data-types/lowcardinality/

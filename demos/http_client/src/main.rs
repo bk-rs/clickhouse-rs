@@ -6,8 +6,8 @@ use core::time::Duration;
 use std::env;
 
 use clickhouse_http_client::{
-    clickhouse_format::output::JsonCompactEachRowWithNamesAndTypesOutput,
-    isahc::config::Configurable, ClientBuilder,
+    ClientBuilder, clickhouse_format::output::JsonCompactEachRowWithNamesAndTypesOutput,
+    isahc::config::Configurable,
 };
 use futures_executor::block_on;
 use serde::Deserialize;

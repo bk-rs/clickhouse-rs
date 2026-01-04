@@ -9,7 +9,7 @@ use serde::de::DeserializeOwned;
 
 use crate::format_name::FormatName;
 
-use super::{tsv::TsvOutput, Output, OutputResult};
+use super::{Output, OutputResult, tsv::TsvOutput};
 
 pub struct TsvWithNamesAndTypesOutput<T> {
     phantom: PhantomData<T>,
@@ -63,7 +63,7 @@ mod tests {
 
     use std::{fs, path::PathBuf};
 
-    use crate::test_helpers::{TestStringsRow, TEST_STRINGS_ROW_1};
+    use crate::test_helpers::{TEST_STRINGS_ROW_1, TestStringsRow};
 
     #[test]
     fn simple() -> Result<(), Box<dyn std::error::Error>> {

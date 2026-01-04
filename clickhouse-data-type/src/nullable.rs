@@ -2,13 +2,12 @@ use chrono_tz::Tz;
 use pest::iterators::{Pair, Pairs};
 
 use crate::{
-    date_time,
+    ParseError, date_time,
     date_time64::{self, DateTime64Precision},
     decimal::{self, DecimalPrecision, DecimalScale},
+    r#enum::{self, Enum8, Enum16},
     fixed_string::{self, FixedStringN},
-    r#enum::{self, Enum16, Enum8},
     type_name_parser::Rule,
-    ParseError,
 };
 
 #[derive(PartialEq, Eq, Debug, Clone)]

@@ -1,6 +1,6 @@
 use isahc::http::{
-    header::{HeaderMap, InvalidHeaderValue},
     Request,
+    header::{HeaderMap, InvalidHeaderValue},
 };
 use url::{ParseError, Url};
 
