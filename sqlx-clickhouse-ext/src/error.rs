@@ -2,7 +2,7 @@ use core::any::type_name;
 
 use sqlx_core::{database::Database, error::BoxDynError, type_info::TypeInfo as _, types::Type};
 
-// https://github.com/launchbadge/sqlx/blob/v0.5.1/sqlx-core/src/error.rs#L136
+// https://github.com/launchbadge/sqlx/blob/v0.8.6/sqlx-core/src/error.rs#L174
 pub(crate) fn mismatched_types<DB: Database, T: Type<DB>>(ty: &DB::TypeInfo) -> BoxDynError {
     // TODO: `#name` only produces `TINYINT` but perhaps we want to show `TINYINT(1)`
     format!(

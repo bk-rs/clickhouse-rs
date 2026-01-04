@@ -37,6 +37,7 @@ impl ClickhousePgRow {
         let cpt = ClickhousePgType::try_from((value.type_info().name(), index))?;
 
         match cpt {
+            ClickhousePgType::Bool => (value, index).try_get().map(ClickhousePgValue::Bool),
             ClickhousePgType::Char => (value, index).try_get().map(ClickhousePgValue::Char),
             ClickhousePgType::Int2 => {
                 // Fix v23
@@ -66,7 +67,6 @@ impl ClickhousePgRow {
             }
             #[cfg(feature = "uuid")]
             ClickhousePgType::Uuid => (value, index).try_get().map(ClickhousePgValue::Uuid),
-            ClickhousePgType::Bool => (value, index).try_get().map(ClickhousePgValue::Bool),
         }
     }
 }

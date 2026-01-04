@@ -21,7 +21,7 @@ where
     fn try_get(self) -> Result<T, Error> {
         let (value, index) = self;
 
-        // https://github.com/launchbadge/sqlx/blob/v0.5.1/sqlx-core/src/row.rs#L111
+        // https://github.com/launchbadge/sqlx/blob/v0.8.6/sqlx-core/src/row.rs#L111
         if !value.is_null() {
             let ty = value.type_info();
 

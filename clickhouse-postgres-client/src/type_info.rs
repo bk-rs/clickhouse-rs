@@ -17,6 +17,7 @@ use sqlx_clickhouse_ext::sqlx_core::types::chrono::{NaiveDate, NaiveDateTime};
 
 // https://github.com/ClickHouse/ClickHouse/blob/master/src/Core/PostgreSQLProtocol.cpp
 pub(crate) enum ClickhousePgType {
+    Bool,
     Char,
     Int2,
     Int4,
@@ -30,7 +31,6 @@ pub(crate) enum ClickhousePgType {
     Numeric,
     #[cfg(feature = "uuid")]
     Uuid,
-    Bool,
 }
 
 impl TryFrom<(&str, usize)> for ClickhousePgType {
@@ -39,8 +39,9 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
     fn try_from(t: (&str, usize)) -> Result<Self, Self::Error> {
         let (s, index) = t;
 
-        // https://github.com/launchbadge/sqlx/blob/v0.5.1/sqlx-core/src/postgres/type_info.rs#L447-L541
+        // https://github.com/launchbadge/sqlx/blob/v0.8.6/sqlx-postgres/src/type_info.rs#L571
         match s {
+            "BOOL" => Ok(Self::Bool),
             "\"CHAR\"" => Ok(Self::Char),
             "INT2" => Ok(Self::Int2),
             "INT4" => Ok(Self::Int4),
@@ -70,7 +71,6 @@ impl TryFrom<(&str, usize)> for ClickhousePgType {
                 index: format!("{index:?}"),
                 source: format!("unknown SQL type `{}`, should enable uuid feature", s).into(),
             }),
-            "BOOL" => Ok(Self::Bool),
             _ => Err(Error::ColumnDecode {
                 index: format!("{index:?}"),
                 source: format!("unknown SQL type `{s}`").into(),
