@@ -9,3 +9,4 @@ members = [
     "demos/http_client",
     "sqlx-clickhouse-ext",
 ]
+resolver = "2"
