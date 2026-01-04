@@ -122,7 +122,7 @@ done
 #     $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --format_csv_delimiter '|' --port ${tcp_port} --password xxx > "${files_path}/${format}.csv")
 # done
 
-formats=("JSONEachRow" "JSONStringsEachRow" "JSONCompactEachRow" "JSONCompactStringsEachRow" "JSONEachRowWithProgress" "JSONStringsEachRowWithProgress" "JSONCompactEachRowWithNamesAndTypes" "JSONCompactStringsEachRowWithNamesAndTypes")
+formats=("JSONEachRow" "JSONStringsEachRow" "JSONCompactEachRow" "JSONCompactStringsEachRow" "JSONEachRowWithProgress" "JSONStringsEachRowWithProgress" "JSONCompactEachRowWithNamesAndTypes" "JSONCompactStringsEachRowWithNamesAndTypes" "JSONCompactEachRowWithNames" "JSONCompactStringsEachRowWithNames")
 for format in ${formats[*]}; do
     $(echo ${query_select} FORMAT ${format} | ${bin_client} --allow_experimental_map_type 1 --port ${tcp_port} --password xxx > "${files_path}/${format}.txt")
 done

@@ -1,4 +1,4 @@
 {"meta":[{"name":"array1","type":"Array(UInt8)"},{"name":"array2","type":"Array(String)"},{"name":"tuple1","type":"Tuple(UInt8, String)"},{"name":"tuple2","type":"Tuple(UInt8, Nullable(String))"},{"name":"map1","type":"Map(String, String)"}]}
 {"row":{"array1":[1,2],"array2":["a","b"],"tuple1":[1,"a"],"tuple2":[1,null],"map1":{"1":"Ready","2":"Steady","3":"Go"}}}
 {"row":{"array1":[3,4],"array2":["c","d"],"tuple1":[2,"b"],"tuple2":[2,"b"],"map1":{}}}
-{"progress":{"read_rows":"2","read_bytes":"193","total_rows_to_read":"2","elapsed_ns":"296246"}}
+{"progress":{"read_rows":"2","read_bytes":"193","total_rows_to_read":"2","elapsed_ns":"229017"}}

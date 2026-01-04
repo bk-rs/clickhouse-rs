@@ -40,7 +40,7 @@ impl<T> TsvRawOutput<T> {
             phantom: PhantomData,
         }
     }
-    pub(crate) fn from_raw_parts(names: Option<Vec<String>>, types: Option<Vec<String>>) -> Self {
+    pub(crate) fn inner_new(names: Option<Vec<String>>, types: Option<Vec<String>>) -> Self {
         Self {
             names,
             types,

@@ -40,13 +40,6 @@ impl<T> TsvOutput<T> {
             phantom: PhantomData,
         }
     }
-    pub(crate) fn from_raw_parts(names: Option<Vec<String>>, types: Option<Vec<String>>) -> Self {
-        Self {
-            names,
-            types,
-            phantom: PhantomData,
-        }
-    }
 }
 
 impl<T> Output for TsvOutput<T>
@@ -80,7 +73,7 @@ where
         records: StringRecordsIntoIter<&[u8]>,
     ) -> OutputResult<<Self as Output>::Row, <Self as Output>::Info, <Self as Output>::Error> {
         // TODO, unescape
-        TsvRawOutput::from_raw_parts(self.names.to_owned(), self.types.to_owned())
+        TsvRawOutput::inner_new(self.names.to_owned(), self.types.to_owned())
             .deserialize_with_records(records)
     }
 }

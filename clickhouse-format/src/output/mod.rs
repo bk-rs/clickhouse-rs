@@ -48,9 +48,13 @@ pub use self::{
 #[cfg(feature = "with-json")]
 pub mod json_compact_each_row;
 #[cfg(feature = "with-json")]
+pub mod json_compact_each_row_with_names;
+#[cfg(feature = "with-json")]
 pub mod json_compact_each_row_with_names_and_types;
 #[cfg(feature = "with-json")]
 pub mod json_compact_strings_each_row;
+#[cfg(feature = "with-json")]
+pub mod json_compact_strings_each_row_with_names;
 #[cfg(feature = "with-json")]
 pub mod json_compact_strings_each_row_with_names_and_types;
 #[cfg(feature = "with-json")]
@@ -65,11 +69,17 @@ pub mod json_strings_each_row_with_progress;
 #[cfg(feature = "with-json")]
 pub use self::{
     json_compact_each_row::{GeneralJsonCompactEachRowOutput, JsonCompactEachRowOutput},
+    json_compact_each_row_with_names::{
+        GeneralJsonCompactEachRowWithNamesOutput, JsonCompactEachRowWithNamesOutput,
+    },
     json_compact_each_row_with_names_and_types::{
         GeneralJsonCompactEachRowWithNamesAndTypesOutput, JsonCompactEachRowWithNamesAndTypesOutput,
     },
     json_compact_strings_each_row::{
         GeneralJsonCompactStringsEachRowOutput, JsonCompactStringsEachRowOutput,
+    },
+    json_compact_strings_each_row_with_names::{
+        GeneralJsonCompactStringsEachRowWithNamesOutput, JsonCompactStringsEachRowWithNamesOutput,
     },
     json_compact_strings_each_row_with_names_and_types::{
         GeneralJsonCompactStringsEachRowWithNamesAndTypesOutput,

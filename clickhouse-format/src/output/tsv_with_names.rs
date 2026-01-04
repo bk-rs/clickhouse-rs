@@ -54,7 +54,13 @@ where
 
         let info = names.clone();
 
-        TsvOutput::from_raw_parts(Some(names), self.types.to_owned())
+        let tsv_output = if let Some(types) = &self.types {
+            TsvOutput::<T>::with_names_and_types(names, types.clone())
+        } else {
+            TsvOutput::<T>::with_names(names)
+        };
+
+        tsv_output
             .deserialize_with_records(records)
             .map(|(rows, _)| (rows, info))
     }

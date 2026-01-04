@@ -35,4 +35,8 @@ pub enum FormatName {
     JsonCompactEachRowWithNamesAndTypes,
     #[strum(serialize = "JSONCompactStringsEachRowWithNamesAndTypes")]
     JsonCompactStringsEachRowWithNamesAndTypes,
+    #[strum(serialize = "JSONCompactEachRowWithNames")]
+    JsonCompactEachRowWithNames,
+    #[strum(serialize = "JSONCompactStringsEachRowWithNames")]
+    JsonCompactStringsEachRowWithNames,
 }
