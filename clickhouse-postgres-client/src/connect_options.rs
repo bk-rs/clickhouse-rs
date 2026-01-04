@@ -2,7 +2,7 @@ use core::{
     ops::{Deref, DerefMut},
     str::FromStr,
 };
-use std::env::{set_var, var, VarError};
+use std::env::{VarError, set_var, var};
 
 use sqlx_clickhouse_ext::sqlx_core::{error::Error, postgres::PgConnectOptions};
 use url::Url;
@@ -63,12 +63,12 @@ const SSL_MODE_DISABLE: &str = "disable";
 
 fn update_env() {
     if let Err(VarError::NotPresent) = var("PGPORT") {
-        set_var("PGPORT", PORT_DEFAULT_STR)
+        unsafe { set_var("PGPORT", PORT_DEFAULT_STR) }
     }
 
     match var("PGSSLMODE") {
-        Ok(str) if str == SSL_MODE_PREFER => set_var("PGSSLMODE", SSL_MODE_DISABLE),
-        Err(VarError::NotPresent) => set_var("PGSSLMODE", SSL_MODE_DISABLE),
+        Ok(str) if str == SSL_MODE_PREFER => unsafe { set_var("PGSSLMODE", SSL_MODE_DISABLE) },
+        Err(VarError::NotPresent) => unsafe { set_var("PGSSLMODE", SSL_MODE_DISABLE) },
         _ => (),
     }
 }
@@ -116,15 +116,25 @@ mod tests {
 
     #[test]
     fn test_update_env() {
-        remove_var("PGPORT");
-        remove_var("PGSSLMODE");
+        unsafe {
+            remove_var("PGPORT");
+        }
+        unsafe {
+            remove_var("PGSSLMODE");
+        }
         update_env();
         assert_eq!(var("PGPORT").unwrap(), "9005");
         assert_eq!(var("PGSSLMODE").unwrap(), "disable");
 
-        remove_var("PGPORT");
-        remove_var("PGSSLMODE");
-        set_var("PGSSLMODE", "prefer");
+        unsafe {
+            remove_var("PGPORT");
+        }
+        unsafe {
+            remove_var("PGSSLMODE");
+        }
+        unsafe {
+            set_var("PGSSLMODE", "prefer");
+        }
         update_env();
         assert_eq!(var("PGPORT").unwrap(), "9005");
         assert_eq!(var("PGSSLMODE").unwrap(), "disable");
