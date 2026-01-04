@@ -11,6 +11,7 @@ use super::helpers::*;
 pub struct Event {
     #[serde(rename = "event_id")]
     pub id: u32,
+    #[allow(dead_code)]
     #[serde(deserialize_with = "clickhouse_data_value::datetime::deserialize")]
     pub created_at: NaiveDateTime,
 }

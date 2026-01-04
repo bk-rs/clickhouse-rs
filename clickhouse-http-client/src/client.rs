@@ -312,13 +312,11 @@ impl Client {
         }
 
         let resp_format = resp.headers().get(FORMAT_KEY_HEADER);
-        if resp_format.is_some() && resp_format.unwrap() != O::format_name().to_string().as_str() {
+        if let Some(resp_format) = resp_format
+            && resp_format != O::format_name().to_string().as_str()
+        {
             return Err(ClientSelectWithFormatError::FormatMismatch(
-                resp_format
-                    .unwrap()
-                    .to_str()
-                    .unwrap_or("Unknown")
-                    .to_string(),
+                resp_format.to_str().unwrap_or("Unknown").to_string(),
             )
             .into());
         }

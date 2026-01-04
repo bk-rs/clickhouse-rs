@@ -4,7 +4,7 @@ use core::{
     str::FromStr,
 };
 
-use chrono::NaiveDateTime as ChronoNaiveDateTime;
+use chrono::{DateTime as ChronoDateTime, NaiveDateTime as ChronoNaiveDateTime};
 use pest::{Parser as _, iterators::Pairs};
 use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
@@ -177,14 +177,16 @@ fn from_unix_timestamp_pairs(
             .parse()
             .map_err(|err: ParseIntError| ParseError::ValueInvalid(err.to_string()))?;
 
-        Ok(ChronoNaiveDateTime::from_timestamp_opt(secs as i64, nsecs)
+        Ok(ChronoDateTime::from_timestamp(secs as i64, nsecs)
             .ok_or(ParseError::ValueInvalid(format!(
                 "secs [{secs}] or nsecs [{nsecs}] invalid"
             )))?
+            .naive_utc()
             .into())
     } else {
-        Ok(ChronoNaiveDateTime::from_timestamp_opt(secs as i64, 0)
+        Ok(ChronoDateTime::from_timestamp(secs as i64, 0)
             .ok_or(ParseError::ValueInvalid(format!("secs [{secs}] invalid")))?
+            .naive_utc()
             .into())
     }
 }
@@ -356,6 +358,7 @@ mod tests {
                 .expect("")
                 .and_hms_opt(0, 0, 0)
                 .expect("")
+                .and_utc()
                 .timestamp()
         )
         .parse::<NaiveDateTime>()

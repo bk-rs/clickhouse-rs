@@ -1,8 +1,5 @@
 use core::marker::PhantomData;
-use std::{
-    collections::HashMap,
-    io::{Error as IoError, ErrorKind as IoErrorKind},
-};
+use std::{collections::HashMap, io::Error as IoError};
 
 use csv::ReaderBuilder;
 use serde::de::DeserializeOwned;
@@ -48,9 +45,7 @@ where
 
         let mut records = rdr.into_records();
 
-        let record = records
-            .next()
-            .ok_or_else(|| IoError::new(IoErrorKind::Other, ""))??;
+        let record = records.next().ok_or_else(|| IoError::other(""))??;
         let types: Vec<String> = record.iter().map(ToOwned::to_owned).collect();
 
         TsvOutput::with_names_and_types(names, types).deserialize_with_records(records)
